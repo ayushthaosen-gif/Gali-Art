@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Jost + DM Mono are used only for text on the poster previews. Self-host them later if you prefer no third party. -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Jost&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Jost:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -36,7 +36,7 @@
       <div>
         <p class="eyebrow">Custom city street-map posters</p>
         <h1 data-tagline>&nbsp;</h1>
-        <p class="lede">Every street of your city as fine white lines on a calm field of blue. No labels, no clutter: just the shape of a place you know by heart.</p>
+        <p class="lede">Every street of your city as fine white lines on a calm field of blue. No street names, no clutter: just the shape of a place you know by heart.</p>
         <div class="actions">
           <a class="btn" href="#order">Order your poster</a>
           <a class="btn ghost" href="#design">Try colours</a>
@@ -116,6 +116,11 @@
           <select id="f-theme" name="theme" required></select>
         </div>
         <div class="field">
+          <label for="f-date">Date to print (optional)</label>
+          <input type="date" id="f-date" name="date" aria-describedby="h-date">
+          <p class="note" id="h-date" style="margin:.3rem 0 0">For a wedding, move or birth. Shown as e.g. 14 FEB 2026 under the coordinates. Leave empty for a standard print.</p>
+        </div>
+        <div class="field">
           <label for="f-name">Your name</label>
           <input type="text" id="f-name" name="name" autocomplete="name" required aria-describedby="e-name">
           <p class="err" id="e-name" aria-live="polite"></p>
@@ -142,8 +147,8 @@
   <section id="faq">
     <div class="wrap" style="max-width:46rem">
       <div class="section-head"><p class="eyebrow">FAQ</p><h2>Questions</h2></div>
-      <details class="q"><summary>Is this a real map?</summary><p>Yes. Final posters are drawn from real OpenStreetMap street data. The gallery images on this staging site are placeholder patterns.</p></details>
-      <details class="q"><summary>Why are there no labels?</summary><p>The street shapes are the design. A label-free map lets the city speak for itself.</p></details>
+      <details class="q"><summary>Is this a real map?</summary><p>Yes. Posters are drawn from real OpenStreetMap street data. On this staging site the Delhi 2025 posters show the real map; other cities and earlier years are placeholder patterns for now.</p></details>
+      <details class="q"><summary>Why are there no street names?</summary><p>The street shapes are the design. A map without labels lets the city speak for itself, with just its name, coordinates and year beneath.</p></details>
       <details class="q"><summary>Can I get a different city?</summary><p>Pick "Other" in the order form and tell us which one. More cities are being added.</p></details>
       <details class="q"><summary>Which sizes are available?</summary><p>A4, A3 and 18 × 24 inch. Prices update live in the order form.</p></details>
       <details class="q"><summary>How do I pay?</summary><p>Payment is not live yet. After you send a request we'll reply by email with the next steps.</p></details>

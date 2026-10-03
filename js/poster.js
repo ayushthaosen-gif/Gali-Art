@@ -17,7 +17,7 @@
     map: { top: 0.12, width: 0.80, aspect: 0.978 }, footer: { bottom: 0.10 },
     city: { size: 0.072, track: 0.42 }, rule: { w: 0.07, h: 0.001, above: 0.032, below: 0.028 },
     region: { size: 0.0155, track: 0.36 }, coords: { size: 0.014, track: 0.12, above: 0.011 },
-    year: { size: 0.014, track: 0.12, above: 0.011 },
+    year: { size: 0.014, track: 0.12, above: 0.011 }, date: { size: 0.014, track: 0.12, above: 0.011 },
     roads: { t1: 0.0016, t2: 0.0011, t5: 0.00042 }, mix: { minor: 0.30 }
   };
 
@@ -108,6 +108,8 @@
       out.texts.push({ text: upper ? text.toUpperCase() : text, s: s, track: spec.track * s, mono: mono, y: top + h / 2 + 0.35 * s });
       cursor = top - gapAbove * W;
     }
+    var ds = L.date || L.year;
+    if (o.date) line(ds, o.date, 1.2, true, false, ds.above);
     line(L.year, String(o.year), 1.2, true, false, L.year.above);
     if (o.coords) line(L.coords, o.coords, 1.2, true, false, L.coords.above);
     if (o.region) line(L.region, o.region, 1.2, false, true, L.rule.below);
@@ -128,23 +130,32 @@
     svg: function (o) {
       var L = layout, aspect = o.aspect || 4 / 3, H = Math.round(W * aspect);
       var MW = L.map.width * W, MH = MW / L.map.aspect;
-      var p = build(o.seed || 1, o.density || 1, MW, MH);
+      var p = o.mapImage ? null : build(o.seed || 1, o.density || 1, MW, MH);
       var id = "gp" + (uid++), line = o.theme.line, bg = o.theme.bg;
       var minorC = mix(line, bg, L.mix.minor);
       var label = o.label || "Placeholder street-map poster";
       var coords = o.lat != null ? fmtCoords(o.lat, o.lon) : "";
-      var ft = footer(H, { city: o.city || "Your city", region: o.region || "", coords: coords, year: o.year || 2025 });
+      var ft = footer(H, { city: o.city || "Your city", region: o.region || "", coords: coords, year: o.year || 2025, date: o.date || "" });
       var sw = function (ratio) { return f(ratio * W * PREVIEW_BOOST * 10) / 10; };
 
+      var mapLayer;
+      if (o.mapImage) { // real map: one white-lines-on-transparent image used as an alpha mask over the theme line colour
+        mapLayer = '<mask id="m' + id + '" maskUnits="userSpaceOnUse" x="0" y="0" width="' + f(MW) + '" height="' + f(MH) + '" mask-type="alpha" style="mask-type:alpha">' +
+          '<image href="' + esc(o.mapImage) + '" width="' + f(MW) + '" height="' + f(MH) + '" preserveAspectRatio="none"/></mask>' +
+          '<rect width="' + f(MW) + '" height="' + f(MH) + '" fill="' + line + '" mask="url(#m' + id + ')"/>';
+      } else {
+        mapLayer = '<g clip-path="url(#' + id + ')" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="' + p.minor + '" stroke="' + minorC + '" stroke-width="' + sw(L.roads.t5) + '"/>' +
+          '<path d="' + p.major + '" stroke="' + line + '" stroke-width="' + sw(L.roads.t2) + '"/>' +
+          '<path d="' + p.art + '" stroke="' + line + '" stroke-width="' + sw(L.roads.t1) + '"/></g>';
+      }
       var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H +
         '" role="img" aria-label="' + esc(label) + '" preserveAspectRatio="xMidYMid slice">' +
         '<rect width="' + W + '" height="' + H + '" fill="' + bg + '"/>' +
         '<clipPath id="' + id + '"><rect width="' + f(MW) + '" height="' + f(MH) + '"/></clipPath>' +
         '<g transform="translate(' + f((W - MW) / 2) + " " + f(L.map.top * W) + ')">' +
-        '<g clip-path="url(#' + id + ')" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
-        '<path d="' + p.minor + '" stroke="' + minorC + '" stroke-width="' + sw(L.roads.t5) + '"/>' +
-        '<path d="' + p.major + '" stroke="' + line + '" stroke-width="' + sw(L.roads.t2) + '"/>' +
-        '<path d="' + p.art + '" stroke="' + line + '" stroke-width="' + sw(L.roads.t1) + '"/></g></g>' +
+        mapLayer +
+        '</g>' +
         '<rect x="' + f(ft.rule.x) + '" y="' + f(ft.rule.y) + '" width="' + f(ft.rule.w) + '" height="' + f(Math.max(ft.rule.h, 0.3)) + '" fill="' + line + '"/>';
       ft.texts.forEach(function (t) {
         var fam = t.mono ? "'DM Mono', ui-monospace, Menlo, monospace" : "Jost, Futura, 'Century Gothic', system-ui, sans-serif";

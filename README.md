@@ -42,6 +42,9 @@ Everything is in `config.js`:
 
 Never put secrets in `config.js`: it is public. Payment links and form endpoints are public by design.
 
+### Real maps in the live preview
+Delhi 2025 uses `assets/delhi-lines.webp`, a white-lines-on-transparent image the site recolours for every theme. For another city or year, make a mask with `generator/make_poster.py --formats mask` (see its README), put it in `assets/`, and add it under that city's `maps` in `config.js` (`maps: { "<year>": "assets/..." }`). Without an entry the site shows the generated placeholder pattern.
+
 ### Real poster images
 
 1. Generate with `generator/` (see its README) into `assets/`.

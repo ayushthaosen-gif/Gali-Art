@@ -25,8 +25,16 @@
 
   // ---- hero ----
   function posterOpts(city, year) {
-    return city ? { seed: city.seed, city: city.name, region: city.region, lat: city.lat, lon: city.lon, year: year }
-                : { seed: 99, city: "Your city", year: year };
+    var o = city ? { seed: city.seed, city: city.name, region: city.region, lat: city.lat, lon: city.lon, year: year }
+                 : { seed: 99, city: "Your city", year: year };
+    if (city && city.maps && city.maps[String(year)]) o.mapImage = city.maps[String(year)]; // real map for this city + year
+    return o;
+  }
+  // "2026-02-14" -> "14 FEB 2026" (month abbreviation avoids 14/02 vs 02/14 confusion)
+  function fmtDate(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
+    if (!m) return "";
+    return parseInt(m[3], 10) + " " + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][parseInt(m[2], 10) - 1] + " " + m[1];
   }
   function renderHero() {
     var d = byId(C.cities, "delhi"), o = posterOpts(d, 2025);
@@ -55,6 +63,7 @@
   }).join(""));
   eraPicker.addEventListener("change", function (e) { if (e.target.name === "era") set({ era: e.target.value }); });
   fEra.addEventListener("change", function () { set({ era: fEra.value }); });
+  $("#f-date").addEventListener("input", function () { render(); });
 
   var picker = $("#theme-picker");
   picker.insertAdjacentHTML("beforeend", C.themes.map(function (t) {
@@ -75,7 +84,7 @@
     var theme = byId(C.themes, state.theme), size = byId(C.sizes, state.size), era = byId(C.eras, state.era);
     var city = C.cities.filter(function (c) { return c.id === state.city; })[0];
     var o = posterOpts(city, era.year);
-    o.theme = theme; o.aspect = aspect(size); o.density = era.density;
+    o.theme = theme; o.aspect = aspect(size); o.density = era.density; o.date = fmtDate($("#f-date").value);
     o.label = "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + " (placeholder pattern)";
     var svg = GaliPoster.svg(o);
     $("#picker-preview").innerHTML = svg;
@@ -111,7 +120,7 @@
     $("#gallery-grid").innerHTML = list.map(galleryItem).join("");
     $("#gallery-note").textContent = note || "";
   }
-  var PLACEHOLDER_NOTE = "Sample patterns for the staging site, not real maps. Real posters are drawn from OpenStreetMap data.";
+  var PLACEHOLDER_NOTE = "Delhi (2025) shows the real map. Other cities and earlier years are placeholder patterns on this staging site.";
   fetch("data/posters.json").then(function (r) { if (!r.ok) throw 0; return r.json(); })
     .then(function (d) { showGallery(d.posters, PLACEHOLDER_NOTE); })
     .catch(function () {
@@ -150,7 +159,7 @@
     var size = byId(C.sizes, fSize.value), btn = $("#submit-btn");
     var payload = {
       brand: C.brand.name, city: fCity.value === "other" ? $("#f-other").value.trim() : byId(C.cities, fCity.value).name,
-      size: size.label, theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year,
+      size: size.label, theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year, printDate: fmtDate($("#f-date").value),
       name: $("#f-name").value.trim(), email: $("#f-email").value.trim(), notes: $("#f-notes").value.trim(),
       price: size.price, currency: C.currency.code, submittedAt: new Date().toISOString()
     };
