@@ -18,6 +18,7 @@
     city: { size: 0.072, track: 0.42 }, rule: { w: 0.07, h: 0.001, above: 0.032, below: 0.028 },
     region: { size: 0.0155, track: 0.36 }, coords: { size: 0.014, track: 0.12, above: 0.011 },
     year: { size: 0.014, track: 0.12, above: 0.011 }, date: { size: 0.014, track: 0.12, above: 0.011 },
+    detail: { size: 0.0165, track: 0.03, above: 0.026 },
     roads: { t1: 0.0016, t2: 0.0011, t5: 0.00042 }, mix: { minor: 0.30 }
   };
 
@@ -108,9 +109,10 @@
       out.texts.push({ text: upper ? text.toUpperCase() : text, s: s, track: spec.track * s, mono: mono, y: top + h / 2 + 0.35 * s });
       cursor = top - gapAbove * W;
     }
-    var ds = L.date || L.year, dt = L.detail || ds;
+    var ds = L.date || L.year, dt = L.detail;
+    // optional detail line closes the stack in Jost sentence case after a larger gap, so the mono data block above never changes
+    if (o.detail) line(dt, o.detail, 1.2, false, false, dt.above);
     if (o.date) line(ds, o.date, 1.2, true, false, ds.above);
-    if (o.detail) line(dt, o.detail, 1.2, true, false, dt.above); // optional fact or personal line, sits between the year and the print date
     line(L.year, String(o.year), 1.2, true, false, L.year.above);
     if (o.coords) line(L.coords, o.coords, 1.2, true, false, L.coords.above);
     if (o.region) line(L.region, o.region, 1.2, false, true, L.rule.below);

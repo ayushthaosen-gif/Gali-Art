@@ -77,6 +77,15 @@ def load_layout():
         return json.load(fh)
 
 
+def clean_detail(text, limit=40):
+    """Detail line as typed, tidied (design 5d): one line, ' - ' becomes ' · ', curly quotes and apostrophes, capped."""
+    t = re.sub(r"\s+", " ", text or "").strip()
+    t = t.replace(" - ", " \u00b7 ").replace(" \u2013 ", " \u00b7 ").replace(" \u2014 ", " \u00b7 ")
+    t = re.sub(r"(^|[\s(\[])\"", "\\1\u201c", t).replace('"', "\u201d")
+    t = re.sub(r"(^|[\s(\[])'", "\\1\u2018", t).replace("'", "\u2019")
+    return t[:limit].rstrip()
+
+
 def slugify(text):
     return re.sub(r"[^a-z0-9]+", "-", text.split(",")[0].lower()).strip("-") or "city"
 
@@ -251,11 +260,10 @@ def footer_lines(L, Wp, Hp, texts):
                       "mono": mono, "base": top + h / 2 + 0.35 * s})
         cursor = top - gap_above * Wp
 
+    if texts.get("detail"):  # optional detail line closes the stack in Jost sentence case after a larger gap (design 5d)
+        line("detail", L["detail"], texts["detail"], 1.2, False, False, L["detail"]["above"])
     if texts.get("date"):  # optional personalised date, e.g. "14 FEB 2026", under the year
         line("date", L.get("date", L["year"]), texts["date"], 1.2, True, False, L.get("date", L["year"])["above"])
-    if texts.get("detail"):  # optional fact or personal line between the year and the date, e.g. "1,484 km2 area"
-        spec = L.get("detail", L.get("date", L["year"]))
-        line("detail", spec, texts["detail"], 1.2, True, False, spec["above"])
     line("year", L["year"], str(texts["year"]), 1.2, True, False, L["year"]["above"])
     if texts.get("coords"):
         line("coords", L["coords"], texts["coords"], 1.2, True, False, L["coords"]["above"])
@@ -437,7 +445,7 @@ def main():
     city = args.city_name or place_title[0].strip()
     region = args.region if args.region is not None else (place_title[-1].strip() if len(place_title) > 1 else "")
     centre = tuple(args.coords) if args.coords else (args.point if args.point else CENTRES.get(slugify(city)))
-    texts = {"city": city, "region": region, "year": args.year, "date": args.date.upper(), "detail": args.detail.strip()[:40],
+    texts = {"city": city, "region": region, "year": args.year, "date": args.date.upper(), "detail": clean_detail(args.detail),
              "coords": fmt_coords(*centre) if centre else ""}
     name = args.name or ("preview" if args.preview else slugify(city))
 

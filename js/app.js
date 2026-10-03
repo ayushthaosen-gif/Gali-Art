@@ -2,7 +2,7 @@
   "use strict";
   var C = window.GALI_CONFIG;
   var $ = function (s) { return document.querySelector(s); };
-  var state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none", detail: "none" };
+  var state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none", mat: false, detail: "none" };
 
   function byId(list, id) { return list.filter(function (x) { return x.id === id; })[0] || list[0]; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -14,18 +14,33 @@
   var nf = new Intl.NumberFormat(C.currency.locale);
   function detailOptions(city, eraId) {
     var o = [{ id: "none", label: "None" }], f = city && eraId === C.defaults.era && city.facts;
-    if (f && f.streetsKm) o.push({ id: "streets", label: "Street length", text: nf.format(f.streetsKm) + " km of streets" });
+    if (f && f.streetsKm) o.push({ id: "streets", label: "Street length", text: nf.format(f.streetsKm) + " km of streets mapped" });
     if (f && f.areaKm2) o.push({ id: "area", label: "City area", text: nf.format(f.areaKm2) + " km² area" });
-    if (f && f.streetsKm && f.areaKm2) o.push({ id: "both", label: "Area and street length", text: nf.format(f.areaKm2) + " km² · " + nf.format(f.streetsKm) + " km of streets" });
+    if (f && f.streetsKm && f.areaKm2) o.push({ id: "both", label: "Area and street length", text: nf.format(f.areaKm2) + " km² · " + nf.format(f.streetsKm) + " km of streets mapped" });
     o.push({ id: "custom", label: "Your own words" });
     return o;
   }
   function detailText(city, eraId) {
     var opt = detailOptions(city, eraId).filter(function (x) { return x.id === state.detail; })[0];
     if (!opt || opt.id === "none") return "";
-    return opt.id === "custom" ? ($("#f-detail-text").value || "").replace(/\s+/g, " ").trim().slice(0, 40) : opt.text;
+    return opt.id === "custom" ? cleanDetail($("#f-detail-text").value) : opt.text;
+  }
+  // tidy what the customer typed (design 5d): one line, " - " becomes " · ", curly quotes and apostrophes, max 40 characters, case as typed
+  function cleanDetail(text) {
+    var t = String(text || "").replace(/\s+/g, " ").trim().replace(/ [-–—] /g, " · ");
+    t = t.replace(/(^|[\s(\[])"/g, "$1“").replace(/"/g, "”").replace(/(^|[\s(\[])'/g, "$1‘").replace(/'/g, "’");
+    return t.slice(0, 40).replace(/\s+$/, "");
   }
   function framePrice(frame, size) { return (frame.price && frame.price[size.id]) || 0; }
+  function matPrice(size) { return (C.mat && C.mat.price && C.mat.price[size.id]) || 0; }
+  // Frame drawn to scale: 20 mm face; with a mat the opening is 400 x 500 mm for A3 (scaled for other sizes) and the poster sits centred in it.
+  function frameHtml(svg, frame, size, mat) {
+    var pw = size.mmW || size.w, ph = size.mmH || size.h, face = 20, ow = pw, oh = ph;
+    if (mat) { ow = pw * 400 / 297; oh = ph * 500 / 420; }
+    var pad = face / (ow + 2 * face) * 100, mx = (ow - pw) / 2 / ow * 100, my = (oh - ph) / 2 / ow * 100;
+    var inner = mat ? '<div class="mat" style="padding:' + my.toFixed(2) + "% " + mx.toFixed(2) + '%">' + svg + "</div>" : svg;
+    return '<div class="frame" style="--fc:' + frame.color + ";padding:" + pad.toFixed(2) + '%">' + inner + "</div>";
+  }
   function cityOf(id) { return C.cities.filter(function (c) { return c.id === id; })[0]; }
   // a city we have no map for ("Other") can only show the current year
   function hasMap(city, eraId) { return city ? !!(city.maps && city.maps[eraId]) : eraId === C.defaults.era; }
@@ -72,7 +87,7 @@
     sel.innerHTML = items.map(function (i) { return '<option value="' + esc(i.id) + '">' + esc(fmt(i)) + "</option>"; }).join("");
   }
   var fDetail = $("#f-detail"), fDetailText = $("#f-detail-text");
-  var pickCity = $("#pick-city"), fCity = $("#f-city"), fSize = $("#f-size"), fTheme = $("#f-theme"), fEra = $("#f-era"), fFrame = $("#f-frame");
+  var pickCity = $("#pick-city"), fCity = $("#f-city"), fSize = $("#f-size"), fTheme = $("#f-theme"), fEra = $("#f-era"), fFrame = $("#f-frame"), fMat = $("#f-mat");
   var cityLabel = function (c) { return c.name + (c.soon ? " (preview only)" : ""); };
   fill(pickCity, C.cities, cityLabel);
   fill(fCity, C.cities, cityLabel);
@@ -80,6 +95,7 @@
   fill(fSize, C.sizes, function (s) { return s.label + " — " + money(s.price); });
   fill(fTheme, C.themes, function (t) { return t.name; });
   fFrame.addEventListener("change", function () { set({ frame: fFrame.value }); });
+  fMat.addEventListener("change", function () { set({ mat: fMat.checked }); });
   fDetail.addEventListener("change", function () { set({ detail: fDetail.value }); });
   fDetailText.addEventListener("input", function () { render(); });
   fill(fEra, ERAS, function (e) { return e.year + (e.year === 2025 ? " (current)" : ""); });
@@ -108,6 +124,8 @@
 
   function render() {
     var theme = byId(C.themes, state.theme), size = byId(C.sizes, state.size), frame = byId(C.frames, state.frame);
+    if (!frame.matAllowed) state.mat = false; // no mat with this finish
+    var mat = !!state.mat;
     var city = cityOf(state.city);
     // a year with no real map for this city falls back to the current map
     if (city && !hasMap(city, state.era)) state.era = C.defaults.era;
@@ -121,7 +139,7 @@
     $("#picker-preview").innerHTML = svg;
     // the frame wraps the poster in the order preview only; the colour picker above shows the bare poster
     var op = $("#order-preview");
-    var framed = frame.color ? '<div class="frame" style="--fc:' + frame.color + '">' + svg + "</div>" : svg;
+    var framed = frame.color ? frameHtml(svg, frame, size, mat) : svg;
     op.innerHTML = framed;
     op.classList.toggle("framed", !!frame.color);
     var mini = $("#frame-preview"); // small copy beside the frame field: on phones the main preview has scrolled out of view
@@ -129,7 +147,7 @@
     mini.classList.toggle("framed", !!frame.color);
     var cap = (city ? city.name : "Your city") + " · " + era.year;
     $("#picker-caption").textContent = cap;
-    $("#order-caption").textContent = cap + (frame.color ? " · " + frame.name : "");
+    $("#order-caption").textContent = cap + (frame.color ? " · " + frame.name + (mat ? " with mat" : "") : "");
     eraPicker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.era; i.disabled = !hasMap(city, i.value); });
     [].forEach.call(fEra.options, function (opt) { opt.disabled = !hasMap(city, opt.value); });
     fEra.value = state.era;
@@ -139,13 +157,20 @@
     fTheme.value = state.theme; fSize.value = state.size; fCity.value = state.city;
     fill(fFrame, C.frames, function (f) { var p = framePrice(f, size); return f.name + (p ? " — +" + money(p) : ""); });
     fFrame.value = state.frame;
+    $("#f-mat-wrap").classList.toggle("hidden", !frame.matAllowed);
+    fMat.checked = mat;
+    $("#f-mat-label").textContent = C.mat.name + " — +" + money(matPrice(size));
+    $("#frame-spec").textContent = frame.color ? frame.spec + (mat ? " " + C.mat.spec : "") + " " + (frame.note || "") : "";
+    var warn = !!(frame.avoid && frame.avoid.indexOf(state.theme) >= 0);
+    $("#frame-hint").textContent = warn ? frame.name + " can look washed out around the " + theme.name + " poster. Black wood or natural oak suit it better." : "";
+    $("#frame-hint").classList.toggle("hidden", !warn);
     fill(fDetail, dopts, function (x) { return x.label; });
     fDetail.value = state.detail;
     fDetailText.classList.toggle("hidden", state.detail !== "custom");
     if (city) pickCity.value = state.city;
-    var fp = framePrice(frame, size);
+    var fp = framePrice(frame, size) + (mat ? matPrice(size) : 0);
     $("#price").textContent = money(size.price + fp);
-    $("#price-detail").textContent = fp ? size.label.split(" (")[0] + " " + money(size.price) + " + " + frame.name.toLowerCase() + " " + money(fp) : "";
+    $("#price-detail").textContent = fp ? size.label.split(" (")[0] + " " + money(size.price) + " + " + frame.name.toLowerCase() + (mat ? " with mat " : " ") + money(fp) : "";
   }
   render();
 
@@ -206,14 +231,14 @@
     var size = byId(C.sizes, fSize.value), btn = $("#submit-btn");
     var payload = {
       brand: C.brand.name, city: fCity.value === "other" ? $("#f-other").value.trim() : byId(C.cities, fCity.value).name,
-      detail: detailText(cityOf(state.city), state.era), size: size.label, frame: byId(C.frames, fFrame.value).name, framePrice: framePrice(byId(C.frames, fFrame.value), size), theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year, printDate: fmtDate($("#f-date").value),
+      detail: detailText(cityOf(state.city), state.era), size: size.label, frame: byId(C.frames, fFrame.value).name + (state.mat && byId(C.frames, fFrame.value).matAllowed ? " with " + C.mat.name.toLowerCase() : ""), framePrice: framePrice(byId(C.frames, fFrame.value), size) + (state.mat && byId(C.frames, fFrame.value).matAllowed ? matPrice(size) : 0), theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year, printDate: fmtDate($("#f-date").value),
       name: $("#f-name").value.trim(), email: $("#f-email").value.trim(), notes: $("#f-notes").value.trim(),
-      price: size.price + framePrice(byId(C.frames, fFrame.value), size), currency: C.currency.code, submittedAt: new Date().toISOString()
+      price: size.price + framePrice(byId(C.frames, fFrame.value), size) + (state.mat && byId(C.frames, fFrame.value).matAllowed ? matPrice(size) : 0), currency: C.currency.code, submittedAt: new Date().toISOString()
     };
     var done = function () {
       show("Thank you, " + payload.name.split(" ")[0] + "! Your request is in. We'll email " + payload.email + " shortly.");
       if (C.payment.link) { var a = $("#pay-link"); a.href = C.payment.link; a.textContent = C.payment.label; $("#pay-wrap").classList.remove("hidden"); }
-      form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none", detail: "none" }; $("#other-city-wrap").classList.add("hidden"); render();
+      form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none", mat: false, detail: "none" }; $("#other-city-wrap").classList.add("hidden"); render();
     };
     if (!C.form.endpoint) { // no order inbox configured: hand the request to the customer's email app instead of dropping it
       var lines = ["Order request (" + payload.brand + ")", "",

@@ -32,7 +32,7 @@ window.GALI_CONFIG = {
   sizes: [
     { id: "a4",    label: "A4 (21 × 29.7 cm)",   w: 210, h: 297, price: 1499 },
     { id: "a3",    label: "A3 (29.7 × 42 cm)",   w: 297, h: 420, price: 2299 },
-    { id: "18x24", label: "18 × 24 in (46 × 61 cm)", w: 18, h: 24, price: 2999 }
+    { id: "18x24", label: "18 × 24 in (46 × 61 cm)", w: 18, h: 24, mmW: 457, mmH: 610, price: 2999 }
   ],
 
   // facts: optional detail lines the customer can print under the year. Numbers are computed from the same OpenStreetMap
@@ -40,9 +40,11 @@ window.GALI_CONFIG = {
   // where the poster shows the city boundary (not for a square map around the centre). Nothing hand-typed from memory.
   // seed makes each city's placeholder pattern different. Only Delhi is a real product for now.
   cities: [
-  { id: "delhi",   name: "Delhi",   seed: 11, region: "India", lat: 28.6139, lon: 77.2090,
-    facts: { streetsKm: 18400, areaKm2: 1480 },
-    maps: { "1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp" } },
+    // maps: { "<era id>": "<path to white-lines-on-transparent PNG/WebP>" }. A city/year without an entry
+    // shows the generated placeholder pattern. Make masks with: generator/batch_masks.py (or make_poster.py --formats mask)
+    { id: "delhi", name: "Delhi", seed: 11, region: "India", lat: 28.6139, lon: 77.209,
+      facts: { streetsKm: 18400, areaKm2: 1480 },
+      maps: { "1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp" } },
     { id: "mumbai", name: "Mumbai", seed: 20, region: "India", lat: 19.076, lon: 72.8777,
       facts: { streetsKm: 4000 },
       maps: { "2025": "assets/mumbai-lines.webp" } },
@@ -51,17 +53,34 @@ window.GALI_CONFIG = {
       maps: { "2025": "assets/kolkata-lines.webp" } },
     { id: "panaji", name: "Panaji", seed: 60, region: "India", lat: 15.4909, lon: 73.8278,
       facts: { streetsKm: 520 },
-      maps: { "2025": "assets/panaji-lines.webp" } }
+      maps: { "2025": "assets/panaji-lines.webp" } },
+    { id: "dubai", name: "Dubai", seed: 73, region: "United Arab Emirates", lat: 25.2048, lon: 55.2708,
+      facts: { streetsKm: 6700 },
+      maps: { "2025": "assets/dubai-lines.webp" } },
+    { id: "washington-dc", name: "Washington DC", seed: 78, region: "USA", lat: 38.9072, lon: -77.0369,
+      facts: { streetsKm: 2000, areaKm2: 180 },
+      maps: { "2025": "assets/washington-dc-lines.webp" } }
   ],
 
-  // Optional frame, added to the poster price. price is per size id (same ids as `sizes`). color is the moulding
-  // shown in the order preview. Prices here are placeholders: set your real ones. id "none" must stay first.
+  // Optional frame (design "Frames", launch range 6a-6c): one 20 mm flat-face profile in three finishes; oak and white can add
+  // an off-white mat. price is per size id and is ADDED to the poster price. These prices are placeholders: set your real ones.
+  // color = moulding shown in the order preview. avoid = theme ids the finish looks poor with (shown as a gentle hint, not blocked).
   frames: [
-    { id: "none",  name: "No frame",    color: null,      price: { a4: 0,   a3: 0,   "18x24": 0 } },
-    { id: "black", name: "Black frame", color: "#1b1b1d", price: { a4: 599, a3: 899, "18x24": 1299 } },
-    { id: "white", name: "White frame", color: "#f3f1ec", price: { a4: 599, a3: 899, "18x24": 1299 } },
-    { id: "oak",   name: "Oak frame",   color: "#c59b62", price: { a4: 699, a3: 999, "18x24": 1399 } }
+    { id: "none",  name: "No frame", color: null, price: { a4: 0, a3: 0, "18x24": 0 } },
+    { id: "black", name: "Black wood", color: "#1a1a1b", price: { a4: 599, a3: 899, "18x24": 1299 }, matAllowed: false,
+      spec: "20 mm flat face, 25 mm deep, matte black. Acrylic glazing. The print fills the frame edge to edge.",
+      note: "The default: a black edge sharpens any background colour." },
+    { id: "oak",   name: "Natural oak", color: "#c39a62", price: { a4: 699, a3: 999, "18x24": 1399 }, matAllowed: true,
+      spec: "20 mm flat face, 25 mm deep, oak veneer or solid oak. Acrylic glazing.",
+      note: "The premium look; warm oak pairs best with Gali Blue, Forest, Terracotta and Cream." },
+    { id: "white", name: "White wood", color: "#f1efe9", price: { a4: 599, a3: 899, "18x24": 1299 }, matAllowed: true,
+      avoid: ["cream", "blush", "mono"],
+      spec: "20 mm flat face, 25 mm deep, white stain. Acrylic glazing.",
+      note: "For light interiors; works best around a dark poster (Forest, Midnight, Dark & Gold, Gali Blue)." }
   ],
+  // Off-white mat (45 degree bevel). Design reference: an A3 poster sits in a 40 x 50 cm frame; other sizes are scaled in the
+  // same proportion for the preview, so confirm the real frame sizes for A4 and 18 x 24 in before selling a mat with them.
+  mat: { name: "Off-white mat", price: { a4: 299, a3: 399, "18x24": 599 }, spec: "Off-white mat, 45\u00b0 bevel, gives the fine lines room." },
 
   // Colour themes: bg = background, line = streets AND text. Every pair clears 4.5:1 contrast.
   // Minor roads and water are derived at render time (see data/layout.json "mix"), never stored here.

@@ -112,7 +112,10 @@
         </div>
         <div class="field">
           <label for="f-frame">Frame (optional)</label>
-          <select id="f-frame" name="frame"></select>
+          <select id="f-frame" name="frame" aria-describedby="frame-spec"></select>
+          <label class="check hidden" id="f-mat-wrap"><input type="checkbox" id="f-mat"><span id="f-mat-label"></span></label>
+          <p class="note" id="frame-spec" style="margin:.4rem 0 0"></p>
+          <p class="note warn hidden" id="frame-hint" aria-live="polite" style="margin:.3rem 0 0"></p>
           <div class="preview mini" id="frame-preview" aria-hidden="true"></div>
         </div>
         <div class="field">
@@ -166,7 +169,7 @@
       <details class="q"><summary>Why are there no street names?</summary><p>The street shapes are the design. A map without labels lets the city speak for itself, with just its name, coordinates and year beneath.</p></details>
       <details class="q"><summary>Can I get a different city?</summary><p>Pick "Other" in the order form and tell us which one. We are adding more cities.</p></details>
       <details class="q"><summary>Which sizes are available?</summary><p>A4, A3 and 18 × 24 inch, with or without a frame. Prices update live in the order form.</p></details>
-      <details class="q"><summary>Can I get it framed?</summary><p>Yes. Choose a black, white or oak frame in the order form. The frame price is added to the total before you send your request.</p></details>
+      <details class="q"><summary>Can I get it framed?</summary><p>Yes. Choose black wood, natural oak or white wood (a 20 mm profile with acrylic glazing). Oak and white can add an off-white mat. The frame price is added to the total before you send your request.</p></details>
       <details class="q"><summary>How do I pay?</summary><p>Send your request and we'll reply by email with the next steps, including how to pay.</p></details>
     </div>
   </section>

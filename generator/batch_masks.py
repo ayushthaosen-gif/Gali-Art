@@ -25,8 +25,8 @@ MAX_KM2 = {"India": 1000}              # default 1700. Above this Nominatim usua
 DEFAULT_MAX_KM2 = 1700
 DEFAULT_DIST = 9000                  # half-width in metres of the square used when no usable city boundary exists
 COMMENT = '    // maps: { "<era id>": "<path to white-lines-on-transparent PNG/WebP>" }. A city/year without an entry\n    // shows the generated placeholder pattern. Make masks with: generator/batch_masks.py (or make_poster.py --formats mask)\n'
-DELHI = ('  { id: "delhi",   name: "Delhi",   seed: 11, region: "India", lat: 28.6139, lon: 77.2090,\n'
-         '    maps: { "1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp" } }')
+DELHI = {"id": "delhi", "name": "Delhi", "region": "India", "lat": 28.6139, "lon": 77.2090, "seed": 11,
+         "maps": {"1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp"}}
 
 
 def load_cities():
@@ -71,18 +71,23 @@ def build(c, timeout_s):
 def write_config(cities):
     path = HERE.parent / "config.js"
     text = path.read_text(encoding="utf-8")
-    rows = [DELHI]
-    for i, c in enumerate(cities):
-        if not (ASSETS / f"{c['id']}-lines.webp").exists():
-            continue
-        rows.append(f'    {{ id: "{c["id"]}", name: "{c["name"]}", seed: {20 + i}, region: "{c["region"]}", '
-                    f'lat: {c["lat"]}, lon: {c["lon"]},\n      maps: {{ "2025": "assets/{c["id"]}-lines.webp" }} }}')
-    block = "  cities: [\n" + ",\n".join(rows) + "\n  ],"
+    facts_path = HERE / "city_facts.json"
+    facts = json.loads(facts_path.read_text(encoding="utf-8")) if facts_path.exists() else {}
+    entries = [DELHI] + [dict(c, seed=20 + i, maps={"2025": f"assets/{c['id']}-lines.webp"})
+                         for i, c in enumerate(cities) if (ASSETS / f"{c['id']}-lines.webp").exists()]
+    rows = []
+    for c in entries:
+        f = facts.get(c["id"])
+        fact_js = ("      facts: { " + ", ".join(f"{k}: {v}" for k, v in f.items()) + " },\n") if f else ""
+        maps_js = ", ".join(f'"{y}": "{p}"' for y, p in c["maps"].items())
+        rows.append(f'    {{ id: "{c["id"]}", name: "{c["name"]}", seed: {c["seed"]}, region: "{c["region"]}", '
+                    f'lat: {c["lat"]}, lon: {c["lon"]},\n{fact_js}      maps: {{ {maps_js} }} }}')
+    block = "  cities: [\n" + COMMENT + ",\n".join(rows) + "\n  ],"
     new, n = re.subn(r"  cities: \[.*?\n  \],", lambda m: block, text, count=1, flags=re.S)
     if n != 1:
         sys.exit("Could not find the cities block in config.js")
     path.write_text(new, encoding="utf-8")
-    print(f"config.js: {len(rows)} cities (Delhi + {len(rows) - 1})")
+    print(f"config.js: {len(entries)} cities (Delhi + {len(entries) - 1})")
 
 
 def main():

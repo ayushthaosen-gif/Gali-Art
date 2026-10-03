@@ -1,6 +1,6 @@
 """Compute the optional detail-line facts for config.js `cities[].facts` from the cached OSM data.
 
-  python city_facts.py              # prints a JSON block for every city that has a cached graph
+  python city_facts.py              # writes city_facts.json (read by batch_masks.py --write-config) for every cached city
 
 streetsKm: total length of the drawn street network (tiers 1-5, each street counted once, not once per direction),
 rounded to 100 km (10 km under 1,000). areaKm2: city-boundary area, rounded to 10 km2, only for cities drawn
@@ -58,6 +58,7 @@ def main():
             g = gpd.read_file(boundary)
             facts["areaKm2"] = round_to(g.to_crs(g.estimate_utm_crs()).area.iloc[0] / 1e6, 10)
         result[cid] = facts
+    (HERE / "city_facts.json").write_text(json.dumps(result, indent=1), encoding="utf-8")
     print(json.dumps(result, indent=1))
 
 
