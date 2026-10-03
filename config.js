@@ -69,18 +69,18 @@ window.GALI_CONFIG = {
     { id: "none",  name: "No frame", color: null, price: { a4: 0, a3: 0, "18x24": 0 } },
     { id: "black", name: "Black wood", color: "#1a1a1b", price: { a4: 599, a3: 899, "18x24": 1299 }, matAllowed: false,
       spec: "20 mm flat face, 25 mm deep, matte black. Acrylic glazing. The print fills the frame edge to edge.",
-      note: "The default: a black edge sharpens any background colour." },
+      note: "Our default. A black edge makes any colour look sharper." },
     { id: "oak",   name: "Natural oak", color: "#c39a62", price: { a4: 699, a3: 999, "18x24": 1399 }, matAllowed: true,
       spec: "20 mm flat face, 25 mm deep, oak veneer or solid oak. Acrylic glazing.",
-      note: "The premium look; warm oak pairs best with Gali Blue, Forest, Terracotta and Cream." },
+      note: "The nicer-looking option. It goes best with Gali Blue, Forest, Terracotta and Cream." },
     { id: "white", name: "White wood", color: "#f1efe9", price: { a4: 599, a3: 899, "18x24": 1299 }, matAllowed: true,
       avoid: ["cream", "blush", "mono"],
       spec: "20 mm flat face, 25 mm deep, white stain. Acrylic glazing.",
-      note: "For light interiors; works best around a dark poster (Forest, Midnight, Dark & Gold, Gali Blue)." }
+      note: "Suits light rooms. Looks best around a dark poster: Forest, Midnight, Dark & Gold or Gali Blue." }
   ],
   // Off-white mat (45 degree bevel). Design reference: an A3 poster sits in a 40 x 50 cm frame; other sizes are scaled in the
   // same proportion for the preview, so confirm the real frame sizes for A4 and 18 x 24 in before selling a mat with them.
-  mat: { name: "Off-white mat", price: { a4: 299, a3: 399, "18x24": 599 }, spec: "Off-white mat, 45\u00b0 bevel, gives the fine lines room." },
+  mat: { name: "Off-white mat", price: { a4: 299, a3: 399, "18x24": 599 }, spec: "Off-white mat with a 45\u00b0 bevel, so the thin lines have some space." },
 
   // Colour themes: bg = background, line = streets AND text. Every pair clears 4.5:1 contrast.
   // Minor roads and water are derived at render time (see data/layout.json "mix"), never stored here.
@@ -104,7 +104,7 @@ window.GALI_CONFIG = {
     { id: "1995", year: 1995, density: 0.8 },
     { id: "2025", year: 2025, density: 1 }
   ],
-  eraNote: "1995 shows today's streets within Delhi's 1995 built-up area. Earlier years are coming soon.",
+  eraNote: "The 1995 map shows today's streets inside the area Delhi had built up by 1995. Earlier years aren't ready yet.",
 
   defaults: { city: "delhi", theme: "blue", size: "a3", era: "2025", frame: "none" }
 };

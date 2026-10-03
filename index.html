@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Custom city street-map posters</title>
-  <meta name="description" content="Minimalist posters of your city's street network. White lines on solid colour, no labels.">
+  <meta name="description" content="Posters of your city's streets, drawn as thin lines on a solid colour. No labels.">
   <meta property="og:title" content="Custom city street-map posters">
-  <meta property="og:description" content="Your city, drawn in streets. Minimalist posters from real OpenStreetMap data.">
+  <meta property="og:description" content="Street-map posters of your city, drawn from OpenStreetMap data.">
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#3F6BA8">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -39,7 +39,7 @@
       <div>
         <p class="eyebrow">Custom city street-map posters</p>
         <h1 data-tagline>&nbsp;</h1>
-        <p class="lede">Every street of your city as fine white lines on a calm field of blue. No street names, no clutter: just the shape of a place you know by heart.</p>
+        <p class="lede">We take every street in a city from OpenStreetMap and draw it as thin white lines on blue. No names, no labels. Just the shape of the place.</p>
         <div class="actions">
           <a class="btn" href="#order">Order your poster</a>
           <a class="btn ghost" href="#design">Try colours</a>
@@ -51,18 +51,18 @@
 
   <section id="how">
     <div class="wrap">
-      <div class="section-head"><p class="eyebrow">How it works</p><h2>Three simple steps</h2></div>
+      <div class="section-head"><p class="eyebrow">How it works</p><h2>Three steps</h2></div>
       <ol class="steps">
-        <li><h3>Pick a city</h3><p>Choose from the cities we have mapped, or request yours.</p></li>
-        <li><h3>Pick a style</h3><p>Choose a colour theme and see it live. Classic blue and white is our signature.</p></li>
-        <li><h3>Get a print</h3><p>We render the real street network from OpenStreetMap, print it and send it to you.</p></li>
+        <li><h3>Pick a city</h3><p>Choose one from the list, or tell us which city you want.</p></li>
+        <li><h3>Pick colours</h3><p>Tap a theme and the preview changes straight away. Blue and white is the original.</p></li>
+        <li><h3>We print it</h3><p>We draw the map from OpenStreetMap data, print it and send it to you.</p></li>
       </ol>
     </div>
   </section>
 
   <section id="gallery" class="alt">
     <div class="wrap">
-      <div class="section-head"><p class="eyebrow">Gallery</p><h2>A few looks</h2></div>
+      <div class="section-head"><p class="eyebrow">Gallery</p><h2>Some examples</h2></div>
       <ul class="grid" id="gallery-grid"></ul>
       <p class="note" id="gallery-note"></p>
     </div>
@@ -74,7 +74,7 @@
       <div>
         <p class="eyebrow">Style picker</p>
         <h2>Choose your colours</h2>
-        <p class="lede">Tap a theme and the poster recolours instantly.</p>
+        <p class="lede">Tap a colour and the poster changes.</p>
         <div class="field">
           <label for="pick-city">City</label>
           <select id="pick-city"></select>
@@ -92,7 +92,7 @@
       <div class="sticky">
         <p class="eyebrow">Order</p>
         <h2>Request your poster</h2>
-        <p class="lede">Send your details and we'll confirm everything by email before you pay.</p>
+        <p class="lede">Fill this in and we'll email you to confirm everything before you pay.</p>
         <div class="preview" id="order-preview"></div>
         <p class="caption" id="order-caption"></p>
       </div>
@@ -129,13 +129,13 @@
         <div class="field">
           <label for="f-date">Date to print (optional)</label>
           <input type="date" id="f-date" name="date" aria-describedby="h-date">
-          <p class="note" id="h-date" style="margin:.3rem 0 0">For a wedding, move or birth. Shown as e.g. 14 FEB 2026 under the coordinates. Leave empty for a standard print.</p>
+          <p class="note" id="h-date" style="margin:.3rem 0 0">Handy for a wedding, a move or a birth. It prints under the year, like 14 FEB 2026. Leave it empty if you don't want one.</p>
         </div>
         <div class="field">
           <label for="f-detail">Extra detail line (optional)</label>
           <select id="f-detail" name="detail" aria-describedby="h-detail"></select>
           <input type="text" id="f-detail-text" class="hidden" maxlength="40" autocomplete="off" placeholder="e.g. Where we met" aria-label="Your own detail line">
-          <p class="note" id="h-detail" style="margin:.3rem 0 0">One small line under the year. Pick a fact about the map or write your own (up to 40 characters).</p>
+          <p class="note" id="h-detail" style="margin:.3rem 0 0">One small line at the bottom. Use a fact about the map or write your own, up to 40 characters.</p>
         </div>
         <div class="field">
           <label for="f-name">Your name</label>
@@ -152,7 +152,7 @@
           <textarea id="f-notes" name="notes" maxlength="1000"></textarea>
         </div>
         <div class="hp" aria-hidden="true"><label>Company <input type="text" name="company" tabindex="-1" autocomplete="off"></label></div>
-        <div class="price"><span>Total</span><strong id="price" aria-live="polite">—</strong></div>
+        <div class="price"><span>Total</span><strong id="price" aria-live="polite">-</strong></div>
         <p class="note price-detail" id="price-detail" aria-live="polite"></p>
         <button class="btn" type="submit" id="submit-btn">Send order request</button>
         <div class="status hidden" id="status" role="status" tabindex="-1"></div>
@@ -165,12 +165,12 @@
   <section id="faq">
     <div class="wrap" style="max-width:46rem">
       <div class="section-head"><p class="eyebrow">FAQ</p><h2>Questions</h2></div>
-      <details class="q"><summary>Is this a real map?</summary><p>Yes. Posters are drawn from real OpenStreetMap street data. Delhi also has a 1995 edition, which shows today's streets within the city's 1995 built-up area (an approximation, not a historical survey).</p></details>
-      <details class="q"><summary>Why are there no street names?</summary><p>The street shapes are the design. A map without labels lets the city speak for itself, with just its name, coordinates and year beneath.</p></details>
-      <details class="q"><summary>Can I get a different city?</summary><p>Pick "Other" in the order form and tell us which one. We are adding more cities.</p></details>
-      <details class="q"><summary>Which sizes are available?</summary><p>A4, A3 and 18 × 24 inch, with or without a frame. Prices update live in the order form.</p></details>
-      <details class="q"><summary>Can I get it framed?</summary><p>Yes. Choose black wood, natural oak or white wood (a 20 mm profile with acrylic glazing). Oak and white can add an off-white mat. The frame price is added to the total before you send your request.</p></details>
-      <details class="q"><summary>How do I pay?</summary><p>Send your request and we'll reply by email with the next steps, including how to pay.</p></details>
+      <details class="q"><summary>Is this a real map?</summary><p>Yes, it comes from OpenStreetMap data. Delhi also has a 1995 version, but that isn't an old map. It shows today's streets, cut down to the area that was built up in 1995.</p></details>
+      <details class="q"><summary>Why are there no street names?</summary><p>Labels get in the way. Without them you see the shape of the streets, with just the city name, coordinates and year underneath.</p></details>
+      <details class="q"><summary>Can I get a different city?</summary><p>Choose "Other city" in the order form and tell us which one. We're adding more.</p></details>
+      <details class="q"><summary>Which sizes are available?</summary><p>A4, A3 and 18 × 24 inch, framed or not. The order form shows the price as you choose.</p></details>
+      <details class="q"><summary>Can I get it framed?</summary><p>Yes. You can pick black wood, natural oak or white wood. They are all a 20 mm frame with acrylic glazing, and oak and white can have an off-white mat too. The total updates as you choose.</p></details>
+      <details class="q"><summary>How do I pay?</summary><p>Send the request first. We'll email you back with what happens next, including how to pay.</p></details>
     </div>
   </section>
 </main>

@@ -47,7 +47,7 @@
   var VQ = "?v=" + encodeURIComponent(C.version || "dev");
 
   // ---- brand ----
-  document.title = C.brand.name + " — custom city street-map posters";
+  document.title = C.brand.name + " | Custom city street-map posters";
   document.querySelectorAll("[data-brand]").forEach(function (e) { e.textContent = C.brand.name; });
   document.querySelectorAll("[data-brand-native]").forEach(function (e) { e.textContent = C.brand.nameNative || ""; e.hidden = !C.brand.nameNative; });
   document.querySelectorAll("[data-tagline]").forEach(function (e) { e.textContent = C.brand.tagline; });
@@ -92,7 +92,7 @@
   fill(pickCity, C.cities, cityLabel);
   fill(fCity, C.cities, cityLabel);
   fCity.insertAdjacentHTML("beforeend", '<option value="other">Other city (tell us below)</option>');
-  fill(fSize, C.sizes, function (s) { return s.label + " — " + money(s.price); });
+  fill(fSize, C.sizes, function (s) { return s.label + ", " + money(s.price); });
   fill(fTheme, C.themes, function (t) { return t.name; });
   fFrame.addEventListener("change", function () { set({ frame: fFrame.value }); });
   fMat.addEventListener("change", function () { set({ mat: fMat.checked }); });
@@ -152,14 +152,14 @@
     [].forEach.call(fEra.options, function (opt) { opt.disabled = !hasMap(city, opt.value); });
     fEra.value = state.era;
     $("#era-note").textContent = !city ? "" : ERAS.some(function (e) { return e.id !== C.defaults.era && hasMap(city, e.id); })
-      ? (C.eraNote || "") : "Other map years aren't available for " + city.name + " yet.";
+      ? (C.eraNote || "") : city.name + " only has a 2025 map for now.";
     picker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.theme; });
     fTheme.value = state.theme; fSize.value = state.size; fCity.value = state.city;
-    fill(fFrame, C.frames, function (f) { var p = framePrice(f, size); return f.name + (p ? " — +" + money(p) : ""); });
+    fill(fFrame, C.frames, function (f) { var p = framePrice(f, size); return f.name + (p ? " (+" + money(p) + ")" : ""); });
     fFrame.value = state.frame;
     $("#f-mat-wrap").classList.toggle("hidden", !frame.matAllowed);
     fMat.checked = mat;
-    $("#f-mat-label").textContent = C.mat.name + " — +" + money(matPrice(size));
+    $("#f-mat-label").textContent = C.mat.name + " (+" + money(matPrice(size)) + ")";
     $("#frame-spec").textContent = frame.color ? frame.spec + (mat ? " " + C.mat.spec : "") + " " + (frame.note || "") : "";
     var warn = !!(frame.avoid && frame.avoid.indexOf(state.theme) >= 0);
     $("#frame-hint").textContent = warn ? frame.name + " can look washed out around the " + theme.name + " poster. Black wood or natural oak suit it better." : "";
@@ -198,7 +198,7 @@
     .catch(function () {
       // e.g. opened via file:// where fetch is blocked: fall back to one sample per theme
       showGallery(C.themes.slice(0, 8).map(function (t, i) {
-        return { title: "Delhi — " + t.name, city: "delhi", theme: t.id, seed: 11, image: null };
+        return { title: "Delhi in " + t.name, city: "delhi", theme: t.id, seed: 11, image: null };
       }), "");
     });
 
@@ -236,7 +236,7 @@
       price: size.price + framePrice(byId(C.frames, fFrame.value), size) + (state.mat && byId(C.frames, fFrame.value).matAllowed ? matPrice(size) : 0), currency: C.currency.code, submittedAt: new Date().toISOString()
     };
     var done = function () {
-      show("Thank you, " + payload.name.split(" ")[0] + "! Your request is in. We'll email " + payload.email + " shortly.");
+      show("Thanks, " + payload.name.split(" ")[0] + ". We've got your request and will email you at " + payload.email + " soon.");
       if (C.payment.link) { var a = $("#pay-link"); a.href = C.payment.link; a.textContent = C.payment.label; $("#pay-wrap").classList.remove("hidden"); }
       form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none", mat: false, detail: "none" }; $("#other-city-wrap").classList.add("hidden"); render();
     };
@@ -248,7 +248,7 @@
         payload.notes ? "Notes: " + payload.notes : ""].filter(function (l, i, a) { return l !== "" || a[i - 1] !== ""; });
       window.location.href = "mailto:" + C.brand.email + "?subject=" + encodeURIComponent("Poster order: " + payload.city + ", " + payload.mapYear) +
         "&body=" + encodeURIComponent(lines.join("\n"));
-      show("Almost there: your email app should open with your order details. Press send to complete your request. If nothing opens, email us at " + C.brand.email + ".");
+      show("Your email app should open with the order filled in. Press send and we'll get it. If nothing opens, email us at " + C.brand.email + ".");
       return;
     }
     btn.disabled = true; btn.textContent = "Sending…";
@@ -259,7 +259,7 @@
       if (opts.mode !== "no-cors" && !r.ok) throw new Error("HTTP " + r.status);
       done();
     }).catch(function () {
-      show("Sorry, something went wrong sending your request. Please try again or email " + C.brand.email + ".", true);
+      show("That didn't send. Try again, or email us at " + C.brand.email + ".", true);
     }).then(function () { btn.disabled = false; btn.textContent = "Send order request"; });
   });
 })();
