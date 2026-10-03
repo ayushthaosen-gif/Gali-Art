@@ -1,9 +1,9 @@
 /* Keep the original poster node live; all dimensions below are millimetres. */
 const FRAMES = {
-  black: { face: 20, color: "#1B1B1B", photo: "frame-black.png", photoSlice: "168", mat: false, matAllowed: false, themes: "all" },
-  oak: { face: 20, color: "#C9A77C", texture: "oak.jpg", photo: "frame-oak.png", photoSlice: "150", mat: true, matAllowed: true,
+  black: { face: 20, color: "#1B1B1B", photo: "frame-black.webp", photoSlice: "168", mat: false, matAllowed: false, themes: "all" },
+  oak: { face: 20, color: "#C9A77C", texture: "oak.jpg", photo: "frame-oak.webp", photoSlice: "150", mat: true, matAllowed: true,
     themes: ["blue", "forest", "terracotta", "cream"] },
-  white: { face: 20, color: "#F3F1EC", photo: "frame-white.png", photoSlice: "150", mat: false, matAllowed: true,
+  white: { face: 20, color: "#F3F1EC", photo: "frame-white.webp", photoSlice: "150", mat: false, matAllowed: true,
     themes: ["forest", "midnight", "dark-gold", "blue"], avoid: ["cream", "blush", "mono-grey"] }
 };
 const MAT = { color: "#FBFAF6", overlap: 5,

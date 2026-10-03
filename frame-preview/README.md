@@ -4,7 +4,7 @@ Open `index.html` in a modern browser, or serve the repository root and visit `/
 
 ## Add to your site
 
-Copy `frame.css`, `frame.js`, `oak.jpg`, `frame-black.png`, `frame-oak.png`, `frame-white.png` and `wall.jpg` together. Load the CSS and the classic script (optionally with `defer`), then wrap your live poster:
+Copy `frame.css`, `frame.js`, `oak.jpg`, `frame-black.webp`, `frame-oak.webp`, `frame-white.webp` and `wall.jpg` together. Load the CSS and the classic script (optionally with `defer`), then wrap your live poster:
 
 ```html
 <link rel="stylesheet" href="frame.css">
@@ -26,7 +26,7 @@ Widths default to 70% of the parent, bounded at 280–900 px; at narrower widths
 
 ## Photographic materials
 
-All three finishes now use image-generated photographic frame assets with authentic grain, edge highlights, small inner lips and mitred joints. They are 1254 × 1254 PNGs. CSS `border-image` divides each source into four corners and four rails, discarding the entire central image region. Corners stay square at the calculated 20 mm face width; only rails stretch to the current opening. The original poster, mat and glazing remain separate live layers. This also avoids importing any transparency artefacts inside the generated opening.
+All three finishes now use image-generated photographic frame assets with authentic grain, edge highlights, small inner lips and mitred joints. They are 1254 × 1254 lossless WebP files, decoded pixel-for-pixel identical to the original PNGs (RGBA compared, 0 differing values). CSS `border-image` divides each source into four corners and four rails, discarding the entire central image region. Corners stay square at the calculated 20 mm face width; only rails stretch to the current opening. The original poster, mat and glazing remain separate live layers. This also avoids importing any transparency artefacts inside the generated opening.
 
 `FRAMES.photo` selects the asset and `photoSlice` records the source crop in image pixels: 168 for black, 150 for oak and white. These source cuts do not change the millimetre dimensions of the frame. Image load detection activates the photographic layer; the existing CSS frame and oak texture remain as fallbacks if an image is missing. Their drawn seams and arris are hidden after the photograph loads to avoid duplicate details.
 
