@@ -8,6 +8,10 @@
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function money(n) { return new Intl.NumberFormat(C.currency.locale, { style: "currency", currency: C.currency.code, maximumFractionDigits: 0 }).format(n); }
   function aspect(size) { return size.h / size.w; }
+  // Only offer map years that exist as a real map for at least one city; the rest would be invented patterns.
+  var ERAS = C.eras.filter(function (e) { return C.cities.some(function (c) { return c.maps && c.maps[e.id]; }); });
+  function cityOf(id) { return C.cities.filter(function (c) { return c.id === id; })[0]; }
+  function hasMap(city, eraId) { return !!(city && city.maps && city.maps[eraId]); }
 
   // ---- brand ----
   document.title = C.brand.name + " — custom city street-map posters";
@@ -55,10 +59,9 @@
   fCity.insertAdjacentHTML("beforeend", '<option value="other">Other city (tell us below)</option>');
   fill(fSize, C.sizes, function (s) { return s.label + " — " + money(s.price); });
   fill(fTheme, C.themes, function (t) { return t.name; });
-  fill(fEra, C.eras, function (e) { return e.year + (e.year === 2025 ? " (current)" : ""); });
-  $("#era-note").textContent = C.eraNote || "";
+  fill(fEra, ERAS, function (e) { return e.year + (e.year === 2025 ? " (current)" : ""); });
   var eraPicker = $("#era-picker");
-  eraPicker.insertAdjacentHTML("beforeend", C.eras.map(function (e) {
+  eraPicker.insertAdjacentHTML("beforeend", ERAS.map(function (e) {
     return '<label class="era"><input type="radio" name="era" value="' + esc(e.id) + '"><span>' + e.year + "</span></label>";
   }).join(""));
   eraPicker.addEventListener("change", function (e) { if (e.target.name === "era") set({ era: e.target.value }); });
@@ -81,19 +84,25 @@
   function set(patch) { for (var k in patch) state[k] = patch[k]; render(); }
 
   function render() {
-    var theme = byId(C.themes, state.theme), size = byId(C.sizes, state.size), era = byId(C.eras, state.era);
-    var city = C.cities.filter(function (c) { return c.id === state.city; })[0];
+    var theme = byId(C.themes, state.theme), size = byId(C.sizes, state.size);
+    var city = cityOf(state.city);
+    // a year with no real map for this city falls back to the current map
+    if (city && !hasMap(city, state.era)) state.era = C.defaults.era;
+    var era = byId(C.eras, state.era);
     var o = posterOpts(city, era.year);
     o.theme = theme; o.aspect = aspect(size); o.density = era.density; o.date = fmtDate($("#f-date").value);
-    o.label = "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + " (placeholder pattern)";
+    o.label = "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + (city ? "" : " (sample pattern; your city is drawn from real map data)");
     var svg = GaliPoster.svg(o);
     $("#picker-preview").innerHTML = svg;
     $("#order-preview").innerHTML = svg;
     var cap = (city ? city.name : "Your city") + " · " + era.year;
     $("#picker-caption").textContent = cap;
     $("#order-caption").textContent = cap;
-    eraPicker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.era; });
+    eraPicker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.era; i.disabled = !hasMap(city, i.value); });
+    [].forEach.call(fEra.options, function (opt) { opt.disabled = !hasMap(city, opt.value); });
     fEra.value = state.era;
+    $("#era-note").textContent = !city ? "" : ERAS.some(function (e) { return e.id !== C.defaults.era && hasMap(city, e.id); })
+      ? (C.eraNote || "") : "Other map years aren't available for " + city.name + " yet.";
     picker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.theme; });
     fTheme.value = state.theme; fSize.value = state.size; fCity.value = state.city;
     if (city) pickCity.value = state.city;
@@ -120,14 +129,13 @@
     $("#gallery-grid").innerHTML = list.map(galleryItem).join("");
     $("#gallery-note").textContent = note || "";
   }
-  var PLACEHOLDER_NOTE = "Delhi (2025) shows the real map. Other cities and earlier years are placeholder patterns on this staging site.";
   fetch("data/posters.json").then(function (r) { if (!r.ok) throw 0; return r.json(); })
-    .then(function (d) { showGallery(d.posters, PLACEHOLDER_NOTE); })
+    .then(function (d) { showGallery(d.posters, ""); })
     .catch(function () {
       // e.g. opened via file:// where fetch is blocked: fall back to one sample per theme
       showGallery(C.themes.slice(0, 8).map(function (t, i) {
         return { title: "Delhi — " + t.name, city: "delhi", theme: t.id, seed: 11, image: null };
-      }), PLACEHOLDER_NOTE + " (Serve over http to load data/posters.json.)");
+      }), "");
     });
 
   // ---- order form ----
