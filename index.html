@@ -111,6 +111,10 @@
           <select id="f-size" name="size" required></select>
         </div>
         <div class="field">
+          <label for="f-frame">Frame (optional)</label>
+          <select id="f-frame" name="frame"></select>
+        </div>
+        <div class="field">
           <label for="f-era">Map year</label>
           <select id="f-era" name="era" required></select>
         </div>
@@ -139,6 +143,7 @@
         </div>
         <div class="hp" aria-hidden="true"><label>Company <input type="text" name="company" tabindex="-1" autocomplete="off"></label></div>
         <div class="price"><span>Total</span><strong id="price" aria-live="polite">—</strong></div>
+        <p class="note price-detail" id="price-detail" aria-live="polite"></p>
         <button class="btn" type="submit" id="submit-btn">Send order request</button>
         <div class="status hidden" id="status" role="status" tabindex="-1"></div>
         <!-- PAYMENT: the Razorpay/Stripe link from config.js (payment.link) is rendered here after a successful request. -->

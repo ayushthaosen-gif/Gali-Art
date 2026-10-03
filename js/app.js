@@ -2,7 +2,7 @@
   "use strict";
   var C = window.GALI_CONFIG;
   var $ = function (s) { return document.querySelector(s); };
-  var state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era };
+  var state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none" };
 
   function byId(list, id) { return list.filter(function (x) { return x.id === id; })[0] || list[0]; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -10,6 +10,7 @@
   function aspect(size) { return size.h / size.w; }
   // Only offer map years that exist as a real map for at least one city; the rest would be invented patterns.
   var ERAS = C.eras.filter(function (e) { return C.cities.some(function (c) { return c.maps && c.maps[e.id]; }); });
+  function framePrice(frame, size) { return (frame.price && frame.price[size.id]) || 0; }
   function cityOf(id) { return C.cities.filter(function (c) { return c.id === id; })[0]; }
   function hasMap(city, eraId) { return !!(city && city.maps && city.maps[eraId]); }
 
@@ -52,13 +53,14 @@
   function fill(sel, items, fmt) {
     sel.innerHTML = items.map(function (i) { return '<option value="' + esc(i.id) + '">' + esc(fmt(i)) + "</option>"; }).join("");
   }
-  var pickCity = $("#pick-city"), fCity = $("#f-city"), fSize = $("#f-size"), fTheme = $("#f-theme"), fEra = $("#f-era");
+  var pickCity = $("#pick-city"), fCity = $("#f-city"), fSize = $("#f-size"), fTheme = $("#f-theme"), fEra = $("#f-era"), fFrame = $("#f-frame");
   var cityLabel = function (c) { return c.name + (c.soon ? " (preview only)" : ""); };
   fill(pickCity, C.cities, cityLabel);
   fill(fCity, C.cities, cityLabel);
   fCity.insertAdjacentHTML("beforeend", '<option value="other">Other city (tell us below)</option>');
   fill(fSize, C.sizes, function (s) { return s.label + " — " + money(s.price); });
   fill(fTheme, C.themes, function (t) { return t.name; });
+  fFrame.addEventListener("change", function () { set({ frame: fFrame.value }); });
   fill(fEra, ERAS, function (e) { return e.year + (e.year === 2025 ? " (current)" : ""); });
   var eraPicker = $("#era-picker");
   eraPicker.insertAdjacentHTML("beforeend", ERAS.map(function (e) {
@@ -84,7 +86,7 @@
   function set(patch) { for (var k in patch) state[k] = patch[k]; render(); }
 
   function render() {
-    var theme = byId(C.themes, state.theme), size = byId(C.sizes, state.size);
+    var theme = byId(C.themes, state.theme), size = byId(C.sizes, state.size), frame = byId(C.frames, state.frame);
     var city = cityOf(state.city);
     // a year with no real map for this city falls back to the current map
     if (city && !hasMap(city, state.era)) state.era = C.defaults.era;
@@ -94,10 +96,13 @@
     o.label = "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + (city ? "" : " (sample pattern; your city is drawn from real map data)");
     var svg = GaliPoster.svg(o);
     $("#picker-preview").innerHTML = svg;
-    $("#order-preview").innerHTML = svg;
+    // the frame wraps the poster in the order preview only; the colour picker above shows the bare poster
+    var op = $("#order-preview");
+    op.innerHTML = frame.color ? '<div class="frame" style="--fc:' + frame.color + '">' + svg + "</div>" : svg;
+    op.classList.toggle("framed", !!frame.color);
     var cap = (city ? city.name : "Your city") + " · " + era.year;
     $("#picker-caption").textContent = cap;
-    $("#order-caption").textContent = cap;
+    $("#order-caption").textContent = cap + (frame.color ? " · " + frame.name : "");
     eraPicker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.era; i.disabled = !hasMap(city, i.value); });
     [].forEach.call(fEra.options, function (opt) { opt.disabled = !hasMap(city, opt.value); });
     fEra.value = state.era;
@@ -105,8 +110,12 @@
       ? (C.eraNote || "") : "Other map years aren't available for " + city.name + " yet.";
     picker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.theme; });
     fTheme.value = state.theme; fSize.value = state.size; fCity.value = state.city;
+    fill(fFrame, C.frames, function (f) { var p = framePrice(f, size); return f.name + (p ? " — +" + money(p) : ""); });
+    fFrame.value = state.frame;
     if (city) pickCity.value = state.city;
-    $("#price").textContent = money(size.price);
+    var fp = framePrice(frame, size);
+    $("#price").textContent = money(size.price + fp);
+    $("#price-detail").textContent = fp ? size.label.split(" (")[0] + " " + money(size.price) + " + " + frame.name.toLowerCase() + " " + money(fp) : "";
   }
   render();
 
@@ -167,14 +176,14 @@
     var size = byId(C.sizes, fSize.value), btn = $("#submit-btn");
     var payload = {
       brand: C.brand.name, city: fCity.value === "other" ? $("#f-other").value.trim() : byId(C.cities, fCity.value).name,
-      size: size.label, theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year, printDate: fmtDate($("#f-date").value),
+      size: size.label, frame: byId(C.frames, fFrame.value).name, framePrice: framePrice(byId(C.frames, fFrame.value), size), theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year, printDate: fmtDate($("#f-date").value),
       name: $("#f-name").value.trim(), email: $("#f-email").value.trim(), notes: $("#f-notes").value.trim(),
-      price: size.price, currency: C.currency.code, submittedAt: new Date().toISOString()
+      price: size.price + framePrice(byId(C.frames, fFrame.value), size), currency: C.currency.code, submittedAt: new Date().toISOString()
     };
     var done = function () {
       show("Thank you, " + payload.name.split(" ")[0] + "! Your request is in. We'll email " + payload.email + " shortly.");
       if (C.payment.link) { var a = $("#pay-link"); a.href = C.payment.link; a.textContent = C.payment.label; $("#pay-wrap").classList.remove("hidden"); }
-      form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era }; $("#other-city-wrap").classList.add("hidden"); render();
+      form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none" }; $("#other-city-wrap").classList.add("hidden"); render();
     };
     if (!C.form.endpoint) { // demo mode
       console.info("Demo mode (no form endpoint set in config.js). Payload:", payload);

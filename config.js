@@ -45,6 +45,15 @@ window.GALI_CONFIG = {
       maps: { "2025": "assets/panaji-lines.webp" } }
   ],
 
+  // Optional frame, added to the poster price. price is per size id (same ids as `sizes`). color is the moulding
+  // shown in the order preview. Prices here are placeholders: set your real ones. id "none" must stay first.
+  frames: [
+    { id: "none",  name: "No frame",    color: null,      price: { a4: 0,   a3: 0,   "18x24": 0 } },
+    { id: "black", name: "Black frame", color: "#1b1b1d", price: { a4: 599, a3: 899, "18x24": 1299 } },
+    { id: "white", name: "White frame", color: "#f3f1ec", price: { a4: 599, a3: 899, "18x24": 1299 } },
+    { id: "oak",   name: "Oak frame",   color: "#c59b62", price: { a4: 699, a3: 999, "18x24": 1399 } }
+  ],
+
   // Colour themes: bg = background, line = streets AND text. Every pair clears 4.5:1 contrast.
   // Minor roads and water are derived at render time (see data/layout.json "mix"), never stored here.
   themes: [
@@ -69,5 +78,5 @@ window.GALI_CONFIG = {
   ],
   eraNote: "1995 shows today's streets within Delhi's 1995 built-up area. Earlier years are coming soon.",
 
-  defaults: { city: "delhi", theme: "blue", size: "a3", era: "2025" }
+  defaults: { city: "delhi", theme: "blue", size: "a3", era: "2025", frame: "none" }
 };

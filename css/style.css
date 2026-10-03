@@ -82,7 +82,12 @@ section { padding: 4rem 0; }
 .two { display: grid; gap: 2rem; }
 @media (min-width: 820px) { .two { grid-template-columns: 1fr 1fr; align-items: start; } .sticky { position: sticky; top: 5rem; } }
 .preview { width: min(100%, 22rem); margin-inline: auto; box-shadow: 0 18px 40px -20px rgba(20,33,58,.55); }
-.preview svg { width: 100%; height: auto; }
+.preview svg { width: 100%; height: auto; display: block; }
+.preview.framed { box-shadow: none; }
+/* frame moulding: padding is a share of the width, so it scales with the preview */
+.frame { padding: 4.5%; background: var(--fc); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), inset 0 0 0 3px rgba(0,0,0,.14), 0 18px 40px -20px rgba(20,33,58,.55); }
+.frame svg { box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 0 8px 1px rgba(0,0,0,.35); }
+.price-detail { margin: -.7rem 0 1.2rem; }
 .themes { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; border: 0; padding: 0; margin: 0 0 1.2rem; }
 .themes legend, label, .label { font-weight: 600; font-size: .9rem; }
 .themes legend { padding: 0; margin-bottom: .6rem; }
