@@ -12,11 +12,14 @@
   var ERAS = C.eras.filter(function (e) { return C.cities.some(function (c) { return c.maps && c.maps[e.id]; }); });
   function framePrice(frame, size) { return (frame.price && frame.price[size.id]) || 0; }
   function cityOf(id) { return C.cities.filter(function (c) { return c.id === id; })[0]; }
-  function hasMap(city, eraId) { return !!(city && city.maps && city.maps[eraId]); }
+  // a city we have no map for ("Other") can only show the current year
+  function hasMap(city, eraId) { return city ? !!(city.maps && city.maps[eraId]) : eraId === C.defaults.era; }
+  var VQ = "?v=" + encodeURIComponent(C.version || "dev");
 
   // ---- brand ----
   document.title = C.brand.name + " — custom city street-map posters";
   document.querySelectorAll("[data-brand]").forEach(function (e) { e.textContent = C.brand.name; });
+  document.querySelectorAll("[data-brand-native]").forEach(function (e) { e.textContent = C.brand.nameNative || ""; e.hidden = !C.brand.nameNative; });
   document.querySelectorAll("[data-tagline]").forEach(function (e) { e.textContent = C.brand.tagline; });
   document.querySelectorAll("[data-email-link]").forEach(function (e) { e.href = "mailto:" + C.brand.email; });
 
@@ -32,7 +35,7 @@
   function posterOpts(city, year) {
     var o = city ? { seed: city.seed, city: city.name, region: city.region, lat: city.lat, lon: city.lon, year: year }
                  : { seed: 99, city: "Your city", year: year };
-    if (city && city.maps && city.maps[String(year)]) o.mapImage = city.maps[String(year)]; // real map for this city + year
+    if (city && city.maps && city.maps[String(year)]) o.mapImage = city.maps[String(year)] + VQ; // real map for this city + year
     return o;
   }
   // "2026-02-14" -> "14 FEB 2026" (month abbreviation avoids 14/02 vs 02/14 confusion)
@@ -98,8 +101,12 @@
     $("#picker-preview").innerHTML = svg;
     // the frame wraps the poster in the order preview only; the colour picker above shows the bare poster
     var op = $("#order-preview");
-    op.innerHTML = frame.color ? '<div class="frame" style="--fc:' + frame.color + '">' + svg + "</div>" : svg;
+    var framed = frame.color ? '<div class="frame" style="--fc:' + frame.color + '">' + svg + "</div>" : svg;
+    op.innerHTML = framed;
     op.classList.toggle("framed", !!frame.color);
+    var mini = $("#frame-preview"); // small copy beside the frame field: on phones the main preview has scrolled out of view
+    mini.innerHTML = framed;
+    mini.classList.toggle("framed", !!frame.color);
     var cap = (city ? city.name : "Your city") + " · " + era.year;
     $("#picker-caption").textContent = cap;
     $("#order-caption").textContent = cap + (frame.color ? " · " + frame.name : "");
@@ -120,7 +127,7 @@
   render();
 
   // ---- shared layout (data/layout.json); falls back to built-in defaults if it can't be fetched ----
-  var layoutReady = fetch("data/layout.json").then(function (r) { if (!r.ok) throw 0; return r.json(); })
+  var layoutReady = fetch("data/layout.json" + VQ).then(function (r) { if (!r.ok) throw 0; return r.json(); })
     .then(function (l) { GaliPoster.setLayout(l); renderHero(); render(); })
     .catch(function () {});
 
@@ -138,7 +145,7 @@
     $("#gallery-grid").innerHTML = list.map(galleryItem).join("");
     $("#gallery-note").textContent = note || "";
   }
-  fetch("data/posters.json").then(function (r) { if (!r.ok) throw 0; return r.json(); })
+  fetch("data/posters.json" + VQ).then(function (r) { if (!r.ok) throw 0; return r.json(); })
     .then(function (d) { showGallery(d.posters, ""); })
     .catch(function () {
       // e.g. opened via file:// where fetch is blocked: fall back to one sample per theme
@@ -185,9 +192,16 @@
       if (C.payment.link) { var a = $("#pay-link"); a.href = C.payment.link; a.textContent = C.payment.label; $("#pay-wrap").classList.remove("hidden"); }
       form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none" }; $("#other-city-wrap").classList.add("hidden"); render();
     };
-    if (!C.form.endpoint) { // demo mode
-      console.info("Demo mode (no form endpoint set in config.js). Payload:", payload);
-      done(); show("Demo mode: no form endpoint is configured yet, so nothing was sent. Set form.endpoint in config.js."); return;
+    if (!C.form.endpoint) { // no order inbox configured: hand the request to the customer's email app instead of dropping it
+      var lines = ["Order request (" + payload.brand + ")", "",
+        "City: " + payload.city, "Map year: " + payload.mapYear, "Size: " + payload.size, "Frame: " + payload.frame,
+        "Colour theme: " + payload.theme, payload.printDate ? "Print date: " + payload.printDate : "",
+        "Total: " + money(payload.price), "", "Name: " + payload.name, "Email: " + payload.email,
+        payload.notes ? "Notes: " + payload.notes : ""].filter(function (l, i, a) { return l !== "" || a[i - 1] !== ""; });
+      window.location.href = "mailto:" + C.brand.email + "?subject=" + encodeURIComponent("Poster order: " + payload.city + ", " + payload.mapYear) +
+        "&body=" + encodeURIComponent(lines.join("\n"));
+      show("Almost there: your email app should open with your order details. Press send to complete your request. If nothing opens, email us at " + C.brand.email + ".");
+      return;
     }
     btn.disabled = true; btn.textContent = "Sending…";
     var opts = C.form.mode === "no-cors"

@@ -5,8 +5,10 @@
  * Never put API keys or private tokens here.
  */
 window.GALI_CONFIG = {
+  version: "dev", // stamped with the commit id on deploy (cache busting); leave as is
   brand: {
     name: "Gali", // placeholder brand name — change here only
+    nameNative: "गली", // Devanagari line of the logo (shown under the name in the footer); leave "" to hide
     tagline: "Your city, drawn in streets.",
     email: "hello@example.com" // replace with your real contact address
   },

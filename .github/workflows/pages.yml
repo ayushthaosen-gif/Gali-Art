@@ -26,6 +26,11 @@ jobs:
         run: |
           mkdir _site
           cp -r index.html 404.html privacy.html config.js css js assets data _site/
+      - name: Stamp version (cache busting)
+        run: |
+          V=${GITHUB_SHA::7}
+          sed -i "s/version: \"dev\"/version: \"$V\"/" _site/config.js
+          sed -i -E "s#(src|href)=\"(css/style.css|config.js|js/poster.js|js/app.js)\"#\1=\"\2?v=$V\"#g" _site/index.html _site/privacy.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

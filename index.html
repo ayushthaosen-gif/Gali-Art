@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Jost + DM Mono are used only for text on the poster previews. Self-host them later if you prefer no third party. -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Jost:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Jost:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400&display=swap">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -89,10 +89,10 @@
 
   <section id="order" class="alt">
     <div class="wrap two">
-      <div>
+      <div class="sticky">
         <p class="eyebrow">Order</p>
         <h2>Request your poster</h2>
-        <p class="lede">Send your details and we'll confirm by email.</p>
+        <p class="lede">Send your details and we'll confirm everything by email before you pay.</p>
         <div class="preview" id="order-preview"></div>
         <p class="caption" id="order-caption"></p>
       </div>
@@ -113,6 +113,7 @@
         <div class="field">
           <label for="f-frame">Frame (optional)</label>
           <select id="f-frame" name="frame"></select>
+          <div class="preview mini" id="frame-preview" aria-hidden="true"></div>
         </div>
         <div class="field">
           <label for="f-era">Map year</label>
@@ -158,15 +159,16 @@
       <details class="q"><summary>Is this a real map?</summary><p>Yes. Posters are drawn from real OpenStreetMap street data. Delhi also has a 1995 edition, which shows today's streets within the city's 1995 built-up area (an approximation, not a historical survey).</p></details>
       <details class="q"><summary>Why are there no street names?</summary><p>The street shapes are the design. A map without labels lets the city speak for itself, with just its name, coordinates and year beneath.</p></details>
       <details class="q"><summary>Can I get a different city?</summary><p>Pick "Other" in the order form and tell us which one. We are adding more cities.</p></details>
-      <details class="q"><summary>Which sizes are available?</summary><p>A4, A3 and 18 × 24 inch. Prices update live in the order form.</p></details>
-      <details class="q"><summary>How do I pay?</summary><p>Payment is not live yet. After you send a request we'll reply by email with the next steps.</p></details>
+      <details class="q"><summary>Which sizes are available?</summary><p>A4, A3 and 18 × 24 inch, with or without a frame. Prices update live in the order form.</p></details>
+      <details class="q"><summary>Can I get it framed?</summary><p>Yes. Choose a black, white or oak frame in the order form. The frame price is added to the total before you send your request.</p></details>
+      <details class="q"><summary>How do I pay?</summary><p>Send your request and we'll reply by email with the next steps, including how to pay.</p></details>
     </div>
   </section>
 </main>
 
 <footer class="site-footer">
   <div class="wrap row">
-    <div><strong data-brand>&nbsp;</strong><br><span data-tagline></span></div>
+    <div><span class="logo-stack" role="img" aria-label="Gali"><span class="logo-en" data-brand>&nbsp;</span><i class="logo-rule"></i><span class="logo-hi" lang="hi" data-brand-native></span></span><br><span data-tagline></span></div>
     <div><a data-email-link href="#">Contact</a> · <a href="privacy.html">Privacy &amp; Terms</a></div>
     <div>Map data © OpenStreetMap contributors</div>
   </div>

@@ -32,7 +32,8 @@ p { margin: 0 0 1em; }
 /* header */
 .site-header { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
 .bar { display: flex; align-items: center; justify-content: space-between; min-height: 3.5rem; gap: 1rem; }
-.brand { font-weight: 700; font-size: 1.3rem; letter-spacing: -.03em; color: var(--blue); text-decoration: none; }
+/* wordmark: Jost 400 caps, 0.42em tracking (the poster city-name style). The trailing margin cancels the last letter gap. */
+.brand { font-weight: 400; font-size: 1.15rem; letter-spacing: .42em; margin-right: -.42em; text-transform: uppercase; color: var(--blue); text-decoration: none; }
 .nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--line); padding: .5rem 1rem 1rem; }
 .nav.open { display: block; }
 .nav a { display: block; padding: .7rem 0; color: var(--ink); text-decoration: none; font-weight: 500; }
@@ -87,6 +88,8 @@ section { padding: 4rem 0; }
 /* frame moulding: padding is a share of the width, so it scales with the preview */
 .frame { padding: 4.5%; background: var(--fc); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), inset 0 0 0 3px rgba(0,0,0,.14), 0 18px 40px -20px rgba(20,33,58,.55); }
 .frame svg { box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 0 8px 1px rgba(0,0,0,.35); }
+.preview.mini { width: 7.5rem; margin: .7rem 0 0; }
+@media (min-width: 820px) { .preview.mini { display: none; } }
 .price-detail { margin: -.7rem 0 1.2rem; }
 .themes { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; border: 0; padding: 0; margin: 0 0 1.2rem; }
 .themes legend, label, .label { font-weight: 600; font-size: .9rem; }
@@ -120,6 +123,11 @@ details.q p { margin: .7rem 0 0; color: var(--muted); }
 /* footer */
 .site-footer { background: var(--blue); color: #fff; padding: 2.5rem 0; font-size: .95rem; }
 .site-footer a { color: #fff; }
+/* bilingual stack: GALI over a fine rule over the Devanagari name (logo 4c) */
+.logo-stack { display: inline-flex; flex-direction: column; align-items: center; margin-bottom: .6rem; }
+.logo-en { font-size: 1.5rem; letter-spacing: .42em; margin-right: -.42em; text-transform: uppercase; }
+.logo-rule { display: block; width: 2.2rem; height: 1px; background: currentColor; margin: .35rem 0 .3rem; }
+.logo-hi { font-family: "Noto Sans Devanagari", "Nirmala UI", "Mangal", sans-serif; font-size: 1rem; line-height: 1.2; }
 .site-footer .row { display: flex; flex-wrap: wrap; gap: 1rem 2rem; justify-content: space-between; }
 
 /* prose pages */
