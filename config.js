@@ -35,31 +35,31 @@ window.GALI_CONFIG = {
 
   // seed makes each city's placeholder pattern different. Only Delhi is a real product for now.
   cities: [
-    { id: "delhi",   name: "Delhi",   seed: 11 },
-    { id: "mumbai",  name: "Mumbai",  seed: 23, soon: true },
-    { id: "kolkata", name: "Kolkata", seed: 37, soon: true }
+    { id: "delhi",   name: "Delhi",   seed: 11, region: "India", lat: 28.6139, lon: 77.2090 },
+    { id: "mumbai",  name: "Mumbai",  seed: 23, region: "India", lat: 19.0760, lon: 72.8777, soon: true },
+    { id: "kolkata", name: "Kolkata", seed: 37, region: "India", lat: 22.5726, lon: 88.3639, soon: true }
   ],
 
-  // Colour themes: bg = background, line = street colour.
+  // Colour themes: bg = background, line = streets AND text. Every pair clears 4.5:1 contrast.
+  // Minor roads and water are derived at render time (see data/layout.json "mix"), never stored here.
   themes: [
     { id: "blue",       name: "Gali Blue",   bg: "#3F6BA8", line: "#FFFFFF" },
-    { id: "dark-gold",  name: "Dark & Gold", bg: "#111418", line: "#C9A24B" },
-    { id: "cream",      name: "Cream & Ink", bg: "#F3ECDD", line: "#1B1B1B" },
-    { id: "forest",     name: "Forest",      bg: "#1F4D3A", line: "#EAF2E3" },
-    { id: "blush",      name: "Blush",       bg: "#F2D7D5", line: "#7A2E3A" },
-    { id: "midnight",   name: "Midnight",    bg: "#0B1D3A", line: "#9FD0FF" },
-    { id: "terracotta", name: "Terracotta",  bg: "#B9553A", line: "#FFF1E0" },
-    { id: "mono",       name: "Mono Grey",   bg: "#E4E4E4", line: "#222222" }
+    { id: "dark-gold",  name: "Dark & Gold", bg: "#14161A", line: "#C9A35B" },
+    { id: "cream",      name: "Cream & Ink", bg: "#F2ECE0", line: "#1C1C1C" },
+    { id: "forest",     name: "Forest",      bg: "#23392E", line: "#E6DFC8" },
+    { id: "blush",      name: "Blush",       bg: "#EED9D2", line: "#5A2F2C" },
+    { id: "midnight",   name: "Midnight",    bg: "#0F1B2D", line: "#D8DEE8" },
+    { id: "terracotta", name: "Terracotta",  bg: "#A64E33", line: "#FBEFE3" },
+    { id: "mono",       name: "Mono Grey",   bg: "#D9D9D6", line: "#2B2B2B" }
   ],
 
-  // Map editions: which year's street network the poster shows. Steps of 25 years from 1920, then 2025.
+  // Map editions: which year's street network the poster shows. Steps of 25 years from 1920, then 2025 (the current map).
   // density only drives the placeholder preview (older = smaller, sparser city); it is not real data.
   eras: [
     { id: "1920", year: 1920, density: 0.25 },
     { id: "1945", year: 1945, density: 0.4 },
     { id: "1970", year: 1970, density: 0.6 },
     { id: "1995", year: 1995, density: 0.8 },
-    { id: "2020", year: 2020, density: 0.95 },
     { id: "2025", year: 2025, density: 1 }
   ],
   eraNote: "Historical editions are drawn from archival maps. We confirm availability for your city by email.",

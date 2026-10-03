@@ -24,10 +24,17 @@
   nav.addEventListener("click", function (e) { if (e.target.tagName === "A") { nav.classList.remove("open"); mb.setAttribute("aria-expanded", "false"); } });
 
   // ---- hero ----
-  $("#hero-poster").innerHTML = GaliPoster.svg({
-    seed: byId(C.cities, "delhi").seed, theme: byId(C.themes, "blue"), aspect: 4 / 3,
-    label: "Sample poster: street network in white lines on blue"
-  });
+  function posterOpts(city, year) {
+    return city ? { seed: city.seed, city: city.name, region: city.region, lat: city.lat, lon: city.lon, year: year }
+                : { seed: 99, city: "Your city", year: year };
+  }
+  function renderHero() {
+    var d = byId(C.cities, "delhi"), o = posterOpts(d, 2025);
+    o.theme = byId(C.themes, "blue"); o.aspect = 4 / 3;
+    o.label = "Sample poster: street network in white lines on blue, captioned Delhi";
+    $("#hero-poster").innerHTML = GaliPoster.svg(o);
+  }
+  renderHero();
 
   // ---- selects & theme radios ----
   function fill(sel, items, fmt) {
@@ -67,10 +74,10 @@
   function render() {
     var theme = byId(C.themes, state.theme), size = byId(C.sizes, state.size), era = byId(C.eras, state.era);
     var city = C.cities.filter(function (c) { return c.id === state.city; })[0];
-    var svg = GaliPoster.svg({
-      seed: city ? city.seed : 99, theme: theme, aspect: aspect(size), density: era.density,
-      label: "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + " (placeholder pattern)"
-    });
+    var o = posterOpts(city, era.year);
+    o.theme = theme; o.aspect = aspect(size); o.density = era.density;
+    o.label = "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + " (placeholder pattern)";
+    var svg = GaliPoster.svg(o);
     $("#picker-preview").innerHTML = svg;
     $("#order-preview").innerHTML = svg;
     var cap = (city ? city.name : "Your city") + " · " + era.year;
@@ -85,12 +92,19 @@
   }
   render();
 
+  // ---- shared layout (data/layout.json); falls back to built-in defaults if it can't be fetched ----
+  var layoutReady = fetch("data/layout.json").then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (l) { GaliPoster.setLayout(l); renderHero(); render(); })
+    .catch(function () {});
+
   // ---- gallery ----
   function galleryItem(p) {
     var theme = byId(C.themes, p.theme);
+    var o = posterOpts(C.cities.filter(function (c) { return c.id === p.city; })[0], p.year || 2025);
+    o.seed = p.seed; o.theme = theme; o.aspect = 4 / 3; o.label = p.alt || p.title;
     var art = p.image
       ? '<img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.title) + '" loading="lazy" width="600" height="800">'
-      : GaliPoster.svg({ seed: p.seed, theme: theme, aspect: 4 / 3, label: p.alt || p.title });
+      : GaliPoster.svg(o);
     return '<li class="card"><figure><div class="art">' + art + "</div><figcaption>" + esc(p.title) + "</figcaption></figure></li>";
   }
   function showGallery(list, note) {
@@ -103,7 +117,7 @@
     .catch(function () {
       // e.g. opened via file:// where fetch is blocked: fall back to one sample per theme
       showGallery(C.themes.slice(0, 8).map(function (t, i) {
-        return { title: "Delhi — " + t.name, theme: t.id, seed: 11 + i * 0, image: null };
+        return { title: "Delhi — " + t.name, city: "delhi", theme: t.id, seed: 11, image: null };
       }), PLACEHOLDER_NOTE + " (Serve over http to load data/posters.json.)");
     });
 
