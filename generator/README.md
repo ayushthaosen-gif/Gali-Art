@@ -65,7 +65,7 @@ python test_extent.py
 python test_fetch_ghsl.py
 ```
 
-`--extent-threshold` defaults to **500 m²** per cell. `--extent-buffer` defaults to **3 cells** of morphological closing (bridges narrow gaps, not a uniform outward buffer); holes are filled. `--extent-min-blob` removes connected blobs smaller than **30 cells**. Each road segment is kept when its middle vertex falls inside the cleaned extent; this does not clip segments at the boundary. `--max-tier N` optionally keeps only tiers 1 through N, and also works without a raster. Fewer than 5% retained triggers a coverage/threshold warning; an empty result stops rendering.
+`--extent-threshold` defaults to **1000 m²** per cell (10% of a 100 m cell). `--extent-buffer` defaults to **3 cells** of morphological closing (bridges narrow gaps, not a uniform outward buffer); holes are filled. `--extent-min-blob` removes connected blobs smaller than **30 cells**. Each road segment is kept when its middle vertex falls inside the cleaned extent; this does not clip segments at the boundary. `--max-tier N` optionally keeps only tiers 1 through N, and also works without a raster. Fewer than 5% retained triggers a coverage/threshold warning; an empty result stops rendering.
 
 The extent test creates two synthetic EPSG:4326 discs around India Gate, checks middle-vertex and tier filtering against the EPSG:32643 preview network, compares split-tile mosaics to a single raster, and exercises PDF, PNG and mask output. It substitutes system fonts to avoid font downloads. The downloader test uses mock HTTP for download, resume, retries, ZIP validation and caching, and checks epoch/grid selection offline. Neither script downloads OSM or GHSL.
 
