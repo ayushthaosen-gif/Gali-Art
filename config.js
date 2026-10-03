@@ -38,7 +38,7 @@ window.GALI_CONFIG = {
     // maps: { "<era id>": "<path to white-lines-on-transparent PNG/WebP>" }. A city/year without an entry
   // shows the generated placeholder pattern. Make masks with: generator/make_poster.py --formats mask
   { id: "delhi",   name: "Delhi",   seed: 11, region: "India", lat: 28.6139, lon: 77.2090,
-    maps: { "2025": "assets/delhi-lines.webp" } },
+    maps: { "1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp" } },
     { id: "mumbai",  name: "Mumbai",  seed: 23, region: "India", lat: 19.0760, lon: 72.8777, soon: true },
     { id: "kolkata", name: "Kolkata", seed: 37, region: "India", lat: 22.5726, lon: 88.3639, soon: true }
   ],
@@ -65,7 +65,7 @@ window.GALI_CONFIG = {
     { id: "1995", year: 1995, density: 0.8 },
     { id: "2025", year: 2025, density: 1 }
   ],
-  eraNote: "Historical editions are drawn from archival maps. We confirm availability for your city by email.",
+  eraNote: "1995 shows today's streets within Delhi's 1995 built-up area. Earlier years are coming soon.",
 
   defaults: { city: "delhi", theme: "blue", size: "a3", era: "2025" }
 };
