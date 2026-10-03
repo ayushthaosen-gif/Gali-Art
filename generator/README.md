@@ -13,6 +13,7 @@ python make_poster.py --preview --size a4 --dpi 100            # offline look-an
 python make_poster.py --place "Delhi, India" --theme blue --size 18x24
 python make_poster.py --point 28.6139 77.2090 --dist 9000 --city-name Delhi --size a3
 python make_poster.py --place "Delhi, India" --size a3 --bleed-mm 3   # print-shop file
+python make_poster.py --place "Guwahati, Assam, India" --city-name Guwahati --region "Assam, India" --theme blue --size a3   # Guwahati (check the printed area first)
 ```
 
 Output goes to `assets/<name>-<year>-<theme>-<size>.pdf` and `.png` (e.g. `assets/delhi-2025-blue-18x24.pdf`).

@@ -64,7 +64,8 @@ TIERS = {
 }
 
 # Recognisable centres for the coordinates line (not the boundary centroid).
-CENTRES = {"delhi": (28.6139, 77.2090), "mumbai": (19.0760, 72.8777), "kolkata": (22.5726, 88.3639)}
+CENTRES = {"delhi": (28.6139, 77.2090), "mumbai": (19.0760, 72.8777), "kolkata": (22.5726, 88.3639),
+           "guwahati": (26.1445, 91.7362)}
 
 FONT_URLS = {
     "Jost.ttf": "https://github.com/google/fonts/raw/main/ofl/jost/Jost%5Bwght%5D.ttf",

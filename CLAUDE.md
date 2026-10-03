@@ -30,6 +30,7 @@ Layout 1a: map 80% of width, centred, top edge at 12% W. Footer anchored 10% W a
 ## Website state (deployed on GitHub Pages)
 - Live at `https://ayushthaosen-gif.github.io/Gali-Art/` (repo `ayushthaosen-gif/Gali-Art`). Pages source = GitHub Actions; the `github-pages` environment allows `main`.
 - Style picker (8 themes, live recolour), map-year chips (1920, 1945, 1970, 1995, 2025), gallery, order form (city, size, year, theme, optional print date, name, email, notes; live price; demo mode when no endpoint).
+- Cities: Delhi (real 2025 map). Mumbai, Kolkata and Guwahati are `soon: true` (preview only, placeholder pattern) until a mask is generated and registered under `maps`.
 - Delhi 2025 uses the real map mask. Any other city/year shows a generated PLACEHOLDER pattern. Real masks register per city and year in `config.js` under `cities[].maps`, e.g. `maps: { "2025": "assets/delhi-lines.webp" }`.
 - Jost/DM Mono come from Google Fonts (mentioned in privacy.html). Self-hosting is an option later.
 
@@ -53,5 +54,6 @@ OSM has no data before ~2004. The only automated route is the GHSL "city extent"
 2. Run the full Delhi 2025 print poster on the owner's machine and check the real Jost/DM Mono typography and line weights; print a small crop at real scale.
 3. Not yet done from the design notes: Yamuna water tint (needs OSM water polygon), clip roads to the boundary, drop fragments under ~200 m, keep Lutyens' radial roads at tier 2.
 4. Owner to-dos: real poster images in `posters.json`, form endpoint (Formspree or Apps Script) in `config.js`, payment link, real contact email, final brand name, real prices, finish privacy/terms text, custom domain (migration notes in README).
+4b. Guwahati: run `python make_poster.py --place "Guwahati, Assam, India" --city-name Guwahati --region "Assam, India" --theme blue --size a3` locally (check the printed area looks like the city, roughly 200 to 330 km2), then `--formats mask`, convert to WebP, add `maps: { "2025": "assets/guwahati-lines.webp" }` to its city in `config.js` and delete `soon: true`.
 5. Check the live site on a phone (fonts, 1995 chip, order form, new personalise fields).
 6. Not built (ideas): highlighted route from a GPX file, boundary/circle/heart crop shapes, Hindi/regional city names in print (needs text shaping), traced archival maps for 1920/1945, foil/finish options and gift packaging (printer/ops decisions).

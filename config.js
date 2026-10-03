@@ -41,7 +41,9 @@ window.GALI_CONFIG = {
     { id: "delhi",   name: "Delhi",   seed: 11, region: "India", lat: 28.6139, lon: 77.2090,
       maps: { "2025": "assets/delhi-lines.webp" }, markDemo: { x: 0.715, y: 0.578 } },
     { id: "mumbai",  name: "Mumbai",  seed: 23, region: "India", lat: 19.0760, lon: 72.8777, soon: true },
-    { id: "kolkata", name: "Kolkata", seed: 37, region: "India", lat: 22.5726, lon: 88.3639, soon: true }
+    { id: "kolkata", name: "Kolkata", seed: 37, region: "India", lat: 22.5726, lon: 88.3639, soon: true },
+    // Guwahati: add `maps: { "2025": "assets/guwahati-lines.webp" }` and remove `soon` once the real mask is generated.
+    { id: "guwahati", name: "Guwahati", seed: 41, region: "Assam, India", lat: 26.1445, lon: 91.7362, soon: true }
   ],
 
   // Colour themes: bg = background, line = streets AND text. Every pair clears 4.5:1 contrast.
