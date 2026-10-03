@@ -1,5 +1,37 @@
 # Live framed-poster preview
 
+The demo also includes an exact Delhi street-detail crop, a downloadable size comparison, and three generated lifestyle scenes. These are in `product-gallery.css` / `product-gallery.js`; copy their assets and the demo's product sections when integrating them into the site.
+
+## Product gallery assets
+
+`delhi-line-detail.png` is a 1000 × 850 pixel crop of the existing `delhi-2025-blue-a3.png` generator export, which has 300 dpi metadata. It corresponds to 84.67 × 71.97 mm of the A3 print. The page serves a smaller lossless `delhi-line-detail.webp`; its decoded RGBA pixels are also checked against the crop. The link opens the PNG with its 300 dpi metadata. There is no resampling, sharpening, synthetic street detail or AI artwork. `detail-provenance.json` records the source and crop checksums, original dimensions, crop bounds and physical size. This is exact digital artwork, not a photograph or a guarantee of a particular printer's ink/paper appearance.
+
+Rebuild from your original 300 dpi generator PNG:
+
+```bash
+python frame-preview/build_product_assets.py --source assets/delhi-2025-blue-a3.png
+```
+
+The development script uses Pillow, validates the source DPI and bounds, and verifies decoded crop pixels against the original. It needs no network and never calls OSM. Use `--crop LEFT TOP RIGHT BOTTOM` for another part of the map; update the HTML crop-size caption if you change the crop. The source full poster is not duplicated into this folder.
+
+`size-comparison.svg` is a standalone, downloadable vector image generated from millimetre dimensions. A4 210 × 297, A3 297 × 420 and 18 × 24 inch 457 × 610 rectangles share one scale beside a clearly labelled 1800 mm sofa outline. The rectangles represent unframed prints; the wall cards above show frame/mat treatment. The sofa is a reference illustration rather than a claim about the customer's furniture. The image preserves the size relationships at any screen width.
+
+The displayed size scene uses `scale-room.webp`, an image-generated photorealistic interior, with three live HTML Delhi posters in the photographic black frames layered over its empty wall. The sofa spans approximately x=187–1259 in the 1448 × 1086 source and is assigned a reference width of 1800 mm. `data-sofa-left` / `data-sofa-width` record these manually inspected fractions; `product-gallery.js` calculates each framed outer size from one pixels-per-millimetre ratio. Their lower edges sit at 42% of image height. Percentage geometry scales with the full room image; it must not be cropped with `object-fit: cover`. If replacing the room asset, recalibrate the sofa bounds and poster baseline. The room is a visualisation, not an actual product or customer-room photograph. The frame face adds 40 mm to each print dimension: 250 × 337, 337 × 460 and 497 × 650 mm outer sizes. The room comparison stays at these three fixed sizes when the main size selector changes; theme and city controls still update all live artwork. The precise SVG remains available as a dimension-diagram download.
+
+### Lifestyle concepts and actual sample photographs
+
+`lifestyle-wall.webp`, `lifestyle-shelf.webp` and `lifestyle-packaging.webp` are generated visualisations using the existing Delhi blue poster as a reference. They show an oak-framed wall display with books and decor, an oak-framed shelf display, and a print beside suggested mailing materials. Each has a visible generated-image label. Generated map lines and typography may differ from the source; use the exact detail crop above as the artwork proof. Paper stock, frame materials and packaging are illustrative, not verified samples or a promise of what will ship.
+
+When actual samples are available, replace `SAMPLE_PHOTOS.wall.src`, `.shelf.src` and `.packaging.src` in `product-gallery.js`, set each replaced entry's `kind` to `photo`, and revise its alt text and caption. This hides its generated-image badge. Update the section introduction once the gallery consists of actual photos. Failed images leave an unavailable-preview fallback.
+
+Shot checklist:
+
+- Wall display: daylight, actual stocked frame and mat, whole frame visible above books and decor, no glare obscuring the streets.
+- Shelf display: actual stocked frame and mat, real shelf, straight camera, avoid filters that change the poster colours.
+- Packaging: the actual box or tube and protection materials you will ship, with a second image if the packed state hides everything.
+
+Keep originals for detail; export web copies around 1200–1600 px with sensible compression and meaningful alt text. Keep generated scenes labelled wherever they appear.
+
 Open `index.html` in a modern browser, or serve the repository root and visit `/frame-preview/`. All three finishes start with the Delhi blue poster. The demo uses the existing `../assets/delhi-lines.webp` map mask and HTML typography; it makes no network requests and has no dependencies. Its prices are illustrative INR totals (print + frame + optional mat).
 
 ## Add to your site
@@ -64,3 +96,5 @@ The photographic update was checked for successful loading of all three sources,
 ## Used on this site
 
 The order form (`index.html`, `js/app.js`) mounts two instances around the live poster SVG: the large one on the wall, and a small one beside the frame dropdown for phones. Our own controls drive them through `FramePreview.set({ frame, mat, size })`, so there is one source of truth (the form's state and `config.js`). Prices, finish names, mat prices, theme advice and the choice to switch the mat on for oak all come from `config.js`; the demo prices in `frame.js` are not used. Changes to `frame.js` and `frame.css` made for the site: a `none` finish (zero face, so an unframed poster hangs on the same wall with the same geometry) and the oak grain JPEG is only fetched if the photograph fails. The deploy copies this folder but leaves out the demo page and this file.
+
+The gallery (`#gallery` in `index.html`) uses the product assets here: three framed wall cards and the sofa scene render the live poster SVG through `FramePreview` and follow the city, colour and map-year pickers (the sofa prints keep their fixed A4, A3 and 18 x 24 sizes), the Delhi detail crop is static Delhi artwork, and the three lifestyle scenes are static generated images that never react to the controls. `product-gallery.js` loads the scenes from `SAMPLE_PHOTOS` (paths are relative to the page, so they start with `frame-preview/`) and puts a visible "Generated visualisation" label on each one. The deploy leaves out this README, the demo page, `build_product_assets.py` and `detail-provenance.json`.
