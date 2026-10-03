@@ -64,6 +64,8 @@
 .frame-swatch[data-select-frame="oak"] { background: #C9A77C url("oak.jpg") center / 100px; }
 .frame-swatch[aria-pressed="true"] { outline: 1px solid #252620; outline-offset: 4px; }
 .frame-swatch:focus-visible { outline: 3px solid #3F6BA8; outline-offset: 4px; }
+.framed[data-frame="none"] :is(.frame-edge, .frame-arris, .frame-seams, .frame-photograph, .frame-glare, .frame-paper, .frame-bevel) { display: none; }
+.framed[data-frame="none"] .frame-opening::after { display: none; }
 [data-frame-note] { font-size: 12px; line-height: 1.5; }
 [hidden] { display: none !important; }
 @media (prefers-reduced-motion: reduce) { .framed { transition: none; transform: none; } }

@@ -1,5 +1,7 @@
 /* Keep the original poster node live; all dimensions below are millimetres. */
 const FRAMES = {
+  // No frame: zero face width, so the sheet is the poster itself (used by the site; CSS hides the moulding layers).
+  none: { face: 0, color: "transparent", mat: false, matAllowed: false, themes: "all" },
   black: { face: 20, color: "#1B1B1B", photo: "frame-black.webp", photoSlice: "168", mat: false, matAllowed: false, themes: "all" },
   oak: { face: 20, color: "#C9A77C", texture: "oak.jpg", photo: "frame-oak.webp", photoSlice: "150", mat: true, matAllowed: true,
     themes: ["blue", "forest", "terracotta", "cream"] },
@@ -81,9 +83,11 @@ const PRICES = {
       element.style.aspectRatio = `${g.outer[0]} / ${g.outer[1]}`;
       element.style.setProperty("--frame-color", config.color); element.style.setProperty("--mat-color", MAT.color);
       const texture = config.texture || (frame === "white" ? FRAMES.oak.texture : null);
-      element.style.setProperty("--frame-texture", texture ? `url("${new URL(texture, scriptBase).href}")` : "none");
+      const photoState = config.photo ? photograph(config.photo) : null;
+      // The grain JPEG is only a fallback: fetch it when there is no photograph or the photograph failed to load.
+      element.style.setProperty("--frame-texture", texture && (!photoState || photoState.failed) ? `url("${new URL(texture, scriptBase).href}")` : "none");
       if (config.photo) {
-        const state = photograph(config.photo);
+        const state = photoState;
         element.dataset.photoReady = String(state.ready);
         element.style.setProperty("--frame-photo", `url("${new URL(config.photo, scriptBase).href}")`);
         element.style.setProperty("--frame-photo-slice", config.photoSlice || "12%");
