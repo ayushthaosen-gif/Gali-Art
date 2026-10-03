@@ -44,7 +44,7 @@ Never put secrets in `config.js`: it is public. Payment links and form endpoints
 ### Real poster images
 
 1. Generate with `generator/` (see its README) into `assets/`.
-2. In `data/posters.json`, set `"image": "assets/delhi-blue.png"` and a descriptive `"alt"`.
+2. In `data/posters.json`, set `"image": "assets/delhi-blue-a3.png"` and a descriptive `"alt"`.
 
 ## Deploy to GitHub Pages
 
