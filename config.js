@@ -32,7 +32,7 @@ window.GALI_CONFIG = {
   sizes: [
     { id: "a4",    label: "A4 (21 × 29.7 cm)",   w: 210, h: 297, price: 1499 },
     { id: "a3",    label: "A3 (29.7 × 42 cm)",   w: 297, h: 420, price: 2299 },
-    { id: "18x24", label: "18 × 24 in (46 × 61 cm)", w: 18, h: 24, mmW: 457, mmH: 610, price: 2999 }
+    { id: "18x24", label: "18 × 24 in (46 × 61 cm)", w: 18, h: 24, price: 2999 }
   ],
 
   // facts: optional detail lines the customer can print under the year. Numbers are computed from the same OpenStreetMap
@@ -64,22 +64,22 @@ window.GALI_CONFIG = {
 
   // Optional frame (design "Frames", launch range 6a-6c): one 20 mm flat-face profile in three finishes; oak and white can add
   // an off-white mat. price is per size id and is ADDED to the poster price. These prices are placeholders: set your real ones.
-  // color = moulding shown in the order preview. avoid = theme ids the finish looks poor with (shown as a gentle hint, not blocked).
+  // matDefault = choosing this finish switches the mat on (design 6b, oak with mat). avoid = theme ids the finish looks poor with (shown as a gentle hint, not blocked).
   frames: [
-    { id: "none",  name: "No frame", color: null, price: { a4: 0, a3: 0, "18x24": 0 } },
-    { id: "black", name: "Black wood", color: "#1a1a1b", price: { a4: 599, a3: 899, "18x24": 1299 }, matAllowed: false,
+    { id: "none",  name: "No frame", price: { a4: 0, a3: 0, "18x24": 0 } },
+    { id: "black", name: "Black wood", price: { a4: 599, a3: 899, "18x24": 1299 }, matAllowed: false,
       spec: "20 mm flat face, 25 mm deep, matte black. Acrylic glazing. The print fills the frame edge to edge.",
       note: "Our default. A black edge makes any colour look sharper." },
-    { id: "oak",   name: "Natural oak", color: "#c39a62", price: { a4: 699, a3: 999, "18x24": 1399 }, matAllowed: true,
+    { id: "oak",   name: "Natural oak", price: { a4: 699, a3: 999, "18x24": 1399 }, matAllowed: true, matDefault: true,
       spec: "20 mm flat face, 25 mm deep, oak veneer or solid oak. Acrylic glazing.",
       note: "The nicer-looking option. It goes best with Gali Blue, Forest, Terracotta and Cream." },
-    { id: "white", name: "White wood", color: "#f1efe9", price: { a4: 599, a3: 899, "18x24": 1299 }, matAllowed: true,
+    { id: "white", name: "White wood", price: { a4: 599, a3: 899, "18x24": 1299 }, matAllowed: true,
       avoid: ["cream", "blush", "mono"],
       spec: "20 mm flat face, 25 mm deep, white stain. Acrylic glazing.",
       note: "Suits light rooms. Looks best around a dark poster: Forest, Midnight, Dark & Gold or Gali Blue." }
   ],
-  // Off-white mat (45 degree bevel). Design reference: an A3 poster sits in a 40 x 50 cm frame; other sizes are scaled in the
-  // same proportion for the preview, so confirm the real frame sizes for A4 and 18 x 24 in before selling a mat with them.
+  // Off-white mat (45 degree bevel). The preview draws it to scale from frame-preview/frame.js (frame opening 300 x 400 mm for A4,
+  // 400 x 500 mm for A3, 610 x 762 mm for 18 x 24 in; the mat hides 5 mm of the print on each side). Confirm with your framer.
   mat: { name: "Off-white mat", price: { a4: 299, a3: 399, "18x24": 599 }, spec: "Off-white mat with a 45\u00b0 bevel, so the thin lines have some space." },
 
   // Colour themes: bg = background, line = streets AND text. Every pair clears 4.5:1 contrast.

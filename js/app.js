@@ -33,14 +33,11 @@
   }
   function framePrice(frame, size) { return (frame.price && frame.price[size.id]) || 0; }
   function matPrice(size) { return (C.mat && C.mat.price && C.mat.price[size.id]) || 0; }
-  // Frame drawn to scale: 20 mm face; with a mat the opening is 400 x 500 mm for A3 (scaled for other sizes) and the poster sits centred in it.
-  function frameHtml(svg, frame, size, mat) {
-    var pw = size.mmW || size.w, ph = size.mmH || size.h, face = 20, ow = pw, oh = ph;
-    if (mat) { ow = pw * 400 / 297; oh = ph * 500 / 420; }
-    var pad = face / (ow + 2 * face) * 100, mx = (ow - pw) / 2 / ow * 100, my = (oh - ph) / 2 / ow * 100;
-    var inner = mat ? '<div class="mat" style="padding:' + my.toFixed(2) + "% " + mx.toFixed(2) + '%">' + svg + "</div>" : svg;
-    return '<div class="frame" style="--fc:' + frame.color + ";padding:" + pad.toFixed(2) + '%">' + inner + "</div>";
-  }
+  // The framed preview (frame-preview/frame.js) draws the frame and mat to scale in millimetres around our live poster SVG.
+  // It only knows sizes by its own keys; prices, finishes and the mat toggle all stay in our config and form.
+  var FRAME_SIZE = { a4: "A4", a3: "A3", "18x24": "18x24" };
+  function mountFrame(id) { try { return window.FramePreview ? FramePreview.mount($(id)) : null; } catch (e) { return null; } }
+  var orderFrame = mountFrame("#order-framed"), miniFrame = mountFrame("#mini-framed");
   function cityOf(id) { return C.cities.filter(function (c) { return c.id === id; })[0]; }
   // a city we have no map for ("Other") can only show the current year
   function hasMap(city, eraId) { return city ? !!(city.maps && city.maps[eraId]) : eraId === C.defaults.era; }
@@ -94,7 +91,7 @@
   fCity.insertAdjacentHTML("beforeend", '<option value="other">Other city (tell us below)</option>');
   fill(fSize, C.sizes, function (s) { return s.label + ", " + money(s.price); });
   fill(fTheme, C.themes, function (t) { return t.name; });
-  fFrame.addEventListener("change", function () { set({ frame: fFrame.value }); });
+  fFrame.addEventListener("change", function () { set({ frame: fFrame.value, mat: !!byId(C.frames, fFrame.value).matDefault }); });
   fMat.addEventListener("change", function () { set({ mat: fMat.checked }); });
   fDetail.addEventListener("change", function () { set({ detail: fDetail.value }); });
   fDetailText.addEventListener("input", function () { render(); });
@@ -137,17 +134,15 @@
     o.label = "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + (city ? "" : " (sample pattern; your city is drawn from real map data)");
     var svg = GaliPoster.svg(o);
     $("#picker-preview").innerHTML = svg;
-    // the frame wraps the poster in the order preview only; the colour picker above shows the bare poster
-    var op = $("#order-preview");
-    var framed = frame.color ? frameHtml(svg, frame, size, mat) : svg;
-    op.innerHTML = framed;
-    op.classList.toggle("framed", !!frame.color);
-    var mini = $("#frame-preview"); // small copy beside the frame field: on phones the main preview has scrolled out of view
-    mini.innerHTML = framed;
-    mini.classList.toggle("framed", !!frame.color);
+    // the order preview hangs the same poster on the wall, in the chosen frame; the colour picker above shows it bare.
+    // The small copy beside the frame field matters on phones, where the main preview has scrolled out of view.
+    var hasFrame = frame.id !== "none", look = { frame: frame.id, mat: mat, size: FRAME_SIZE[size.id] || "A3" };
+    $("#order-poster").innerHTML = svg; $("#mini-poster").innerHTML = svg;
+    if (orderFrame) orderFrame.set(look);
+    if (miniFrame) miniFrame.set(look);
     var cap = (city ? city.name : "Your city") + " · " + era.year;
     $("#picker-caption").textContent = cap;
-    $("#order-caption").textContent = cap + (frame.color ? " · " + frame.name + (mat ? " with mat" : "") : "");
+    $("#order-caption").textContent = cap + (hasFrame ? " · " + frame.name + (mat ? " with mat" : "") : "");
     eraPicker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.era; i.disabled = !hasMap(city, i.value); });
     [].forEach.call(fEra.options, function (opt) { opt.disabled = !hasMap(city, opt.value); });
     fEra.value = state.era;
@@ -160,7 +155,7 @@
     $("#f-mat-wrap").classList.toggle("hidden", !frame.matAllowed);
     fMat.checked = mat;
     $("#f-mat-label").textContent = C.mat.name + " (+" + money(matPrice(size)) + ")";
-    $("#frame-spec").textContent = frame.color ? frame.spec + (mat ? " " + C.mat.spec : "") + " " + (frame.note || "") : "";
+    $("#frame-spec").textContent = hasFrame ? frame.spec + (mat ? " " + C.mat.spec : "") + " " + (frame.note || "") : "";
     var warn = !!(frame.avoid && frame.avoid.indexOf(state.theme) >= 0);
     $("#frame-hint").textContent = warn ? frame.name + " can look washed out around the " + theme.name + " poster. Black wood or natural oak suit it better." : "";
     $("#frame-hint").classList.toggle("hidden", !warn);

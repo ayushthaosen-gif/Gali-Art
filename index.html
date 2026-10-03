@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Jost + DM Mono are used only for text on the poster previews. Self-host them later if you prefer no third party. -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Jost:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400&display=swap">
+  <link rel="stylesheet" href="frame-preview/frame.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -93,7 +94,7 @@
         <p class="eyebrow">Order</p>
         <h2>Request your poster</h2>
         <p class="lede">Fill this in and we'll email you to confirm everything before you pay.</p>
-        <div class="preview" id="order-preview"></div>
+        <div class="frame-wall" id="order-preview"><div class="framed" id="order-framed" data-frame="none" data-size="A3" data-mat="false"><div class="poster" id="order-poster"></div></div></div>
         <p class="caption" id="order-caption"></p>
       </div>
       <form id="order-form" novalidate>
@@ -116,7 +117,7 @@
           <label class="check hidden" id="f-mat-wrap"><input type="checkbox" id="f-mat"><span id="f-mat-label"></span></label>
           <p class="note" id="frame-spec" style="margin:.4rem 0 0"></p>
           <p class="note warn hidden" id="frame-hint" aria-live="polite" style="margin:.3rem 0 0"></p>
-          <div class="preview mini" id="frame-preview" aria-hidden="true"></div>
+          <div class="mini-frame" aria-hidden="true"><div class="framed" id="mini-framed" data-frame="none" data-size="A3" data-mat="false"><div class="poster" id="mini-poster"></div></div></div>
         </div>
         <div class="field">
           <label for="f-era">Map year</label>
@@ -186,6 +187,7 @@
 <noscript><p class="wrap note">This site needs JavaScript for the style picker and order form.</p></noscript>
 <script src="config.js"></script>
 <script src="js/poster.js"></script>
+<script src="frame-preview/frame.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
