@@ -35,12 +35,14 @@ window.GALI_CONFIG = {
 
   // seed makes each city's placeholder pattern different. Only Delhi is a real product for now.
   cities: [
-    // maps: { "<era id>": "<path to white-lines-on-transparent PNG/WebP>" }. A city/year without an entry
-  // shows the generated placeholder pattern. Make masks with: generator/make_poster.py --formats mask
   { id: "delhi",   name: "Delhi",   seed: 11, region: "India", lat: 28.6139, lon: 77.2090,
     maps: { "1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp" } },
-    { id: "mumbai",  name: "Mumbai",  seed: 23, region: "India", lat: 19.0760, lon: 72.8777, soon: true },
-    { id: "kolkata", name: "Kolkata", seed: 37, region: "India", lat: 22.5726, lon: 88.3639, soon: true }
+    { id: "mumbai", name: "Mumbai", seed: 20, region: "India", lat: 19.076, lon: 72.8777,
+      maps: { "2025": "assets/mumbai-lines.webp" } },
+    { id: "kolkata", name: "Kolkata", seed: 21, region: "India", lat: 22.5726, lon: 88.3639,
+      maps: { "2025": "assets/kolkata-lines.webp" } },
+    { id: "panaji", name: "Panaji", seed: 60, region: "India", lat: 15.4909, lon: 73.8278,
+      maps: { "2025": "assets/panaji-lines.webp" } }
   ],
 
   // Colour themes: bg = background, line = streets AND text. Every pair clears 4.5:1 contrast.

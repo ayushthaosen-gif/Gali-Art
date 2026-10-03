@@ -1,0 +1,513 @@
+{
+ "_note": "Cities for batch_masks.py. id = file/config id, place = Nominatim query (check the printed area), region = footer line, lat/lon = footer coordinates + city centre. Add cities here, run batch_masks.py, then batch_masks.py --write-config.",
+ "cities": [
+  {
+   "id": "mumbai",
+   "name": "Mumbai",
+   "place": "Mumbai, India",
+   "region": "India",
+   "lat": 19.076,
+   "lon": 72.8777,
+   "dist": 14000
+  },
+  {
+   "id": "kolkata",
+   "name": "Kolkata",
+   "place": "Kolkata, India",
+   "region": "India",
+   "lat": 22.5726,
+   "lon": 88.3639
+  },
+  {
+   "id": "chennai",
+   "name": "Chennai",
+   "place": "Chennai, India",
+   "region": "India",
+   "lat": 13.0827,
+   "lon": 80.2707
+  },
+  {
+   "id": "bengaluru",
+   "name": "Bengaluru",
+   "place": "Bengaluru, India",
+   "region": "India",
+   "lat": 12.9716,
+   "lon": 77.5946
+  },
+  {
+   "id": "hyderabad",
+   "name": "Hyderabad",
+   "place": "Hyderabad, India",
+   "region": "India",
+   "lat": 17.385,
+   "lon": 78.4867
+  },
+  {
+   "id": "ahmedabad",
+   "name": "Ahmedabad",
+   "place": "Ahmedabad, India",
+   "region": "India",
+   "lat": 23.0225,
+   "lon": 72.5714,
+   "dist": 11000
+  },
+  {
+   "id": "pune",
+   "name": "Pune",
+   "place": "Pune, India",
+   "region": "India",
+   "lat": 18.5204,
+   "lon": 73.8567,
+   "dist": 11000
+  },
+  {
+   "id": "surat",
+   "name": "Surat",
+   "place": "Surat, India",
+   "region": "India",
+   "lat": 21.1702,
+   "lon": 72.8311,
+   "dist": 10000
+  },
+  {
+   "id": "jaipur",
+   "name": "Jaipur",
+   "place": "Jaipur, India",
+   "region": "India",
+   "lat": 26.9124,
+   "lon": 75.7873,
+   "dist": 10000
+  },
+  {
+   "id": "lucknow",
+   "name": "Lucknow",
+   "place": "Lucknow, India",
+   "region": "India",
+   "lat": 26.8467,
+   "lon": 80.9462,
+   "dist": 10000
+  },
+  {
+   "id": "kanpur",
+   "name": "Kanpur",
+   "place": "Kanpur, India",
+   "region": "India",
+   "lat": 26.4499,
+   "lon": 80.3319,
+   "dist": 10000
+  },
+  {
+   "id": "nagpur",
+   "name": "Nagpur",
+   "place": "Nagpur, India",
+   "region": "India",
+   "lat": 21.1458,
+   "lon": 79.0882
+  },
+  {
+   "id": "indore",
+   "name": "Indore",
+   "place": "Indore, India",
+   "region": "India",
+   "lat": 22.7196,
+   "lon": 75.8577,
+   "dist": 9000
+  },
+  {
+   "id": "bhopal",
+   "name": "Bhopal",
+   "place": "Bhopal, India",
+   "region": "India",
+   "lat": 23.2599,
+   "lon": 77.4126,
+   "dist": 9000
+  },
+  {
+   "id": "patna",
+   "name": "Patna",
+   "place": "Patna, India",
+   "region": "India",
+   "lat": 25.5941,
+   "lon": 85.1376
+  },
+  {
+   "id": "visakhapatnam",
+   "name": "Visakhapatnam",
+   "place": "Visakhapatnam, India",
+   "region": "India",
+   "lat": 17.6868,
+   "lon": 83.2185
+  },
+  {
+   "id": "vadodara",
+   "name": "Vadodara",
+   "place": "Vadodara, India",
+   "region": "India",
+   "lat": 22.3072,
+   "lon": 73.1812,
+   "dist": 9000
+  },
+  {
+   "id": "ludhiana",
+   "name": "Ludhiana",
+   "place": "Ludhiana, India",
+   "region": "India",
+   "lat": 30.901,
+   "lon": 75.8573,
+   "dist": 9000
+  },
+  {
+   "id": "agra",
+   "name": "Agra",
+   "place": "Agra, India",
+   "region": "India",
+   "lat": 27.1767,
+   "lon": 78.0081,
+   "dist": 8000
+  },
+  {
+   "id": "nashik",
+   "name": "Nashik",
+   "place": "Nashik, India",
+   "region": "India",
+   "lat": 19.9975,
+   "lon": 73.7898,
+   "dist": 8000
+  },
+  {
+   "id": "varanasi",
+   "name": "Varanasi",
+   "place": "Varanasi, India",
+   "region": "India",
+   "lat": 25.3176,
+   "lon": 82.9739,
+   "dist": 8000
+  },
+  {
+   "id": "amritsar",
+   "name": "Amritsar",
+   "place": "Amritsar, India",
+   "region": "India",
+   "lat": 31.634,
+   "lon": 74.8723,
+   "dist": 8000
+  },
+  {
+   "id": "prayagraj",
+   "name": "Prayagraj",
+   "place": "Prayagraj, India",
+   "region": "India",
+   "lat": 25.4358,
+   "lon": 81.8463,
+   "dist": 9000
+  },
+  {
+   "id": "coimbatore",
+   "name": "Coimbatore",
+   "place": "Coimbatore, India",
+   "region": "India",
+   "lat": 11.0168,
+   "lon": 76.9558,
+   "dist": 9000
+  },
+  {
+   "id": "madurai",
+   "name": "Madurai",
+   "place": "Madurai, India",
+   "region": "India",
+   "lat": 9.9252,
+   "lon": 78.1198
+  },
+  {
+   "id": "jodhpur",
+   "name": "Jodhpur",
+   "place": "Jodhpur, India",
+   "region": "India",
+   "lat": 26.2389,
+   "lon": 73.0243
+  },
+  {
+   "id": "vijayawada",
+   "name": "Vijayawada",
+   "place": "Vijayawada, India",
+   "region": "India",
+   "lat": 16.5062,
+   "lon": 80.648,
+   "dist": 7000
+  },
+  {
+   "id": "kochi",
+   "name": "Kochi",
+   "place": "Kochi, India",
+   "region": "India",
+   "lat": 9.9312,
+   "lon": 76.2673,
+   "dist": 9000
+  },
+  {
+   "id": "jabalpur",
+   "name": "Jabalpur",
+   "place": "Jabalpur, India",
+   "region": "India",
+   "lat": 23.1815,
+   "lon": 79.9864,
+   "dist": 8000
+  },
+  {
+   "id": "chandigarh",
+   "name": "Chandigarh",
+   "place": "Chandigarh, India",
+   "region": "India",
+   "lat": 30.7333,
+   "lon": 76.7794
+  },
+  {
+   "id": "srinagar",
+   "name": "Srinagar",
+   "place": "Srinagar, India",
+   "region": "India",
+   "lat": 34.0837,
+   "lon": 74.7973,
+   "dist": 8000
+  },
+  {
+   "id": "puducherry",
+   "name": "Puducherry",
+   "place": "Puducherry, India",
+   "region": "India",
+   "lat": 11.9416,
+   "lon": 79.8083
+  },
+  {
+   "id": "thiruvananthapuram",
+   "name": "Thiruvananthapuram",
+   "place": "Thiruvananthapuram, India",
+   "region": "India",
+   "lat": 8.5241,
+   "lon": 76.9366,
+   "dist": 8000
+  },
+  {
+   "id": "bhubaneswar",
+   "name": "Bhubaneswar",
+   "place": "Bhubaneswar, India",
+   "region": "India",
+   "lat": 20.2961,
+   "lon": 85.8245
+  },
+  {
+   "id": "raipur",
+   "name": "Raipur",
+   "place": "Raipur, Chhattisgarh, India",
+   "region": "India",
+   "lat": 21.2514,
+   "lon": 81.6296,
+   "dist": 9000
+  },
+  {
+   "id": "ranchi",
+   "name": "Ranchi",
+   "place": "Ranchi, India",
+   "region": "India",
+   "lat": 23.3441,
+   "lon": 85.3096,
+   "dist": 9000
+  },
+  {
+   "id": "guwahati",
+   "name": "Guwahati",
+   "place": "Guwahati, India",
+   "region": "India",
+   "lat": 26.1445,
+   "lon": 91.7362
+  },
+  {
+   "id": "gandhinagar",
+   "name": "Gandhinagar",
+   "place": "Gandhinagar, India",
+   "region": "India",
+   "lat": 23.2156,
+   "lon": 72.6369
+  },
+  {
+   "id": "dehradun",
+   "name": "Dehradun",
+   "place": "Dehradun, India",
+   "region": "India",
+   "lat": 30.3165,
+   "lon": 78.0322,
+   "dist": 8000
+  },
+  {
+   "id": "shimla",
+   "name": "Shimla",
+   "place": "Shimla, India",
+   "region": "India",
+   "lat": 31.1048,
+   "lon": 77.1734,
+   "dist": 5000
+  },
+  {
+   "id": "panaji",
+   "name": "Panaji",
+   "place": "Panaji, India",
+   "region": "India",
+   "lat": 15.4909,
+   "lon": 73.8278,
+   "dist": 5000
+  },
+  {
+   "id": "imphal",
+   "name": "Imphal",
+   "place": "Imphal, India",
+   "region": "India",
+   "lat": 24.817,
+   "lon": 93.9368,
+   "dist": 6000
+  },
+  {
+   "id": "shillong",
+   "name": "Shillong",
+   "place": "Shillong, India",
+   "region": "India",
+   "lat": 25.5788,
+   "lon": 91.8933,
+   "dist": 5000
+  },
+  {
+   "id": "aizawl",
+   "name": "Aizawl",
+   "place": "Aizawl, India",
+   "region": "India",
+   "lat": 23.7271,
+   "lon": 92.7176,
+   "dist": 6000
+  },
+  {
+   "id": "kohima",
+   "name": "Kohima",
+   "place": "Kohima, India",
+   "region": "India",
+   "lat": 25.6751,
+   "lon": 94.1086,
+   "dist": 5000
+  },
+  {
+   "id": "itanagar",
+   "name": "Itanagar",
+   "place": "Itanagar, India",
+   "region": "India",
+   "lat": 27.0844,
+   "lon": 93.6053,
+   "dist": 5000
+  },
+  {
+   "id": "gangtok",
+   "name": "Gangtok",
+   "place": "Gangtok, India",
+   "region": "India",
+   "lat": 27.3389,
+   "lon": 88.6065,
+   "dist": 5000
+  },
+  {
+   "id": "agartala",
+   "name": "Agartala",
+   "place": "Agartala, India",
+   "region": "India",
+   "lat": 23.8315,
+   "lon": 91.2868,
+   "dist": 6000
+  },
+  {
+   "id": "london",
+   "name": "London",
+   "place": "Greater London, United Kingdom",
+   "region": "United Kingdom",
+   "lat": 51.5074,
+   "lon": -0.1278
+  },
+  {
+   "id": "new-york",
+   "name": "New York",
+   "place": "New York City, New York, USA",
+   "region": "USA",
+   "lat": 40.7128,
+   "lon": -74.006
+  },
+  {
+   "id": "paris",
+   "name": "Paris",
+   "place": "Paris, France",
+   "region": "France",
+   "lat": 48.8566,
+   "lon": 2.3522
+  },
+  {
+   "id": "tokyo",
+   "name": "Tokyo",
+   "place": "Special Wards of Tokyo, Japan",
+   "region": "Japan",
+   "lat": 35.6762,
+   "lon": 139.6503,
+   "dist": 12000
+  },
+  {
+   "id": "singapore",
+   "name": "Singapore",
+   "place": "Singapore",
+   "region": "Singapore",
+   "lat": 1.3521,
+   "lon": 103.8198
+  },
+  {
+   "id": "dubai",
+   "name": "Dubai",
+   "place": "Dubai, United Arab Emirates",
+   "region": "United Arab Emirates",
+   "lat": 25.2048,
+   "lon": 55.2708,
+   "dist": 16000
+  },
+  {
+   "id": "barcelona",
+   "name": "Barcelona",
+   "place": "Barcelona, Spain",
+   "region": "Spain",
+   "lat": 41.3874,
+   "lon": 2.1686
+  },
+  {
+   "id": "amsterdam",
+   "name": "Amsterdam",
+   "place": "Amsterdam, Netherlands",
+   "region": "Netherlands",
+   "lat": 52.3676,
+   "lon": 4.9041
+  },
+  {
+   "id": "rome",
+   "name": "Rome",
+   "place": "Rome, Italy",
+   "region": "Italy",
+   "lat": 41.9028,
+   "lon": 12.4964
+  },
+  {
+   "id": "chicago",
+   "name": "Chicago",
+   "place": "Chicago, Illinois, USA",
+   "region": "USA",
+   "lat": 41.8781,
+   "lon": -87.6298
+  },
+  {
+   "id": "washington-dc",
+   "name": "Washington DC",
+   "place": "Washington, District of Columbia, USA",
+   "region": "USA",
+   "lat": 38.9072,
+   "lon": -77.0369
+  }
+ ]
+}
