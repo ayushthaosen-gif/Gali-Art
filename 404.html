@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found</title>
+  <meta name="robots" content="noindex">
+  <!-- Self-contained on purpose: a 404 can be served from any URL depth, so relative asset paths would break. -->
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#3F6BA8;color:#fff;font:1rem/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;text-align:center;padding:1rem}
+    h1{font-size:clamp(3rem,16vw,7rem);margin:0;letter-spacing:-.04em}
+    p{max-width:28rem;margin:.5rem auto 1.5rem}
+    a{display:inline-block;background:#fff;color:#2c4f82;font-weight:600;padding:.8rem 1.5rem;border-radius:999px;text-decoration:none}
+    a:focus-visible{outline:3px solid #ffb400;outline-offset:2px}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>404</h1>
+    <p>This street doesn't lead anywhere. Let's get you back on the map.</p>
+    <a id="home" href="/">Back to home</a>
+  </main>
+  <script>
+    // Find the site root without hardcoding it: probe parent paths for config.js (works at a domain root or a subpath).
+    (function () {
+      var seg = location.pathname.split("/").filter(Boolean), i = 0, home = document.getElementById("home");
+      (function probe() {
+        if (i > seg.length) return;
+        var base = "/" + seg.slice(0, i).join("/") + (i ? "/" : "");
+        fetch(base + "config.js", { method: "HEAD" }).then(function (r) {
+          if (r.ok) home.href = base; else { i++; probe(); }
+        }).catch(function () { i++; probe(); });
+      })();
+    })();
+  </script>
+</body>
+</html>
