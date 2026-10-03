@@ -33,6 +33,9 @@ Layout 1a: map 80% of width, centred, top edge at 12% W. Footer anchored 10% W a
 - Delhi 2025 uses the real map mask. Any other city/year shows a generated PLACEHOLDER pattern. Real masks register per city and year in `config.js` under `cities[].maps`, e.g. `maps: { "2025": "assets/delhi-lines.webp" }`.
 - Jost/DM Mono come from Google Fonts (mentioned in privacy.html). Self-hosting is an option later.
 
+## Personalisation (added; fulfilment is manual for now)
+Order form (all optional): area of map (whole city / neighbourhood ~5 km / street ~2 km) + "centre on" text; mark a special place (dot/ring/heart) + where; a dedication line (max 40 chars, Latin script); a printed date; then-and-now pair (older year + matching 2025, `pairDiscount` in `config.js`, shown only when the year is not 2025). All choices go in the order payload (`area`, `centreOn`, `mark`, `markAt`, `dedication`, `printDate`, `pair`). The web preview shows the dedication and a SAMPLE marker position (`markDemo` per city); the owner places the real one with the generator. Generator options: `--address` / `--point --dist` (custom centre), `--mark LAT LON --mark-style dot|ring|heart`, `--tagline`, `--edition 14/100` (prints `NO. 14 / 100`), `--date`. Footer text is placed glyph by glyph, so NON-LATIN SCRIPTS (e.g. Hindi) are NOT supported in the print file (the script warns); would need real text shaping (HarfBuzz) first. Test: `python generator/test_poster_options.py`.
+
 ## Generator (run locally; needs internet for OSM/Overpass; the Claude cloud sandbox blocks it)
 ```
 cd generator; python -m venv .venv; .venv\Scripts\Activate.ps1; pip install -r requirements.txt
@@ -50,4 +53,5 @@ OSM has no data before ~2004. The only automated route is the GHSL "city extent"
 2. Run the full Delhi 2025 print poster on the owner's machine and check the real Jost/DM Mono typography and line weights; print a small crop at real scale.
 3. Not yet done from the design notes: Yamuna water tint (needs OSM water polygon), clip roads to the boundary, drop fragments under ~200 m, keep Lutyens' radial roads at tier 2.
 4. Owner to-dos: real poster images in `posters.json`, form endpoint (Formspree or Apps Script) in `config.js`, payment link, real contact email, final brand name, real prices, finish privacy/terms text, custom domain (migration notes in README).
-5. Check the live site on a phone (fonts, 1995 chip, order form).
+5. Check the live site on a phone (fonts, 1995 chip, order form, new personalise fields).
+6. Not built (ideas): highlighted route from a GPX file, boundary/circle/heart crop shapes, Hindi/regional city names in print (needs text shaping), traced archival maps for 1920/1945, foil/finish options and gift packaging (printer/ops decisions).

@@ -22,6 +22,8 @@ Layout 1a from the design spec: map 80% of the width centred with its top edge a
 
 Optional personal date line (weddings, moves, births): `--date "14 FEB 2026"`, printed under the year in the same small type.
 
+Personalisation: `--tagline "Where we met"` (bottom line), `--edition 14/100` (prints `NO. 14 / 100`), `--mark LAT LON --mark-style dot|ring|heart` (marks a place, with a background-coloured halo so it reads over dense streets), and `--address "Hauz Khas Village, Delhi"` (geocode a place and centre on it, like `--point`; use `--dist` for the size of the area, about 5000 for a neighbourhood and 2000 for street level). The footer text can't shape non-Latin scripts such as Devanagari; the script warns if you try.
+
 Footer text: `--city-name`, `--region`, `--coords LAT LON`, `--year`. Defaults come from `--place` ("Delhi, India" gives DELHI / INDIA) and a built-in list of recognisable city centres. `--year` only changes the label: the road data is always current OpenStreetMap. The optional extent filter below approximates a past city's footprint; real historical street maps need archival data.
 
 - **PDF is the print master** (vector, exact page size). PNG is 300 dpi by default: A3 = 3508×4961 px, 18×24 in = 5400×7200 px. For the website use a small PNG (`--dpi 100`) and reference it from `data/posters.json` (`"image": "assets/delhi-blue-a3.png"`).

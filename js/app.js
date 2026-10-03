@@ -55,6 +55,9 @@
   fCity.insertAdjacentHTML("beforeend", '<option value="other">Other city (tell us below)</option>');
   fill(fSize, C.sizes, function (s) { return s.label + " — " + money(s.price); });
   fill(fTheme, C.themes, function (t) { return t.name; });
+  fill($("#f-area"), C.areas, function (x) { return x.label; });
+  fill($("#f-mark"), C.marks, function (x) { return x.label; });
+  $("#f-dedication").maxLength = C.dedicationMax;
   fill(fEra, C.eras, function (e) { return e.year + (e.year === 2025 ? " (current)" : ""); });
   $("#era-note").textContent = C.eraNote || "";
   var eraPicker = $("#era-picker");
@@ -64,6 +67,10 @@
   eraPicker.addEventListener("change", function (e) { if (e.target.name === "era") set({ era: e.target.value }); });
   fEra.addEventListener("change", function () { set({ era: fEra.value }); });
   $("#f-date").addEventListener("input", function () { render(); });
+  $("#f-dedication").addEventListener("input", function () { render(); });
+  $("#f-mark").addEventListener("change", function () { render(); });
+  $("#f-set").addEventListener("change", function () { render(); });
+  $("#f-area").addEventListener("change", function () { render(); });
 
   var picker = $("#theme-picker");
   picker.insertAdjacentHTML("beforeend", C.themes.map(function (t) {
@@ -85,10 +92,28 @@
     var city = C.cities.filter(function (c) { return c.id === state.city; })[0];
     var o = posterOpts(city, era.year);
     o.theme = theme; o.aspect = aspect(size); o.density = era.density; o.date = fmtDate($("#f-date").value);
+    o.tagline = $("#f-dedication").value.trim();
+    var markId = $("#f-mark").value;
+    if (markId !== "none") o.mark = { style: markId, x: city && city.markDemo ? city.markDemo.x : 0.5, y: city && city.markDemo ? city.markDemo.y : 0.5 };
+    $("#centre-wrap").classList.toggle("hidden", $("#f-area").value === "city");
+    $("#markat-wrap").classList.toggle("hidden", markId === "none");
+    var canPair = era.id !== "2025";
+    $("#set-wrap").classList.toggle("hidden", !canPair);
+    if (!canPair) $("#f-set").checked = false;
+    var pair = $("#f-set").checked;
     o.label = "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + " (placeholder pattern)";
     var svg = GaliPoster.svg(o);
     $("#picker-preview").innerHTML = svg;
-    $("#order-preview").innerHTML = svg;
+    var orderEl = $("#order-preview");
+    if (pair) {
+      var nowOpts = posterOpts(city, 2025);
+      nowOpts.theme = theme; nowOpts.aspect = aspect(size); nowOpts.tagline = o.tagline; nowOpts.date = o.date;
+      nowOpts.label = "Preview: " + (city ? city.name : "custom city") + " 2025 in " + theme.name + " (matching pair)";
+      orderEl.innerHTML = "<div>" + svg + "</div><div>" + GaliPoster.svg(nowOpts) + "</div>";
+    } else {
+      orderEl.innerHTML = svg;
+    }
+    orderEl.classList.toggle("pair", pair);
     var cap = (city ? city.name : "Your city") + " · " + era.year;
     $("#picker-caption").textContent = cap;
     $("#order-caption").textContent = cap;
@@ -97,7 +122,9 @@
     picker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.theme; });
     fTheme.value = state.theme; fSize.value = state.size; fCity.value = state.city;
     if (city) pickCity.value = state.city;
-    $("#price").textContent = money(size.price);
+    var total = pair ? Math.round(size.price * 2 * (1 - C.pairDiscount)) : size.price;
+    $("#price").textContent = money(total);
+    $("#price-note").textContent = pair ? "2 posters, " + Math.round(C.pairDiscount * 100) + "% off" : "";
   }
   render();
 
@@ -142,6 +169,9 @@
     setErr("#e-other", needOther && !other.value.trim() ? "Please tell us which city." : "", other);
     setErr("#e-name", name.value.trim().length < 2 ? "Please enter your name." : "", name);
     setErr("#e-email", !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim()) ? "Please enter a valid email address." : "", email);
+    var centre = $("#f-centre"), markAt = $("#f-markat");
+    setErr("#e-centre", $("#f-area").value !== "city" && !centre.value.trim() ? "Tell us which place to centre on." : "", centre);
+    setErr("#e-markat", $("#f-mark").value !== "none" && !markAt.value.trim() ? "Tell us where to place it." : "", markAt);
     form.querySelectorAll("[aria-invalid=true]").forEach(function () { ok = false; });
     if (!ok) form.querySelector("[aria-invalid=true]").focus();
     return ok;
@@ -161,7 +191,9 @@
       brand: C.brand.name, city: fCity.value === "other" ? $("#f-other").value.trim() : byId(C.cities, fCity.value).name,
       size: size.label, theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year, printDate: fmtDate($("#f-date").value),
       name: $("#f-name").value.trim(), email: $("#f-email").value.trim(), notes: $("#f-notes").value.trim(),
-      price: size.price, currency: C.currency.code, submittedAt: new Date().toISOString()
+      price: $("#f-set").checked ? Math.round(size.price * 2 * (1 - C.pairDiscount)) : size.price, currency: C.currency.code,
+      pair: $("#f-set").checked, area: byId(C.areas, $("#f-area").value).label, centreOn: $("#f-area").value === "city" ? "" : $("#f-centre").value.trim(),
+      mark: $("#f-mark").value, markAt: $("#f-mark").value === "none" ? "" : $("#f-markat").value.trim(), dedication: $("#f-dedication").value.trim(), submittedAt: new Date().toISOString()
     };
     var done = function () {
       show("Thank you, " + payload.name.split(" ")[0] + "! Your request is in. We'll email " + payload.email + " shortly.");

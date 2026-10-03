@@ -18,6 +18,7 @@
     city: { size: 0.072, track: 0.42 }, rule: { w: 0.07, h: 0.001, above: 0.032, below: 0.028 },
     region: { size: 0.0155, track: 0.36 }, coords: { size: 0.014, track: 0.12, above: 0.011 },
     year: { size: 0.014, track: 0.12, above: 0.011 }, date: { size: 0.014, track: 0.12, above: 0.011 },
+    tagline: { size: 0.014, track: 0.2, above: 0.016 }, mark: { size: 0.02, halo: 1.7 },
     roads: { t1: 0.0016, t2: 0.0011, t5: 0.00042 }, mix: { minor: 0.30 }
   };
 
@@ -108,6 +109,8 @@
       out.texts.push({ text: upper ? text.toUpperCase() : text, s: s, track: spec.track * s, mono: mono, y: top + h / 2 + 0.35 * s });
       cursor = top - gapAbove * W;
     }
+    var tg = L.tagline || L.region;
+    if (o.tagline) line(tg, o.tagline, 1.2, false, true, tg.above);
     var ds = L.date || L.year;
     if (o.date) line(ds, o.date, 1.2, true, false, ds.above);
     line(L.year, String(o.year), 1.2, true, false, L.year.above);
@@ -135,7 +138,7 @@
       var minorC = mix(line, bg, L.mix.minor);
       var label = o.label || "Placeholder street-map poster";
       var coords = o.lat != null ? fmtCoords(o.lat, o.lon) : "";
-      var ft = footer(H, { city: o.city || "Your city", region: o.region || "", coords: coords, year: o.year || 2025, date: o.date || "" });
+      var ft = footer(H, { city: o.city || "Your city", region: o.region || "", coords: coords, year: o.year || 2025, date: o.date || "", tagline: o.tagline || "" });
       var sw = function (ratio) { return f(ratio * W * PREVIEW_BOOST * 10) / 10; };
 
       var mapLayer;
@@ -149,12 +152,30 @@
           '<path d="' + p.major + '" stroke="' + line + '" stroke-width="' + sw(L.roads.t2) + '"/>' +
           '<path d="' + p.art + '" stroke="' + line + '" stroke-width="' + sw(L.roads.t1) + '"/></g>';
       }
+      var markLayer = "";
+      if (o.mark) { // illustrative marker in map-box coordinates; the real one is placed exactly from the order
+        var d = L.mark.size * W * PREVIEW_BOOST, mx = o.mark.x * MW, my = o.mark.y * MH, r = d / 2;
+        markLayer = '<circle cx="' + f(mx) + '" cy="' + f(my) + '" r="' + f(r * L.mark.halo) + '" fill="' + bg + '"/>';
+        if (o.mark.style === "ring") {
+          markLayer += '<circle cx="' + f(mx) + '" cy="' + f(my) + '" r="' + f(r * 0.8) + '" fill="none" stroke="' + line + '" stroke-width="' + f(d * 0.18) + '"/>';
+        } else if (o.mark.style === "heart") {
+          var hp = "";
+          for (var hi = 0; hi <= 40; hi++) {
+            var ht = 2 * Math.PI * hi / 40;
+            hp += (hi ? "L" : "M") + f(mx + 16 * Math.pow(Math.sin(ht), 3) / 17 * r) + " " +
+              f(my - (13 * Math.cos(ht) - 5 * Math.cos(2 * ht) - 2 * Math.cos(3 * ht) - Math.cos(4 * ht)) / 17 * r);
+          }
+          markLayer += '<path d="' + hp + 'Z" fill="' + line + '"/>';
+        } else {
+          markLayer += '<circle cx="' + f(mx) + '" cy="' + f(my) + '" r="' + f(r) + '" fill="' + line + '"/>';
+        }
+      }
       var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H +
         '" role="img" aria-label="' + esc(label) + '" preserveAspectRatio="xMidYMid slice">' +
         '<rect width="' + W + '" height="' + H + '" fill="' + bg + '"/>' +
         '<clipPath id="' + id + '"><rect width="' + f(MW) + '" height="' + f(MH) + '"/></clipPath>' +
         '<g transform="translate(' + f((W - MW) / 2) + " " + f(L.map.top * W) + ')">' +
-        mapLayer +
+        mapLayer + markLayer +
         '</g>' +
         '<rect x="' + f(ft.rule.x) + '" y="' + f(ft.rule.y) + '" width="' + f(ft.rule.w) + '" height="' + f(Math.max(ft.rule.h, 0.3)) + '" fill="' + line + '"/>';
       ft.texts.forEach(function (t) {
