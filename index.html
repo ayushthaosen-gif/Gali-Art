@@ -15,6 +15,7 @@
   <!-- Jost + DM Mono are used only for text on the poster previews. Self-host them later if you prefer no third party. -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Jost:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400&display=swap">
   <link rel="stylesheet" href="frame-preview/frame.css">
+  <link rel="stylesheet" href="frame-preview/product-gallery.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -63,9 +64,56 @@
 
   <section id="gallery" class="alt">
     <div class="wrap">
-      <div class="section-head"><p class="eyebrow">Gallery</p><h2>Some examples</h2></div>
-      <ul class="grid" id="gallery-grid"></ul>
-      <p class="note" id="gallery-note"></p>
+      <div class="section-head"><p class="eyebrow">Gallery</p><h2>On the wall</h2></div>
+      <p class="lede">Three frames, drawn with the city and colours you picked.</p>
+      <ul class="wall-grid">
+        <li class="wall-card"><div class="frame-wall"><div class="framed" data-frame="black" data-mat="false" data-size="A3"><div class="poster"></div></div></div><p class="wall-caption">Black wood</p></li>
+        <li class="wall-card"><div class="frame-wall"><div class="framed" data-frame="oak" data-mat="true" data-size="A3"><div class="poster"></div></div></div><p class="wall-caption">Natural oak with a mat</p></li>
+        <li class="wall-card"><div class="frame-wall"><div class="framed" data-frame="white" data-mat="false" data-size="A3"><div class="poster"></div></div></div><p class="wall-caption">White wood</p><p class="note wall-note hidden" id="white-note"></p></li>
+      </ul>
+      <p class="note">These are previews drawn from our map data. The frames and the wall are generated images, not photos of real frames.</p>
+
+      <div class="product-section" role="group" aria-labelledby="detail-title">
+        <div class="section-head"><p class="eyebrow">Up close</p><h2 id="detail-title">Every street, up close</h2></div>
+        <div class="detail-layout">
+          <figure class="detail-figure"><img src="frame-preview/delhi-line-detail.webp" width="1000" height="850" loading="lazy" decoding="async" alt="Close-up of fine Delhi streets from the blue A3 print file"></figure>
+          <div class="detail-copy">
+            <h3>Fine lines at 300 dpi</h3>
+            <p>This is a crop of the real Delhi print file, exported at 300 dpi. Nothing has been sharpened or added. The small lanes and the main roads both come from the map.</p>
+            <p class="detail-meta">Delhi, blue, A3 file.<br>The crop covers 84.67 × 71.97 mm of the print.</p>
+            <a class="asset-link" href="frame-preview/delhi-line-detail.png" target="_blank" rel="noopener">Open the 300 dpi crop (PNG)</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-section" role="group" aria-labelledby="scale-title">
+        <div class="section-head"><p class="eyebrow">Size</p><h2 id="scale-title">How big is it?</h2></div>
+        <figure class="scale-figure">
+          <div class="scale-room" data-sofa-left="0.1291" data-sofa-width="0.7403" data-print-bottom="0.42">
+            <img class="scale-room-photo" src="frame-preview/scale-room.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="A room mock-up with a linen sofa and three framed Delhi prints above it, A4, A3 and 18 by 24 inch">
+            <div class="scale-print framed" data-frame="black" data-mat="false" data-size="A4" aria-label="Framed A4 print"><div class="poster"></div></div>
+            <div class="scale-print framed" data-frame="black" data-mat="false" data-size="A3" aria-label="Framed A3 print"><div class="poster"></div></div>
+            <div class="scale-print framed" data-frame="black" data-mat="false" data-size="18x24" aria-label="Framed 18 by 24 inch print"><div class="poster"></div></div>
+          </div>
+          <div class="scale-legend">
+            <div><strong>A4</strong><span>Print 210 × 297 mm</span><span>Frame 250 × 337 mm</span></div>
+            <div><strong>A3</strong><span>Print 297 × 420 mm</span><span>Frame 337 × 460 mm</span></div>
+            <div><strong>18 × 24 in</strong><span>Print 457 × 610 mm</span><span>Frame 497 × 650 mm</span></div>
+          </div>
+          <figcaption>A room mock-up. The sofa is 180 cm wide. All three prints are in black frames with a 20 mm face and no mat, at the same scale.</figcaption>
+        </figure>
+        <a class="asset-link" href="frame-preview/size-comparison.svg" download>Download the size diagram (SVG)</a>
+      </div>
+
+      <div class="product-section" role="group" aria-labelledby="sample-title">
+        <div class="section-head"><p class="eyebrow">Real photos</p><h2 id="sample-title">Photos of the real thing</h2></div>
+        <p class="note" style="margin:0 0 1rem">We'll add photos of the actual prints and packaging here once samples are ready.</p>
+        <div class="sample-gallery">
+          <figure class="sample-card"><div class="sample-image" data-sample-photo="held"><span class="sample-pending">Photo coming soon</span></div><figcaption><h3>Held in hand</h3><p>The actual print, close up.</p></figcaption></figure>
+          <figure class="sample-card"><div class="sample-image" data-sample-photo="shelf"><span class="sample-pending">Photo coming soon</span></div><figcaption><h3>On a shelf</h3><p>The framed print at home.</p></figcaption></figure>
+          <figure class="sample-card"><div class="sample-image" data-sample-photo="packaging"><span class="sample-pending">Photo coming soon</span></div><figcaption><h3>How it arrives</h3><p>The packaging we'll use.</p></figcaption></figure>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -188,6 +236,7 @@
 <script src="config.js"></script>
 <script src="js/poster.js"></script>
 <script src="frame-preview/frame.js"></script>
+<script src="frame-preview/product-gallery.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

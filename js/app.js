@@ -119,6 +119,24 @@
 
   function set(patch) { for (var k in patch) state[k] = patch[k]; render(); }
 
+  // ---- gallery: the framed cards and the room scene follow the city, colour and map-year pickers ----
+  // Their sizes are fixed by the markup (data-size), so the main size selector never changes the scale comparison.
+  var FRAME_TO_SIZE = { A4: "a4", A3: "a3", "18x24": "18x24" };
+  var galleryPosters = [].map.call(document.querySelectorAll("#gallery .framed .poster"), function (poster) {
+    return { poster: poster, size: byId(C.sizes, FRAME_TO_SIZE[poster.closest(".framed").dataset.size]) };
+  });
+  function renderGallery(city, theme, era) {
+    galleryPosters.forEach(function (g) {
+      var o = posterOpts(city, era.year);
+      o.theme = theme; o.aspect = aspect(g.size); o.density = era.density;
+      o.label = (city ? city.name : "Sample") + " " + era.year + " poster in " + theme.name + ", " + g.size.label.split(" (")[0];
+      g.poster.innerHTML = GaliPoster.svg(o);
+    });
+    var white = byId(C.frames, "white"), avoid = !!(white.avoid && white.avoid.indexOf(theme.id) >= 0);
+    $("#white-note").textContent = avoid ? "White wood can look washed out around " + theme.name + "." : "";
+    $("#white-note").classList.toggle("hidden", !avoid);
+  }
+
   function render() {
     var theme = byId(C.themes, state.theme), size = byId(C.sizes, state.size), frame = byId(C.frames, state.frame);
     if (!frame.matAllowed) state.mat = false; // no mat with this finish
@@ -134,6 +152,7 @@
     o.label = "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + (city ? "" : " (sample pattern; your city is drawn from real map data)");
     var svg = GaliPoster.svg(o);
     $("#picker-preview").innerHTML = svg;
+    renderGallery(city, theme, era);
     // the order preview hangs the same poster on the wall, in the chosen frame; the colour picker above shows it bare.
     // The small copy beside the frame field matters on phones, where the main preview has scrolled out of view.
     var hasFrame = frame.id !== "none", look = { frame: frame.id, mat: mat, size: FRAME_SIZE[size.id] || "A3" };
@@ -173,29 +192,6 @@
   var layoutReady = fetch("data/layout.json" + VQ).then(function (r) { if (!r.ok) throw 0; return r.json(); })
     .then(function (l) { GaliPoster.setLayout(l); renderHero(); render(); })
     .catch(function () {});
-
-  // ---- gallery ----
-  function galleryItem(p) {
-    var theme = byId(C.themes, p.theme);
-    var o = posterOpts(C.cities.filter(function (c) { return c.id === p.city; })[0], p.year || 2025);
-    o.seed = p.seed; o.theme = theme; o.aspect = 4 / 3; o.label = p.alt || p.title;
-    var art = p.image
-      ? '<img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.title) + '" loading="lazy" width="600" height="800">'
-      : GaliPoster.svg(o);
-    return '<li class="card"><figure><div class="art">' + art + "</div><figcaption>" + esc(p.title) + "</figcaption></figure></li>";
-  }
-  function showGallery(list, note) {
-    $("#gallery-grid").innerHTML = list.map(galleryItem).join("");
-    $("#gallery-note").textContent = note || "";
-  }
-  fetch("data/posters.json" + VQ).then(function (r) { if (!r.ok) throw 0; return r.json(); })
-    .then(function (d) { showGallery(d.posters, ""); })
-    .catch(function () {
-      // e.g. opened via file:// where fetch is blocked: fall back to one sample per theme
-      showGallery(C.themes.slice(0, 8).map(function (t, i) {
-        return { title: "Delhi in " + t.name, city: "delhi", theme: t.id, seed: 11, image: null };
-      }), "");
-    });
 
   // ---- order form ----
   var form = $("#order-form"), statusEl = $("#status");

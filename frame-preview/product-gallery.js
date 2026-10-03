@@ -8,8 +8,6 @@ const SAMPLE_PHOTOS = {
 const room = document.querySelector(".scale-room");
 if (room) {
   const photo = room.querySelector(".scale-room-photo");
-  const original = document.querySelector(".framed .poster");
-  room.querySelectorAll(".scale-print").forEach(slot => slot.append(original.cloneNode(true)));
   function layoutRoom() {
     const imageWidth = photo.naturalWidth || Number(photo.getAttribute("width"));
     const imageHeight = photo.naturalHeight || Number(photo.getAttribute("height"));
