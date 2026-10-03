@@ -18,7 +18,7 @@
     city: { size: 0.072, track: 0.42 }, rule: { w: 0.07, h: 0.001, above: 0.032, below: 0.028 },
     region: { size: 0.0155, track: 0.36 }, coords: { size: 0.014, track: 0.12, above: 0.011 },
     year: { size: 0.014, track: 0.12, above: 0.011 }, date: { size: 0.014, track: 0.12, above: 0.011 },
-    tagline: { size: 0.014, track: 0.2, above: 0.016 }, mark: { size: 0.02, halo: 1.7 },
+    detail: { size: 0.0165, track: 0.03, above: 0.026 }, mark: { size: 0.02, halo: 1.7 },
     roads: { t1: 0.0016, t2: 0.0011, t5: 0.00042 }, mix: { minor: 0.30 }
   };
 
@@ -109,9 +109,9 @@
       out.texts.push({ text: upper ? text.toUpperCase() : text, s: s, track: spec.track * s, mono: mono, y: top + h / 2 + 0.35 * s });
       cursor = top - gapAbove * W;
     }
-    var tg = L.tagline || L.region;
-    if (o.tagline) line(tg, o.tagline, 1.2, false, true, tg.above);
-    var ds = L.date || L.year;
+    var ds = L.date || L.year, dt = L.detail;
+    // optional detail line closes the stack in Jost sentence case after a larger gap, so the mono data block above never changes
+    if (o.detail) line(dt, o.detail, 1.2, false, false, dt.above);
     if (o.date) line(ds, o.date, 1.2, true, false, ds.above);
     line(L.year, String(o.year), 1.2, true, false, L.year.above);
     if (o.coords) line(L.coords, o.coords, 1.2, true, false, L.coords.above);
@@ -138,20 +138,9 @@
       var minorC = mix(line, bg, L.mix.minor);
       var label = o.label || "Placeholder street-map poster";
       var coords = o.lat != null ? fmtCoords(o.lat, o.lon) : "";
-      var ft = footer(H, { city: o.city || "Your city", region: o.region || "", coords: coords, year: o.year || 2025, date: o.date || "", tagline: o.tagline || "" });
+      var ft = footer(H, { city: o.city || "Your city", region: o.region || "", coords: coords, year: o.year || 2025, date: o.date || "", detail: o.detail || "" });
       var sw = function (ratio) { return f(ratio * W * PREVIEW_BOOST * 10) / 10; };
 
-      var mapLayer;
-      if (o.mapImage) { // real map: one white-lines-on-transparent image used as an alpha mask over the theme line colour
-        mapLayer = '<mask id="m' + id + '" maskUnits="userSpaceOnUse" x="0" y="0" width="' + f(MW) + '" height="' + f(MH) + '" mask-type="alpha" style="mask-type:alpha">' +
-          '<image href="' + esc(o.mapImage) + '" width="' + f(MW) + '" height="' + f(MH) + '" preserveAspectRatio="none"/></mask>' +
-          '<rect width="' + f(MW) + '" height="' + f(MH) + '" fill="' + line + '" mask="url(#m' + id + ')"/>';
-      } else {
-        mapLayer = '<g clip-path="url(#' + id + ')" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
-          '<path d="' + p.minor + '" stroke="' + minorC + '" stroke-width="' + sw(L.roads.t5) + '"/>' +
-          '<path d="' + p.major + '" stroke="' + line + '" stroke-width="' + sw(L.roads.t2) + '"/>' +
-          '<path d="' + p.art + '" stroke="' + line + '" stroke-width="' + sw(L.roads.t1) + '"/></g>';
-      }
       var markLayer = "";
       if (o.mark) { // illustrative marker in map-box coordinates; the real one is placed exactly from the order
         var d = L.mark.size * W * PREVIEW_BOOST, mx = o.mark.x * MW, my = o.mark.y * MH, r = d / 2;
@@ -169,6 +158,17 @@
         } else {
           markLayer += '<circle cx="' + f(mx) + '" cy="' + f(my) + '" r="' + f(r) + '" fill="' + line + '"/>';
         }
+      }
+      var mapLayer;
+      if (o.mapImage) { // real map: one white-lines-on-transparent image used as an alpha mask over the theme line colour
+        mapLayer = '<mask id="m' + id + '" maskUnits="userSpaceOnUse" x="0" y="0" width="' + f(MW) + '" height="' + f(MH) + '" mask-type="alpha" style="mask-type:alpha">' +
+          '<image href="' + esc(o.mapImage) + '" width="' + f(MW) + '" height="' + f(MH) + '" preserveAspectRatio="none"/></mask>' +
+          '<rect width="' + f(MW) + '" height="' + f(MH) + '" fill="' + line + '" mask="url(#m' + id + ')"/>';
+      } else {
+        mapLayer = '<g clip-path="url(#' + id + ')" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="' + p.minor + '" stroke="' + minorC + '" stroke-width="' + sw(L.roads.t5) + '"/>' +
+          '<path d="' + p.major + '" stroke="' + line + '" stroke-width="' + sw(L.roads.t2) + '"/>' +
+          '<path d="' + p.art + '" stroke="' + line + '" stroke-width="' + sw(L.roads.t1) + '"/></g>';
       }
       var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H +
         '" role="img" aria-label="' + esc(label) + '" preserveAspectRatio="xMidYMid slice">' +

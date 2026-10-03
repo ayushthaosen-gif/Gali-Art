@@ -1,77 +1,13 @@
 {
   "_note": "Gallery items. To use a real image set \"image\" to a relative path like \"assets/delhi-blue.png\" (and write a good \"alt\"). When \"image\" is null a placeholder SVG pattern is generated from city + theme + seed.",
   "posters": [
-    {
-      "id": "delhi-blue",
-      "title": "Delhi — Gali Blue",
-      "city": "delhi",
-      "theme": "blue",
-      "seed": 11,
-      "image": null,
-      "alt": "Placeholder street pattern in white lines on blue"
-    },
-    {
-      "id": "delhi-dark-gold",
-      "title": "Delhi — Dark & Gold",
-      "city": "delhi",
-      "theme": "dark-gold",
-      "seed": 11,
-      "image": null,
-      "alt": "Placeholder street pattern in gold lines on near-black"
-    },
-    {
-      "id": "delhi-cream",
-      "title": "Delhi — Cream & Ink",
-      "city": "delhi",
-      "theme": "cream",
-      "seed": 11,
-      "image": null,
-      "alt": "Placeholder street pattern in black lines on cream"
-    },
-    {
-      "id": "mumbai-forest",
-      "title": "Mumbai — Forest",
-      "city": "mumbai",
-      "theme": "forest",
-      "seed": 23,
-      "image": null,
-      "alt": "Placeholder street pattern in pale lines on green"
-    },
-    {
-      "id": "mumbai-blush",
-      "title": "Mumbai — Blush",
-      "city": "mumbai",
-      "theme": "blush",
-      "seed": 23,
-      "image": null,
-      "alt": "Placeholder street pattern in maroon lines on blush pink"
-    },
-    {
-      "id": "kolkata-midnight",
-      "title": "Kolkata — Midnight",
-      "city": "kolkata",
-      "theme": "midnight",
-      "seed": 37,
-      "image": null,
-      "alt": "Placeholder street pattern in light blue lines on navy"
-    },
-    {
-      "id": "kolkata-terra",
-      "title": "Kolkata — Terracotta",
-      "city": "kolkata",
-      "theme": "terracotta",
-      "seed": 37,
-      "image": null,
-      "alt": "Placeholder street pattern in cream lines on terracotta"
-    },
-    {
-      "id": "guwahati-mono",
-      "title": "Guwahati — Mono Grey",
-      "city": "guwahati",
-      "theme": "mono",
-      "seed": 41,
-      "image": null,
-      "alt": "Placeholder street pattern in dark lines on light grey, captioned Guwahati"
-    }
+    { "id": "delhi-blue",       "title": "Delhi in Gali Blue",   "city": "delhi",   "theme": "blue",       "seed": 11, "image": null, "alt": "Street map in white lines on blue" },
+    { "id": "delhi-dark-gold",  "title": "Delhi in Dark & Gold", "city": "delhi",   "theme": "dark-gold",  "seed": 11, "image": null, "alt": "Street map in gold lines on near-black" },
+    { "id": "delhi-cream",      "title": "Delhi in Cream & Ink", "city": "delhi",   "theme": "cream",      "seed": 11, "image": null, "alt": "Street map in black lines on cream" },
+    { "id": "mumbai-forest",    "title": "Mumbai in Forest",     "city": "mumbai",  "theme": "forest",     "seed": 23, "image": null, "alt": "Street map in pale lines on green" },
+    { "id": "mumbai-blush",     "title": "Mumbai in Blush",      "city": "mumbai",  "theme": "blush",      "seed": 23, "image": null, "alt": "Street map in maroon lines on blush pink" },
+    { "id": "kolkata-midnight", "title": "Kolkata in Midnight",  "city": "kolkata", "theme": "midnight",   "seed": 37, "image": null, "alt": "Street map in light blue lines on navy" },
+    { "id": "kolkata-terra",    "title": "Kolkata in Terracotta","city": "kolkata", "theme": "terracotta", "seed": 37, "image": null, "alt": "Street map in cream lines on terracotta" },
+    { "id": "kolkata-mono",     "title": "Kolkata in Mono Grey", "city": "kolkata", "theme": "mono",       "seed": 37, "image": null, "alt": "Street map in dark lines on light grey" }
   ]
 }

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gali — Find your frame</title>
+  <link rel="stylesheet" href="frame.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #292B26; background: #F7F5F0; font: 14px/1.5 Arial, sans-serif; }
+    button, select, input { font: inherit; accent-color: #30392E; }
+    .page { max-width: 1600px; margin: auto; padding: 32px 40px 24px; }
+    .brand { display: flex; align-items: baseline; gap: 12px; padding-bottom: 22px; border-bottom: 1px solid #DCDCD3; }
+    .wordmark { font-size: 27px; letter-spacing: -.08em; font-weight: 700; }
+    .brand span:last-child { font-size: 10px; letter-spacing: .19em; text-transform: uppercase; }
+    .intro { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin: 36px 0 30px; }
+    .eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 10px; }
+    h1 { font: 42px/1.08 Georgia, serif; font-weight: 400; letter-spacing: -.03em; margin: 0 0 12px; }
+    .intro p:last-child { margin: 0; color: #686A60; }
+    .settings { display: flex; flex-wrap: wrap; gap: 14px; }
+    .settings label { display: grid; gap: 5px; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+    select { border: 1px solid #CCCFC3; border-radius: 4px; padding: 8px 26px 8px 10px; background: #F7F5F0; color: #292B26; font-size: 12px; letter-spacing: normal; }
+    .gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+    .card { min-width: 0; background: #EFEBE3; border: 1px solid #DDD8CE; border-radius: 6px; overflow: hidden; }
+    .frame-wall { min-height: 460px; padding: 46px 20px; display: flex; align-items: center; }
+    .card-info { min-height: 175px; padding: 22px 24px 18px; background: #F7F5F0; }
+    .card-heading { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+    h2 { font: 23px/1.2 Georgia, serif; font-weight: 400; margin: 0; }
+    .number { color: #6A6C61; font-size: 10px; letter-spacing: .1em; }
+    .spec { margin: 9px 0 18px; font-size: 11px; color: #727468; }
+    .card-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; }
+    .mat-control { display: flex; align-items: center; gap: 7px; font-size: 12px; cursor: pointer; }
+    .price { font-size: 15px; font-variant-numeric: tabular-nums; }
+    [data-frame-note] { color: #795C3B; margin-bottom: 0; }
+    .edit-strip { display: flex; gap: 24px; align-items: center; justify-content: space-between; margin-top: 26px; padding: 18px 0; border-top: 1px solid #DCDCD3; }
+    .edit-strip label { font-size: 12px; color: #686A60; }
+    .edit-strip input[type=text] { margin-left: 12px; border: 0; border-bottom: 1px solid #BBBDB1; padding: 6px; background: transparent; width: 140px; color: #292B26; }
+    .edit-strip p { margin: 0; font-size: 11px; color: #727468; }
+    footer { margin-top: 14px; display: flex; justify-content: space-between; font-size: 10px; color: #85867B; }
+    /* Demo artwork only. A host site keeps its own .poster styles. */
+    .poster { container-type: inline-size; position: relative; background: var(--poster-bg, #3F6BA8); color: var(--poster-ink, #FFF); overflow: hidden; }
+    .poster-map { position: absolute; top: 12%; left: 10%; width: 80%; aspect-ratio: .978; object-fit: contain; filter: var(--map-filter, none); }
+    .poster-footer { position: absolute; left: 0; right: 0; bottom: 10%; text-align: center; }
+    .poster-city { margin: 0; padding-left: 2.5cqw; font-size: 7.2cqw; font-weight: 400; line-height: 1.2; letter-spacing: 2.5cqw; text-transform: uppercase; }
+    .poster-rule { width: 7cqw; height: .1cqw; background: currentColor; margin: 3.2cqw auto 2.8cqw; opacity: .75; }
+    .poster-region { font-size: 1.55cqw; letter-spacing: .55cqw; text-transform: uppercase; }
+    .poster-coords, .poster-year { font-family: 'Courier New', monospace; font-size: 1.4cqw; letter-spacing: .168cqw; margin-top: 1.1cqw; }
+    @media (max-width: 1150px) { .page { padding: 24px; } .intro { align-items: start; flex-direction: column; } .gallery { gap: 12px; } .frame-wall { padding-inline: 12px; } .card-info { padding: 18px; } }
+    @media (max-width: 940px) { .gallery { grid-template-columns: 1fr; max-width: 640px; margin-inline: auto; gap: 24px; } .frame-wall { min-height: 0; padding: 50px 24px; } .card-info { min-height: 0; } }
+    @media (max-width: 420px) { .page { padding: 18px 12px; } h1 { font-size: 34px; } .frame-wall { padding: 36px 10px; } .settings { gap: 8px; } .edit-strip { flex-direction: column; align-items: start; gap: 12px; } footer { gap: 12px; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="brand"><span class="wordmark">gali.</span><span>Your city, drawn in streets</span></div>
+    <div class="intro">
+      <div><p class="eyebrow">The finishing touch / Delhi collection</p><h1>Find your frame.</h1><p>Three finishes. One city. A little more room for your streets.</p></div>
+      <div class="settings">
+        <label>Print size<select id="size"><option>A4</option><option>A3</option><option value="18x24">18 × 24 in</option></select></label>
+        <label>Poster theme<select id="theme"><option value="blue">Gali blue</option><option value="forest">Forest</option><option value="terracotta">Terracotta</option><option value="cream">Cream</option><option value="midnight">Midnight</option><option value="dark-gold">Dark & gold</option><option value="blush">Blush</option><option value="mono-grey">Mono grey</option></select></label>
+        <label>Glazing<select id="glazing"><option value="standard">Standard acrylic</option><option value="ar">Anti-reflective</option></select></label>
+      </div>
+    </div>
+    <div class="gallery">
+      <article class="card" data-frame-card>
+        <div class="frame-wall"><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-tilt="true">
+          <div class="poster" data-theme="blue"><img class="poster-map" src="../assets/delhi-lines.webp" alt="Delhi street map"><div class="poster-footer"><h3 class="poster-city">Delhi</h3><div class="poster-rule"></div><div class="poster-region">India</div><div class="poster-coords">28.6139° N, 77.2090° E</div><div class="poster-year">2025</div></div></div>
+        </div></div>
+        <div class="card-info"><div class="card-heading"><h2 data-frame-title>Matte black</h2><span class="number">01 / CLASSIC</span></div><p class="spec" data-frame-dimensions></p><div class="controls-slot"></div></div>
+      </article>
+      <article class="card" data-frame-card>
+        <div class="frame-wall"><div class="framed" data-frame="oak" data-mat="true" data-size="A4" data-tilt="true">
+          <div class="poster" data-theme="blue"><img class="poster-map" src="../assets/delhi-lines.webp" alt="Delhi street map"><div class="poster-footer"><h3 class="poster-city">Delhi</h3><div class="poster-rule"></div><div class="poster-region">India</div><div class="poster-coords">28.6139° N, 77.2090° E</div><div class="poster-year">2025</div></div></div>
+        </div></div>
+        <div class="card-info"><div class="card-heading"><h2 data-frame-title>Natural oak</h2><span class="number">02 / WARM</span></div><p class="spec" data-frame-dimensions></p><div class="controls-slot"></div></div>
+      </article>
+      <article class="card" data-frame-card>
+        <div class="frame-wall"><div class="framed" data-frame="white" data-mat="false" data-size="A4" data-tilt="true">
+          <div class="poster" data-theme="blue"><img class="poster-map" src="../assets/delhi-lines.webp" alt="Delhi street map"><div class="poster-footer"><h3 class="poster-city">Delhi</h3><div class="poster-rule"></div><div class="poster-region">India</div><div class="poster-coords">28.6139° N, 77.2090° E</div><div class="poster-year">2025</div></div></div>
+        </div></div>
+        <div class="card-info"><div class="card-heading"><h2 data-frame-title>White stain</h2><span class="number">03 / LIGHT</span></div><p class="spec" data-frame-dimensions></p><div class="controls-slot"></div></div>
+      </article>
+    </div>
+    <div class="edit-strip"><label>Try your city name<input id="city" type="text" value="Delhi" maxlength="24"></label><p>20 mm moulding · Optional off-white mat · Acrylic glazing</p></div>
+    <footer><span>GALI / FRAME STUDY</span><span>Illustrative prices, including the print.</span></footer>
+  </main>
+  <template id="controls"><div class="card-controls"><div class="frame-swatches" role="group" aria-label="Frame finish">
+    <button class="frame-swatch" type="button" data-select-frame="black" style="--swatch:#1B1B1B" aria-label="Black frame" aria-pressed="false" title="Black"></button>
+    <button class="frame-swatch" type="button" data-select-frame="oak" style="--swatch:#C9A77C" aria-label="Oak frame" aria-pressed="false" title="Oak"></button>
+    <button class="frame-swatch" type="button" data-select-frame="white" style="--swatch:#F3F1EC" aria-label="White frame" aria-pressed="false" title="White"></button>
+    </div><label class="mat-control"><input type="checkbox" data-mat-toggle> Mat</label><output class="price" data-frame-price aria-label="Total price" aria-live="polite"></output></div><p data-frame-note role="status" hidden></p></template>
+  <script>
+    document.querySelectorAll('.controls-slot').forEach(slot => slot.append(document.querySelector('#controls').content.cloneNode(true)));
+  </script>
+  <script src="frame.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const previews = [...document.querySelectorAll('.framed')].map(FramePreview.mount);
+      const themes = { blue: ['#3F6BA8','#FFFFFF'], forest: ['#23392E','#E6DFC8'], terracotta: ['#A64E33','#FBEFE3'], cream: ['#F2ECE0','#1C1C1C'], midnight: ['#0F1B2D','#D8DEE8'], 'dark-gold': ['#14161A','#C9A35B'], blush: ['#EED9D2','#5A2F2C'], 'mono-grey': ['#D9D9D6','#2B2B2B'] };
+      document.querySelector('#size').addEventListener('change', event => previews.forEach(p => p.set({size: event.target.value})));
+      document.querySelector('#glazing').addEventListener('change', event => previews.forEach(p => p.set({glazing: event.target.value})));
+      document.querySelector('#theme').addEventListener('change', event => previews.forEach(p => {
+        const id = event.target.value, colors = themes[id];
+        p.poster.dataset.theme = id;
+        p.poster.style.setProperty('--poster-bg', colors[0]); p.poster.style.setProperty('--poster-ink', colors[1]);
+        p.poster.style.setProperty('--map-filter', ['cream','blush','mono-grey'].includes(id) ? 'brightness(0)' : id === 'dark-gold' ? 'brightness(0) saturate(100%) invert(70%) sepia(36%) saturate(521%) hue-rotate(2deg)' : 'none');
+        p.update();
+      }));
+      document.querySelector('#city').addEventListener('input', event => previews.forEach(p => p.poster.querySelector('.poster-city').textContent = event.target.value || 'Delhi'));
+    });
+  </script>
+</body>
+</html>

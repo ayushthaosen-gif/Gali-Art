@@ -4,13 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Custom city street-map posters</title>
-  <meta name="description" content="Minimalist posters of your city's street network. White lines on solid colour, no labels.">
+  <meta name="description" content="Posters of your city's streets, drawn as thin lines on a solid colour. No labels.">
+  <meta property="og:title" content="Custom city street-map posters">
+  <meta property="og:description" content="Street-map posters of your city, drawn from OpenStreetMap data.">
+  <meta property="og:type" content="website">
   <meta name="theme-color" content="#3F6BA8">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Jost + DM Mono are used only for text on the poster previews. Self-host them later if you prefer no third party. -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Jost:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Jost:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400&display=swap">
+  <link rel="stylesheet" href="frame-preview/frame.css">
+  <link rel="stylesheet" href="frame-preview/product-gallery.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -36,7 +41,7 @@
       <div>
         <p class="eyebrow">Custom city street-map posters</p>
         <h1 data-tagline>&nbsp;</h1>
-        <p class="lede">Every street of your city as fine white lines on a calm field of blue. No street names, no clutter: just the shape of a place you know by heart.</p>
+        <p class="lede">We take every street in a city from OpenStreetMap and draw it as thin white lines on blue. No names, no labels. Just the shape of the place.</p>
         <div class="actions">
           <a class="btn" href="#order">Order your poster</a>
           <a class="btn ghost" href="#design">Try colours</a>
@@ -48,20 +53,51 @@
 
   <section id="how">
     <div class="wrap">
-      <div class="section-head"><p class="eyebrow">How it works</p><h2>Three simple steps</h2></div>
+      <div class="section-head"><p class="eyebrow">How it works</p><h2>Three steps</h2></div>
       <ol class="steps">
-        <li><h3>Pick a city</h3><p>Start with Delhi. More cities are on the way, and you can request yours.</p></li>
-        <li><h3>Pick a style</h3><p>Choose a colour theme and see it live. Classic blue and white is our signature.</p></li>
-        <li><h3>Get a print</h3><p>We render the real street network, print it and send it to you.</p></li>
+        <li><h3>Pick a city</h3><p>Choose one from the list, or tell us which city you want.</p></li>
+        <li><h3>Pick colours</h3><p>Tap a theme and the preview changes straight away. Blue and white is the original.</p></li>
+        <li><h3>We print it</h3><p>We draw the map from OpenStreetMap data, print it and send it to you.</p></li>
       </ol>
     </div>
   </section>
 
   <section id="gallery" class="alt">
     <div class="wrap">
-      <div class="section-head"><p class="eyebrow">Gallery</p><h2>A few looks</h2></div>
-      <ul class="grid" id="gallery-grid"></ul>
-      <p class="note" id="gallery-note"></p>
+      <div class="section-head"><p class="eyebrow">Gallery</p><h2>See it on a wall</h2></div>
+      <p class="lede">Swipe through our maps on a wall, up close, to scale and at home.</p>
+      <div class="seg" role="group" aria-label="Jump to a part of the gallery">
+        <button type="button" data-slide="0">Cities</button>
+        <button type="button" data-slide="2">Finishes</button>
+        <button type="button" data-slide="3">Up close</button>
+        <button type="button" data-slide="4">Size</button>
+        <button type="button" data-slide="5">At home</button>
+      </div>
+      <ul class="swipe slides" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Gallery, swipe sideways">
+        <li class="slide"><figure><div class="scene" data-scene-mm="1500"><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="mumbai" data-at="-427,-60" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="kolkata" data-at="0,-60" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="delhi" data-at="427,-60" aria-hidden="true"><div class="poster"></div></div><span class="image-kind">Preview from our map data</span></div><figcaption><h3>Three cities, one wall</h3><p>Mumbai, Kolkata and Delhi in black wood frames. The colours follow your pick above.</p></figcaption></figure></li>
+        <li class="slide"><figure><div class="scene" data-scene-mm="1100"><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="delhi" data-at="-300,-223" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="mumbai" data-at="0,-223" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="kolkata" data-at="300,-223" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="panaji" data-at="-300,164" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="dubai" data-at="0,164" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="washington-dc" data-at="300,164" aria-hidden="true"><div class="poster"></div></div><span class="image-kind">Preview from our map data</span></div><figcaption><h3>A wall of cities</h3><p>Six of our maps in A4 frames.</p></figcaption></figure></li>
+        <li class="slide"><figure><div class="scene" data-scene-mm="1700"><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-at="-489,-50" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="oak" data-mat="true" data-size="A3" data-at="0,-50" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="white" data-mat="false" data-size="A3" data-at="489,-50" aria-hidden="true"><div class="poster"></div></div><span class="image-kind">Preview from our map data</span></div><figcaption><h3>Three finishes</h3><p>Black wood, natural oak with a mat and white wood, at the same scale, with the city you picked. <span class="note wall-note hidden" id="white-note"></span></p></figcaption></figure></li>
+        <li class="slide"><figure>
+          <div class="scene scene-detail"><img src="frame-preview/delhi-line-detail.webp" width="1000" height="850" loading="lazy" decoding="async" alt="Close-up of fine Delhi streets from the blue A3 print file"></div>
+          <figcaption><h3>Every street, up close</h3><p>A crop of the real Delhi print file at 300 dpi. Nothing has been sharpened or added. It covers 84.67 × 71.97 mm of the A3 print.</p><a class="asset-link" href="frame-preview/delhi-line-detail.png" target="_blank" rel="noopener">Open the 300 dpi crop (PNG)</a></figcaption>
+        </figure></li>
+        <li class="slide"><figure>
+          <div class="scale-room" data-sofa-left="0.1291" data-sofa-width="0.7403" data-print-bottom="0.42">
+            <img class="scale-room-photo" src="frame-preview/scale-room.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="A room mock-up with a linen sofa and three framed Delhi prints above it, A4, A3 and 18 by 24 inch">
+            <div class="scale-print framed" data-frame="black" data-mat="false" data-size="A4" aria-label="Framed A4 print"><div class="poster"></div></div>
+            <div class="scale-print framed" data-frame="black" data-mat="false" data-size="A3" aria-label="Framed A3 print"><div class="poster"></div></div>
+            <div class="scale-print framed" data-frame="black" data-mat="false" data-size="18x24" aria-label="Framed 18 by 24 inch print"><div class="poster"></div></div>
+          </div>
+          <figcaption><h3>How big is it?</h3>
+            <div class="scale-legend"><div><strong>A4</strong><span>Print 210 × 297 mm</span><span>Frame 250 × 337 mm</span></div><div><strong>A3</strong><span>Print 297 × 420 mm</span><span>Frame 337 × 460 mm</span></div><div><strong>18 × 24 in</strong><span>Print 457 × 610 mm</span><span>Frame 497 × 650 mm</span></div></div>
+            <p>A room mock-up. The sofa is 180 cm wide, and all three prints are in black frames (20 mm face, no mat) at the same scale. <a class="asset-link" href="frame-preview/size-comparison.svg" download>Download the size diagram (SVG)</a></p>
+          </figcaption>
+        </figure></li>
+        <li class="slide"><figure><div class="scene scene-photo"><img src="frame-preview/lifestyle-wall.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Generated visualisation of an oak-framed Delhi poster on a plaster wall above books and decor"><span class="image-kind">Generated visualisation</span></div><figcaption><h3>On a wall</h3><p>An oak frame, with some books and decor around it.</p></figcaption></figure></li>
+        <li class="slide"><figure><div class="scene scene-photo"><img src="frame-preview/lifestyle-shelf.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Generated visualisation of an oak-framed Delhi print on a shelf"><span class="image-kind">Generated visualisation</span></div><figcaption><h3>On a shelf</h3><p>An oak frame standing on a shelf.</p></figcaption></figure></li>
+        <li class="slide"><figure><div class="scene scene-photo"><img src="frame-preview/lifestyle-packaging.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Generated concept of a Delhi print beside a kraft mailing tube and tissue"><span class="image-kind">Generated visualisation</span></div><figcaption><h3>Packaging idea</h3><p>A kraft mailing tube. This is only a concept. We haven't confirmed how orders will be packed or delivered.</p></figcaption></figure></li>
+      </ul>
+      <p class="note">The frames and walls are generated images, not photos of real frames. The last three slides are generated visualisations. Their map lines and text can differ from the real print, so use the close-up as the proof of the artwork. We'll add real photos once samples exist.</p>
     </div>
   </section>
 
@@ -71,7 +107,7 @@
       <div>
         <p class="eyebrow">Style picker</p>
         <h2>Choose your colours</h2>
-        <p class="lede">Tap a theme and the poster recolours instantly.</p>
+        <p class="lede">Tap a colour and the poster changes.</p>
         <div class="field">
           <label for="pick-city">City</label>
           <select id="pick-city"></select>
@@ -86,11 +122,11 @@
 
   <section id="order" class="alt">
     <div class="wrap two">
-      <div>
+      <div class="sticky">
         <p class="eyebrow">Order</p>
         <h2>Request your poster</h2>
-        <p class="lede">Send your details and we'll confirm by email.</p>
-        <div class="preview" id="order-preview"></div>
+        <p class="lede">Fill this in and we'll email you to confirm everything before you pay.</p>
+        <div class="frame-wall" id="order-preview"><div class="framed" id="order-framed" data-frame="none" data-size="A3" data-mat="false"><div class="poster" id="order-poster"></div></div></div>
         <p class="caption" id="order-caption"></p>
       </div>
       <form id="order-form" novalidate>
@@ -106,6 +142,14 @@
         <div class="field">
           <label for="f-size">Poster size</label>
           <select id="f-size" name="size" required></select>
+        </div>
+        <div class="field">
+          <label for="f-frame">Frame (optional)</label>
+          <select id="f-frame" name="frame" aria-describedby="frame-spec"></select>
+          <label class="check hidden" id="f-mat-wrap"><input type="checkbox" id="f-mat"><span id="f-mat-label"></span></label>
+          <p class="note" id="frame-spec" style="margin:.4rem 0 0"></p>
+          <p class="note warn hidden" id="frame-hint" aria-live="polite" style="margin:.3rem 0 0"></p>
+          <div class="mini-frame" aria-hidden="true"><div class="framed" id="mini-framed" data-frame="none" data-size="A3" data-mat="false"><div class="poster" id="mini-poster"></div></div></div>
         </div>
         <div class="field">
           <label for="f-era">Map year</label>
@@ -135,17 +179,19 @@
           <p class="note" id="h-markat" style="margin:.3rem 0 0">The preview shows a sample position. We place yours exactly and send a proof.</p>
           <p class="err" id="e-markat" aria-live="polite"></p>
         </div>
-        <div class="field">
-          <label for="f-dedication">Line of text under the data (optional)</label>
-          <input type="text" id="f-dedication" name="dedication" autocomplete="off" placeholder="e.g. Where we met">
-        </div>
         <div class="field hidden" id="set-wrap">
-          <label class="check"><input type="checkbox" id="f-set" name="pair"> Make it a then &amp; now pair: add the matching 2025 poster</label>
+          <label class="check"><input type="checkbox" id="f-set" name="pair"><span id="f-set-label"></span></label>
         </div>
         <div class="field">
           <label for="f-date">Date to print (optional)</label>
           <input type="date" id="f-date" name="date" aria-describedby="h-date">
-          <p class="note" id="h-date" style="margin:.3rem 0 0">For a wedding, move or birth. Shown as e.g. 14 FEB 2026 under the coordinates. Leave empty for a standard print.</p>
+          <p class="note" id="h-date" style="margin:.3rem 0 0">Handy for a wedding, a move or a birth. It prints under the year, like 14 FEB 2026. Leave it empty if you don't want one.</p>
+        </div>
+        <div class="field">
+          <label for="f-detail">Extra detail line (optional)</label>
+          <select id="f-detail" name="detail" aria-describedby="h-detail"></select>
+          <input type="text" id="f-detail-text" class="hidden" maxlength="40" autocomplete="off" placeholder="e.g. Where we met" aria-label="Your own detail line">
+          <p class="note" id="h-detail" style="margin:.3rem 0 0">One small line at the bottom. Use a fact about the map or write your own, up to 40 characters.</p>
         </div>
         <div class="field">
           <label for="f-name">Your name</label>
@@ -162,7 +208,8 @@
           <textarea id="f-notes" name="notes" maxlength="1000"></textarea>
         </div>
         <div class="hp" aria-hidden="true"><label>Company <input type="text" name="company" tabindex="-1" autocomplete="off"></label></div>
-        <div class="price"><span>Total<br><small class="note" id="price-note"></small></span><strong id="price" aria-live="polite">—</strong></div>
+        <div class="price"><span>Total</span><strong id="price" aria-live="polite">-</strong></div>
+        <p class="note price-detail" id="price-detail" aria-live="polite"></p>
         <button class="btn" type="submit" id="submit-btn">Send order request</button>
         <div class="status hidden" id="status" role="status" tabindex="-1"></div>
         <!-- PAYMENT: the Razorpay/Stripe link from config.js (payment.link) is rendered here after a successful request. -->
@@ -174,18 +221,19 @@
   <section id="faq">
     <div class="wrap" style="max-width:46rem">
       <div class="section-head"><p class="eyebrow">FAQ</p><h2>Questions</h2></div>
-      <details class="q"><summary>Is this a real map?</summary><p>Yes. Posters are drawn from real OpenStreetMap street data. On this staging site the Delhi 2025 posters show the real map; other cities and earlier years are placeholder patterns for now.</p></details>
-      <details class="q"><summary>Why are there no street names?</summary><p>The street shapes are the design. A map without labels lets the city speak for itself, with just its name, coordinates and year beneath.</p></details>
-      <details class="q"><summary>Can I get a different city?</summary><p>Pick "Other" in the order form and tell us which one. More cities are being added.</p></details>
-      <details class="q"><summary>Which sizes are available?</summary><p>A4, A3 and 18 × 24 inch. Prices update live in the order form.</p></details>
-      <details class="q"><summary>How do I pay?</summary><p>Payment is not live yet. After you send a request we'll reply by email with the next steps.</p></details>
+      <details class="q"><summary>Is this a real map?</summary><p>Yes, it comes from OpenStreetMap data. Delhi also has a 1995 version, but that isn't an old map. It shows today's streets, cut down to the area that was built up in 1995.</p></details>
+      <details class="q"><summary>Why are there no street names?</summary><p>Labels get in the way. Without them you see the shape of the streets, with just the city name, coordinates and year underneath.</p></details>
+      <details class="q"><summary>Can I get a different city?</summary><p>Choose "Other city" in the order form and tell us which one. We're adding more.</p></details>
+      <details class="q"><summary>Which sizes are available?</summary><p>A4, A3 and 18 × 24 inch, framed or not. The order form shows the price as you choose.</p></details>
+      <details class="q"><summary>Can I get it framed?</summary><p>Yes. You can pick black wood, natural oak or white wood. They are all a 20 mm frame with acrylic glazing, and oak and white can have an off-white mat too. The total updates as you choose.</p></details>
+      <details class="q"><summary>How do I pay?</summary><p>Send the request first. We'll email you back with what happens next, including how to pay.</p></details>
     </div>
   </section>
 </main>
 
 <footer class="site-footer">
   <div class="wrap row">
-    <div><strong data-brand>&nbsp;</strong><br><span data-tagline></span></div>
+    <div><span class="logo-stack" role="img" aria-label="Gali"><span class="logo-en" data-brand>&nbsp;</span><i class="logo-rule"></i><span class="logo-hi" lang="hi" data-brand-native></span></span><br><span data-tagline></span></div>
     <div><a data-email-link href="#">Contact</a> · <a href="privacy.html">Privacy &amp; Terms</a></div>
     <div>Map data © OpenStreetMap contributors</div>
   </div>
@@ -194,6 +242,8 @@
 <noscript><p class="wrap note">This site needs JavaScript for the style picker and order form.</p></noscript>
 <script src="config.js"></script>
 <script src="js/poster.js"></script>
+<script src="frame-preview/frame.js"></script>
+<script src="frame-preview/product-gallery.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

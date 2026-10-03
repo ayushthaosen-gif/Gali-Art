@@ -64,8 +64,7 @@ TIERS = {
 }
 
 # Recognisable centres for the coordinates line (not the boundary centroid).
-CENTRES = {"delhi": (28.6139, 77.2090), "mumbai": (19.0760, 72.8777), "kolkata": (22.5726, 88.3639),
-           "guwahati": (26.1445, 91.7362)}
+CENTRES = {"delhi": (28.6139, 77.2090), "mumbai": (19.0760, 72.8777), "kolkata": (22.5726, 88.3639), "guwahati": (26.1445, 91.7362)}
 
 FONT_URLS = {
     "Jost.ttf": "https://github.com/google/fonts/raw/main/ofl/jost/Jost%5Bwght%5D.ttf",
@@ -76,6 +75,15 @@ FONT_URLS = {
 def load_layout():
     with open(LAYOUT_PATH, encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def clean_detail(text, limit=40):
+    """Detail line as typed, tidied (design 5d): one line, ' - ' becomes ' · ', curly quotes and apostrophes, capped."""
+    t = re.sub(r"\s+", " ", text or "").strip()
+    t = t.replace(" - ", " \u00b7 ").replace(" \u2013 ", " \u00b7 ").replace(" \u2014 ", " \u00b7 ")
+    t = re.sub(r"(^|[\s(\[])\"", "\\1\u201c", t).replace('"', "\u201d")
+    t = re.sub(r"(^|[\s(\[])'", "\\1\u2018", t).replace("'", "\u2019")
+    return t[:limit].rstrip()
 
 
 def slugify(text):
@@ -188,7 +196,14 @@ def load_edges(args):
 
     G = ox.project_graph(G)
     edges = ox.graph_to_gdfs(G, nodes=False, fill_edge_geometry=True)
-    out = [(list(g.coords), hw) for g, hw in zip(edges.geometry, edges["highway"])]
+    names = edges["name"] if "name" in edges else [None] * len(edges)
+    out = [(list(g.coords), hw, nm) for g, hw, nm in zip(edges.geometry, edges["highway"], names)]
+    if args.no_cleanup:
+        out = [(c, hw) for c, hw, _ in out]
+    else:
+        from cleanup import LUTYENS_RADIALS, promote_names
+        out, n = promote_names(out, LUTYENS_RADIALS, 2, tier_of)
+        print(f"Kept {n:,} Lutyens' Delhi radial segments at tier 2" if n else "")
     print(f"{len(out):,} road segments")
     return out, edges.crs
 
@@ -251,10 +266,9 @@ def footer_lines(L, Wp, Hp, texts):
                       "mono": mono, "base": top + h / 2 + 0.35 * s})
         cursor = top - gap_above * Wp
 
-    if texts.get("tagline"):  # optional dedication / caption, the bottom-most line
-        tg = L.get("tagline", L["region"])
-        line("tagline", tg, texts["tagline"], 1.2, False, True, tg.get("above", L["year"]["above"]))
-    if texts.get("edition"):  # optional edition number, e.g. "NO. 14 / 100"
+    if texts.get("detail"):  # optional detail line closes the stack in Jost sentence case after a larger gap (design 5d)
+        line("detail", L["detail"], texts["detail"], 1.2, False, False, L["detail"]["above"])
+    if texts.get("edition"):  # optional edition number, e.g. "NO. 14 / 100", above the detail line
         line("edition", L["year"], texts["edition"], 1.2, True, False, L["year"]["above"])
     if texts.get("date"):  # optional personalised date, e.g. "14 FEB 2026", under the year
         line("date", L.get("date", L["year"]), texts["date"], 1.2, True, False, L.get("date", L["year"])["above"])
@@ -296,7 +310,20 @@ def draw_mark(ax, L, Wp, bg, fg, mark):
         ax.scatter([x], [y], s=d * d, c=fg, marker=heart_path(), linewidths=0, zorder=11)
 
 
-def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, name, year, texts, bleed_mm, mark=None):
+def warn_scripts(*texts):
+    """Footer text is placed glyph by glyph, which cannot shape Indic/Arabic scripts (conjuncts, joining)."""
+    for t in texts:
+        if t and any(ord(c) > 0x24F for c in t):
+            print(f"WARNING: '{t}' contains non-Latin characters. This generator cannot shape them "
+                  "correctly (e.g. Devanagari conjuncts); set that text in a design tool instead.")
+
+
+def fmt_edition(text):
+    m = re.fullmatch(r"\s*(\d+)\s*/\s*(\d+)\s*", text)
+    return f"NO. {m.group(1)} / {m.group(2)}" if m else text.upper()
+
+
+def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, name, year, texts, bleed_mm, water=(), mark=None):
     bg, fg = THEMES[theme]
     minor_c = mix(fg, bg, L["mix"]["minor"])
     Wp, Hp = w_in * 72.0, h_in * 72.0                       # trim size, points
@@ -329,6 +356,17 @@ def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, 
     ax.set_anchor("N")
     ax.set_xlim(min(allx), max(allx))
     ax.set_ylim(min(ally), max(ally))
+    if water:  # river and lakes: a faint tint of the line colour, under all roads
+        from matplotlib.patches import PathPatch
+        from matplotlib.path import Path as MPath
+        verts, codes = [], []
+        for poly in water:
+            for ring in [poly.exterior, *poly.interiors]:
+                pts = list(ring.coords)
+                verts += pts
+                codes += [MPath.MOVETO] + [MPath.LINETO] * (len(pts) - 2) + [MPath.CLOSEPOLY]
+        ax.add_patch(PathPatch(MPath(verts, codes), facecolor=mix(bg, fg, L["mix"]["water"]),
+                               edgecolor="none", zorder=0.5))
     for z, t in enumerate((5, 4, 3, 2, 1)):
         segs, widths = buckets[t]
         if segs:
@@ -396,19 +434,6 @@ def render_mask(edges, L, outdir, name, year, width_px=1600):
     plt.close(fig)
 
 
-def warn_scripts(*texts):
-    """Footer text is placed glyph by glyph, which cannot shape Indic/Arabic scripts (conjuncts, joining)."""
-    for t in texts:
-        if t and any(ord(c) > 0x24F for c in t):
-            print(f"WARNING: '{t}' contains non-Latin characters. This generator cannot shape them "
-                  "correctly (e.g. Devanagari conjuncts); set that text in a design tool instead.")
-
-
-def fmt_edition(text):
-    m = re.fullmatch(r"\s*(\d+)\s*/\s*(\d+)\s*", text)
-    return f"NO. {m.group(1)} / {m.group(2)}" if m else text.upper()
-
-
 def parse_size(text):
     if text in SIZES:
         return text, SIZES[text]
@@ -432,10 +457,10 @@ def main():
     ap.add_argument("--region", help="Footer region line (default: last part of --place, e.g. India)")
     ap.add_argument("--coords", type=float, nargs=2, metavar=("LAT", "LON"), help="Footer coordinates (default: city centre)")
     ap.add_argument("--date", default="", help='Optional personal date line, e.g. "14 FEB 2026" (use DD MON YYYY)')
-    ap.add_argument("--tagline", default="", help='Optional dedication line at the bottom, e.g. "Where we met" (Latin script)')
     ap.add_argument("--edition", default="", help='Optional edition number, e.g. 14/100 prints "NO. 14 / 100"')
     ap.add_argument("--mark", type=float, nargs=2, metavar=("LAT", "LON"), help="Mark a place on the map")
     ap.add_argument("--mark-style", choices=["dot", "ring", "heart"], default="dot", help="Marker shape (default dot)")
+    ap.add_argument("--detail", default="", help='Optional detail line under the year, e.g. "21,600 km of streets" (max 40 characters)')
     ap.add_argument("--year", type=int, default=2025, help="Map year shown in the footer (OSM data is current, see README)")
     ap.add_argument("--theme", default="blue", choices=sorted(THEMES))
     ap.add_argument("--size", type=parse_size, default="a3", help="a4 | a3 | 18x24 | custom WxH inches")
@@ -451,6 +476,9 @@ def main():
     ap.add_argument("--extent-buffer", type=int, default=3, help="Morphological closing iterations in cells")
     ap.add_argument("--extent-min-blob", type=int, default=30, help="Minimum connected built-up blob in cells")
     ap.add_argument("--max-tier", type=int, choices=range(1, 6), help="Keep road tiers up to N (1 major, 5 minor)")
+    ap.add_argument("--no-cleanup", action="store_true", help="Skip fragment removal, boundary clip, Lutyens tier promotion and water")
+    ap.add_argument("--min-fragment", type=float, default=200, help="Drop disconnected road clusters shorter than this many metres")
+    ap.add_argument("--no-water", action="store_true", help="Skip the river/lake tint (needs a boundary download the first time)")
     ap.add_argument("--out", default=str(HERE.parent / "assets"))
     args = ap.parse_args()
     extent_requested = args.extent_raster or args.extent_auto
@@ -478,11 +506,11 @@ def main():
     city = args.city_name or place_title[0].strip()
     region = args.region if args.region is not None else (place_title[-1].strip() if len(place_title) > 1 else "")
     centre = tuple(args.coords) if args.coords else (args.point if args.point else CENTRES.get(slugify(city)))
-    texts = {"city": city, "region": region, "year": args.year, "date": args.date.upper(),
-             "tagline": args.tagline.strip(), "edition": fmt_edition(args.edition) if args.edition else "",
+    texts = {"city": city, "region": region, "year": args.year, "date": args.date.upper(), "detail": clean_detail(args.detail),
+             "edition": fmt_edition(args.edition) if args.edition else "",
              "coords": fmt_coords(*centre) if centre else ""}
     name = args.name or ("preview" if args.preview else slugify(city))
-    warn_scripts(city, region, texts["tagline"])
+    warn_scripts(city, region, texts["detail"])
 
     if args.preview:
         edges = synthetic_edges()
@@ -526,6 +554,20 @@ def main():
         if not edges:
             ap.error("No road segments remain after filtering")
 
+    water = []
+    if not args.no_cleanup and not args.preview:
+        from cleanup import clip_edges, drop_fragments
+        if not args.point:
+            from cleanup import load_boundary, load_water
+            boundary = load_boundary(args.place, edge_crs, HERE / "cache")
+            edges, n = clip_edges(edges, boundary)
+            print(f"Clipped {n:,} roads at the boundary")
+            if not args.no_water:
+                water = load_water(args.place, boundary, edge_crs, HERE / "cache")
+                print(f"{len(water):,} water polygons")
+        edges, n = drop_fragments(edges, args.min_fragment)
+        print(f"Dropped {n:,} segments in fragments under {args.min_fragment:g} m")
+
     formats = [f.strip() for f in args.formats.split(",") if f.strip()]
     if not formats or any(f not in {"pdf", "png", "svg", "mask"} for f in formats):
         ap.error("formats must be a comma list of pdf,png,svg,mask")
@@ -534,14 +576,14 @@ def main():
     if "mask" in formats:
         render_mask(edges, L, Path(args.out), name, args.year)
         formats = [f for f in formats if f != "mask"]
-    mark = None
-    if args.mark:
-        from pyproj import Transformer
-        mx, my = Transformer.from_crs("EPSG:4326", edge_crs, always_xy=True).transform(args.mark[1], args.mark[0])
-        mark = (mx, my, args.mark_style)
     if formats:
+        mark = None
+        if args.mark:
+            from pyproj import Transformer
+            mx, my = Transformer.from_crs("EPSG:4326", edge_crs, always_xy=True).transform(args.mark[1], args.mark[0])
+            mark = (mx, my, args.mark_style)
         render(edges, L, args.theme, size_key, w_in, h_in, args.min_width, formats, args.dpi,
-               Path(args.out), name, args.year, texts, args.bleed_mm, mark)
+               Path(args.out), name, args.year, texts, args.bleed_mm, water, mark)
 
 
 if __name__ == "__main__":

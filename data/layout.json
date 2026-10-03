@@ -1,16 +1,16 @@
 {
   "_note": "Single source of truth for poster layout. Read by js/poster.js (website preview) and generator/make_poster.py (print file). All sizes are fractions of poster width (W).",
-  "map": {"top": 0.12, "width": 0.8, "aspect": 0.978},
-  "footer": {"bottom": 0.1},
-  "city": {"font": "Jost", "weight": 400, "size": 0.072, "track": 0.42},
-  "rule": {"w": 0.07, "h": 0.001, "above": 0.032, "below": 0.028},
-  "region": {"font": "Jost", "size": 0.0155, "track": 0.36},
-  "coords": {"font": "DM Mono", "size": 0.014, "track": 0.12, "above": 0.011},
-  "year": {"font": "DM Mono", "size": 0.014, "track": 0.12, "above": 0.011},
+  "map":    { "top": 0.12, "width": 0.80, "aspect": 0.978 },
+  "footer": { "bottom": 0.10 },
+  "city":   { "font": "Jost", "weight": 400, "size": 0.072, "track": 0.42 },
+  "rule":   { "w": 0.07, "h": 0.001, "above": 0.032, "below": 0.028 },
+  "region": { "font": "Jost", "size": 0.0155, "track": 0.36 },
+  "coords": { "font": "DM Mono", "size": 0.014, "track": 0.12, "above": 0.011 },
+  "year":   { "font": "DM Mono", "size": 0.014, "track": 0.12, "above": 0.011 },
+  "detail": { "font": "Jost", "weight": 400, "size": 0.0165, "track": 0.03, "above": 0.026, "maxChars": 40 },
+  "mark":   { "size": 0.02, "halo": 1.7 },
   "safe": 0.05,
   "bleed_mm": 3,
-  "roads": {"t1": 0.0016, "t2": 0.0011, "t3": 0.00075, "t4": 0.00055, "t5": 0.00042, "min_pt": 0.25},
-  "mix": {"minor": 0.3, "water": 0.1},
-  "tagline": {"font": "Jost", "size": 0.014, "track": 0.2, "above": 0.016},
-  "mark": {"size": 0.02, "halo": 1.7}
+  "roads": { "t1": 0.0016, "t2": 0.0011, "t3": 0.00075, "t4": 0.00055, "t5": 0.00042, "min_pt": 0.25 },
+  "mix": { "minor": 0.30, "water": 0.10 }
 }

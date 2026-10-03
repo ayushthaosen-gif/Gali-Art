@@ -1,0 +1,16 @@
+/* Gallery media for the site: scenes composited on our wall image, the Delhi detail crop and the room scale scene.
+   Geometry of .scale-room is calibrated to scale-room.webp (see README); do not crop that image with object-fit. */
+.scene { position: relative; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 6px; background: #E6E1D8 url("wall.jpg") center / cover; }
+.scene > .framed { position: absolute; min-width: 0; max-width: none; margin: 0; }
+.scene > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.scene-detail { background: #3F6BA8; }
+.scene-detail > img { object-fit: contain; }
+.image-kind { position: absolute; left: .6rem; bottom: .6rem; z-index: 20; background: rgba(24,26,30,.74); color: #fff; font-size: .72rem; letter-spacing: .04em; padding: .25rem .6rem; border-radius: 999px; }
+.asset-link { display: inline-block; font-size: .9rem; text-underline-offset: 4px; }
+.scale-room { position: relative; overflow: hidden; border-radius: 6px; background: #E6E1D8; }
+.scale-room-photo { display: block; width: 100%; height: auto; }
+.scale-room .scale-print { position: absolute; min-width: 0; max-width: none; margin: 0; }
+.scale-legend { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0 0 .6rem; text-align: center; gap: .5rem; }
+.scale-legend strong { display: block; font-size: .95rem; }
+.scale-legend span { display: block; font-size: .75rem; color: var(--muted); margin-top: .2rem; }
+@media (max-width: 700px) { .scale-legend span { font-size: .68rem; } }

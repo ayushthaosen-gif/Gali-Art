@@ -25,7 +25,13 @@ jobs:
       - name: Assemble site (exclude non-site files)
         run: |
           mkdir _site
-          cp -r index.html 404.html privacy.html config.js css js assets data _site/
+          cp -r index.html 404.html privacy.html config.js css js assets data frame-preview _site/
+          rm -f _site/frame-preview/index.html _site/frame-preview/README.md _site/frame-preview/build_product_assets.py _site/frame-preview/detail-provenance.json
+      - name: Stamp version (cache busting)
+        run: |
+          V=${GITHUB_SHA::7}
+          sed -i "s/version: \"dev\"/version: \"$V\"/" _site/config.js
+          sed -i -E "s#(src|href)=\"(css/style.css|config.js|js/poster.js|js/app.js|frame-preview/frame.css|frame-preview/frame.js|frame-preview/product-gallery.css|frame-preview/product-gallery.js)\"#\1=\"\2?v=$V\"#g" _site/index.html _site/privacy.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

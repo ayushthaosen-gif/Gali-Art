@@ -23,7 +23,7 @@ Layout 1a from the design spec: map 80% of the width centred with its top edge a
 
 Optional personal date line (weddings, moves, births): `--date "14 FEB 2026"`, printed under the year in the same small type.
 
-Personalisation: `--tagline "Where we met"` (bottom line), `--edition 14/100` (prints `NO. 14 / 100`), `--mark LAT LON --mark-style dot|ring|heart` (marks a place, with a background-coloured halo so it reads over dense streets), and `--address "Hauz Khas Village, Delhi"` (geocode a place and centre on it, like `--point`; use `--dist` for the size of the area, about 5000 for a neighbourhood and 2000 for street level). The footer text can't shape non-Latin scripts such as Devanagari; the script warns if you try.
+Personalisation: `--detail "Where we met"` (the short line under the data, max 40 characters), `--edition 14/100` (prints `NO. 14 / 100`), `--mark LAT LON --mark-style dot|ring|heart` (marks a place, with a background-coloured halo so it reads over dense streets), and `--address "Hauz Khas Village, Delhi"` (geocode a place and centre on it, like `--point`; use `--dist` for the size of the area, about 5000 for a neighbourhood and 2000 for street level). The footer text can't shape non-Latin scripts such as Devanagari; the script warns if you try.
 
 Footer text: `--city-name`, `--region`, `--coords LAT LON`, `--year`. Defaults come from `--place` ("Delhi, India" gives DELHI / INDIA) and a built-in list of recognisable city centres. `--year` only changes the label: the road data is always current OpenStreetMap. The optional extent filter below approximates a past city's footprint; real historical street maps need archival data.
 
@@ -94,4 +94,4 @@ Colab: `!pip install -r requirements.txt`, upload the generator files and shared
 
 Themes live in `THEMES` and sizes in `SIZES` at the top of the script; keep them in sync with `config.js`.
 
-**Not done yet (from the design notes):** the Yamuna water fill, clipping roads to the city boundary, and dropping disconnected fragments under ~200 m.
+**Clean-up (on by default for `--place` runs, see `cleanup.py`):** roads are clipped to the OSM city boundary, disconnected fragments under 200 m are dropped (`--min-fragment`), named Lutyens' Delhi radials (list in `cleanup.py`) are held at tier 2, and rivers/lakes get a faint tint of the line colour (print poster only, not the web mask). Boundary and water are downloaded once and cached as GeoJSON in `generator/cache/`. Use `--no-cleanup` to skip all of it or `--no-water` for just the tint. Test: `python test_cleanup.py`.
