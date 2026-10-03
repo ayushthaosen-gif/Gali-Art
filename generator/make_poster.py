@@ -181,7 +181,14 @@ def load_edges(args):
 
     G = ox.project_graph(G)
     edges = ox.graph_to_gdfs(G, nodes=False, fill_edge_geometry=True)
-    out = [(list(g.coords), hw) for g, hw in zip(edges.geometry, edges["highway"])]
+    names = edges["name"] if "name" in edges else [None] * len(edges)
+    out = [(list(g.coords), hw, nm) for g, hw, nm in zip(edges.geometry, edges["highway"], names)]
+    if args.no_cleanup:
+        out = [(c, hw) for c, hw, _ in out]
+    else:
+        from cleanup import LUTYENS_RADIALS, promote_names
+        out, n = promote_names(out, LUTYENS_RADIALS, 2, tier_of)
+        print(f"Kept {n:,} Lutyens' Delhi radial segments at tier 2" if n else "")
     print(f"{len(out):,} road segments")
     return out, edges.crs
 
@@ -259,7 +266,7 @@ def footer_lines(L, Wp, Hp, texts):
     return lines, rule
 
 
-def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, name, year, texts, bleed_mm):
+def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, name, year, texts, bleed_mm, water=()):
     bg, fg = THEMES[theme]
     minor_c = mix(fg, bg, L["mix"]["minor"])
     Wp, Hp = w_in * 72.0, h_in * 72.0                       # trim size, points
@@ -292,6 +299,17 @@ def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, 
     ax.set_anchor("N")
     ax.set_xlim(min(allx), max(allx))
     ax.set_ylim(min(ally), max(ally))
+    if water:  # river and lakes: a faint tint of the line colour, under all roads
+        from matplotlib.patches import PathPatch
+        from matplotlib.path import Path as MPath
+        verts, codes = [], []
+        for poly in water:
+            for ring in [poly.exterior, *poly.interiors]:
+                pts = list(ring.coords)
+                verts += pts
+                codes += [MPath.MOVETO] + [MPath.LINETO] * (len(pts) - 2) + [MPath.CLOSEPOLY]
+        ax.add_patch(PathPatch(MPath(verts, codes), facecolor=mix(bg, fg, L["mix"]["water"]),
+                               edgecolor="none", zorder=0.5))
     for z, t in enumerate((5, 4, 3, 2, 1)):
         segs, widths = buckets[t]
         if segs:
@@ -391,6 +409,9 @@ def main():
     ap.add_argument("--extent-buffer", type=int, default=3, help="Morphological closing iterations in cells")
     ap.add_argument("--extent-min-blob", type=int, default=30, help="Minimum connected built-up blob in cells")
     ap.add_argument("--max-tier", type=int, choices=range(1, 6), help="Keep road tiers up to N (1 major, 5 minor)")
+    ap.add_argument("--no-cleanup", action="store_true", help="Skip fragment removal, boundary clip, Lutyens tier promotion and water")
+    ap.add_argument("--min-fragment", type=float, default=200, help="Drop disconnected road clusters shorter than this many metres")
+    ap.add_argument("--no-water", action="store_true", help="Skip the river/lake tint (needs a boundary download the first time)")
     ap.add_argument("--out", default=str(HERE.parent / "assets"))
     args = ap.parse_args()
     extent_requested = args.extent_raster or args.extent_auto
@@ -458,6 +479,20 @@ def main():
         if not edges:
             ap.error("No road segments remain after filtering")
 
+    water = []
+    if not args.no_cleanup and not args.preview:
+        from cleanup import clip_edges, drop_fragments
+        if not args.point:
+            from cleanup import load_boundary, load_water
+            boundary = load_boundary(args.place, edge_crs, HERE / "cache")
+            edges, n = clip_edges(edges, boundary)
+            print(f"Clipped {n:,} roads at the boundary")
+            if not args.no_water:
+                water = load_water(args.place, boundary, edge_crs, HERE / "cache")
+                print(f"{len(water):,} water polygons")
+        edges, n = drop_fragments(edges, args.min_fragment)
+        print(f"Dropped {n:,} segments in fragments under {args.min_fragment:g} m")
+
     formats = [f.strip() for f in args.formats.split(",") if f.strip()]
     if not formats or any(f not in {"pdf", "png", "svg", "mask"} for f in formats):
         ap.error("formats must be a comma list of pdf,png,svg,mask")
@@ -468,7 +503,7 @@ def main():
         formats = [f for f in formats if f != "mask"]
     if formats:
         render(edges, L, args.theme, size_key, w_in, h_in, args.min_width, formats, args.dpi,
-               Path(args.out), name, args.year, texts, args.bleed_mm)
+               Path(args.out), name, args.year, texts, args.bleed_mm, water)
 
 
 if __name__ == "__main__":
