@@ -108,8 +108,9 @@
       out.texts.push({ text: upper ? text.toUpperCase() : text, s: s, track: spec.track * s, mono: mono, y: top + h / 2 + 0.35 * s });
       cursor = top - gapAbove * W;
     }
-    var ds = L.date || L.year;
+    var ds = L.date || L.year, dt = L.detail || ds;
     if (o.date) line(ds, o.date, 1.2, true, false, ds.above);
+    if (o.detail) line(dt, o.detail, 1.2, true, false, dt.above); // optional fact or personal line, sits between the year and the print date
     line(L.year, String(o.year), 1.2, true, false, L.year.above);
     if (o.coords) line(L.coords, o.coords, 1.2, true, false, L.coords.above);
     if (o.region) line(L.region, o.region, 1.2, false, true, L.rule.below);
@@ -135,7 +136,7 @@
       var minorC = mix(line, bg, L.mix.minor);
       var label = o.label || "Placeholder street-map poster";
       var coords = o.lat != null ? fmtCoords(o.lat, o.lon) : "";
-      var ft = footer(H, { city: o.city || "Your city", region: o.region || "", coords: coords, year: o.year || 2025, date: o.date || "" });
+      var ft = footer(H, { city: o.city || "Your city", region: o.region || "", coords: coords, year: o.year || 2025, date: o.date || "", detail: o.detail || "" });
       var sw = function (ratio) { return f(ratio * W * PREVIEW_BOOST * 10) / 10; };
 
       var mapLayer;

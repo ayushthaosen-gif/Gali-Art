@@ -253,6 +253,9 @@ def footer_lines(L, Wp, Hp, texts):
 
     if texts.get("date"):  # optional personalised date, e.g. "14 FEB 2026", under the year
         line("date", L.get("date", L["year"]), texts["date"], 1.2, True, False, L.get("date", L["year"])["above"])
+    if texts.get("detail"):  # optional fact or personal line between the year and the date, e.g. "1,484 km2 area"
+        spec = L.get("detail", L.get("date", L["year"]))
+        line("detail", spec, texts["detail"], 1.2, True, False, spec["above"])
     line("year", L["year"], str(texts["year"]), 1.2, True, False, L["year"]["above"])
     if texts.get("coords"):
         line("coords", L["coords"], texts["coords"], 1.2, True, False, L["coords"]["above"])
@@ -394,6 +397,7 @@ def main():
     ap.add_argument("--region", help="Footer region line (default: last part of --place, e.g. India)")
     ap.add_argument("--coords", type=float, nargs=2, metavar=("LAT", "LON"), help="Footer coordinates (default: city centre)")
     ap.add_argument("--date", default="", help='Optional personal date line, e.g. "14 FEB 2026" (use DD MON YYYY)')
+    ap.add_argument("--detail", default="", help='Optional detail line under the year, e.g. "21,600 km of streets" (max 40 characters)')
     ap.add_argument("--year", type=int, default=2025, help="Map year shown in the footer (OSM data is current, see README)")
     ap.add_argument("--theme", default="blue", choices=sorted(THEMES))
     ap.add_argument("--size", type=parse_size, default="a3", help="a4 | a3 | 18x24 | custom WxH inches")
@@ -433,7 +437,7 @@ def main():
     city = args.city_name or place_title[0].strip()
     region = args.region if args.region is not None else (place_title[-1].strip() if len(place_title) > 1 else "")
     centre = tuple(args.coords) if args.coords else (args.point if args.point else CENTRES.get(slugify(city)))
-    texts = {"city": city, "region": region, "year": args.year, "date": args.date.upper(),
+    texts = {"city": city, "region": region, "year": args.year, "date": args.date.upper(), "detail": args.detail.strip()[:40],
              "coords": fmt_coords(*centre) if centre else ""}
     name = args.name or ("preview" if args.preview else slugify(city))
 

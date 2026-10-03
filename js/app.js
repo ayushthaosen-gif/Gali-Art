@@ -2,7 +2,7 @@
   "use strict";
   var C = window.GALI_CONFIG;
   var $ = function (s) { return document.querySelector(s); };
-  var state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none" };
+  var state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none", detail: "none" };
 
   function byId(list, id) { return list.filter(function (x) { return x.id === id; })[0] || list[0]; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -10,6 +10,21 @@
   function aspect(size) { return size.h / size.w; }
   // Only offer map years that exist as a real map for at least one city; the rest would be invented patterns.
   var ERAS = C.eras.filter(function (e) { return C.cities.some(function (c) { return c.maps && c.maps[e.id]; }); });
+  // Optional detail line under the year. Facts come from config (computed from the map data); they describe the current map only.
+  var nf = new Intl.NumberFormat(C.currency.locale);
+  function detailOptions(city, eraId) {
+    var o = [{ id: "none", label: "None" }], f = city && eraId === C.defaults.era && city.facts;
+    if (f && f.streetsKm) o.push({ id: "streets", label: "Street length", text: nf.format(f.streetsKm) + " km of streets" });
+    if (f && f.areaKm2) o.push({ id: "area", label: "City area", text: nf.format(f.areaKm2) + " km² area" });
+    if (f && f.streetsKm && f.areaKm2) o.push({ id: "both", label: "Area and street length", text: nf.format(f.areaKm2) + " km² · " + nf.format(f.streetsKm) + " km of streets" });
+    o.push({ id: "custom", label: "Your own words" });
+    return o;
+  }
+  function detailText(city, eraId) {
+    var opt = detailOptions(city, eraId).filter(function (x) { return x.id === state.detail; })[0];
+    if (!opt || opt.id === "none") return "";
+    return opt.id === "custom" ? ($("#f-detail-text").value || "").replace(/\s+/g, " ").trim().slice(0, 40) : opt.text;
+  }
   function framePrice(frame, size) { return (frame.price && frame.price[size.id]) || 0; }
   function cityOf(id) { return C.cities.filter(function (c) { return c.id === id; })[0]; }
   // a city we have no map for ("Other") can only show the current year
@@ -56,6 +71,7 @@
   function fill(sel, items, fmt) {
     sel.innerHTML = items.map(function (i) { return '<option value="' + esc(i.id) + '">' + esc(fmt(i)) + "</option>"; }).join("");
   }
+  var fDetail = $("#f-detail"), fDetailText = $("#f-detail-text");
   var pickCity = $("#pick-city"), fCity = $("#f-city"), fSize = $("#f-size"), fTheme = $("#f-theme"), fEra = $("#f-era"), fFrame = $("#f-frame");
   var cityLabel = function (c) { return c.name + (c.soon ? " (preview only)" : ""); };
   fill(pickCity, C.cities, cityLabel);
@@ -64,6 +80,8 @@
   fill(fSize, C.sizes, function (s) { return s.label + " — " + money(s.price); });
   fill(fTheme, C.themes, function (t) { return t.name; });
   fFrame.addEventListener("change", function () { set({ frame: fFrame.value }); });
+  fDetail.addEventListener("change", function () { set({ detail: fDetail.value }); });
+  fDetailText.addEventListener("input", function () { render(); });
   fill(fEra, ERAS, function (e) { return e.year + (e.year === 2025 ? " (current)" : ""); });
   var eraPicker = $("#era-picker");
   eraPicker.insertAdjacentHTML("beforeend", ERAS.map(function (e) {
@@ -94,8 +112,10 @@
     // a year with no real map for this city falls back to the current map
     if (city && !hasMap(city, state.era)) state.era = C.defaults.era;
     var era = byId(C.eras, state.era);
+    var dopts = detailOptions(city, state.era);
+    if (!dopts.some(function (x) { return x.id === state.detail; })) state.detail = "none"; // that fact doesn't apply to this city or year
     var o = posterOpts(city, era.year);
-    o.theme = theme; o.aspect = aspect(size); o.density = era.density; o.date = fmtDate($("#f-date").value);
+    o.theme = theme; o.aspect = aspect(size); o.density = era.density; o.date = fmtDate($("#f-date").value); o.detail = detailText(city, state.era);
     o.label = "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + (city ? "" : " (sample pattern; your city is drawn from real map data)");
     var svg = GaliPoster.svg(o);
     $("#picker-preview").innerHTML = svg;
@@ -119,6 +139,9 @@
     fTheme.value = state.theme; fSize.value = state.size; fCity.value = state.city;
     fill(fFrame, C.frames, function (f) { var p = framePrice(f, size); return f.name + (p ? " — +" + money(p) : ""); });
     fFrame.value = state.frame;
+    fill(fDetail, dopts, function (x) { return x.label; });
+    fDetail.value = state.detail;
+    fDetailText.classList.toggle("hidden", state.detail !== "custom");
     if (city) pickCity.value = state.city;
     var fp = framePrice(frame, size);
     $("#price").textContent = money(size.price + fp);
@@ -183,19 +206,19 @@
     var size = byId(C.sizes, fSize.value), btn = $("#submit-btn");
     var payload = {
       brand: C.brand.name, city: fCity.value === "other" ? $("#f-other").value.trim() : byId(C.cities, fCity.value).name,
-      size: size.label, frame: byId(C.frames, fFrame.value).name, framePrice: framePrice(byId(C.frames, fFrame.value), size), theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year, printDate: fmtDate($("#f-date").value),
+      detail: detailText(cityOf(state.city), state.era), size: size.label, frame: byId(C.frames, fFrame.value).name, framePrice: framePrice(byId(C.frames, fFrame.value), size), theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year, printDate: fmtDate($("#f-date").value),
       name: $("#f-name").value.trim(), email: $("#f-email").value.trim(), notes: $("#f-notes").value.trim(),
       price: size.price + framePrice(byId(C.frames, fFrame.value), size), currency: C.currency.code, submittedAt: new Date().toISOString()
     };
     var done = function () {
       show("Thank you, " + payload.name.split(" ")[0] + "! Your request is in. We'll email " + payload.email + " shortly.");
       if (C.payment.link) { var a = $("#pay-link"); a.href = C.payment.link; a.textContent = C.payment.label; $("#pay-wrap").classList.remove("hidden"); }
-      form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none" }; $("#other-city-wrap").classList.add("hidden"); render();
+      form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none", detail: "none" }; $("#other-city-wrap").classList.add("hidden"); render();
     };
     if (!C.form.endpoint) { // no order inbox configured: hand the request to the customer's email app instead of dropping it
       var lines = ["Order request (" + payload.brand + ")", "",
         "City: " + payload.city, "Map year: " + payload.mapYear, "Size: " + payload.size, "Frame: " + payload.frame,
-        "Colour theme: " + payload.theme, payload.printDate ? "Print date: " + payload.printDate : "",
+        payload.detail ? "Detail line: " + payload.detail : "", "Colour theme: " + payload.theme, payload.printDate ? "Print date: " + payload.printDate : "",
         "Total: " + money(payload.price), "", "Name: " + payload.name, "Email: " + payload.email,
         payload.notes ? "Notes: " + payload.notes : ""].filter(function (l, i, a) { return l !== "" || a[i - 1] !== ""; });
       window.location.href = "mailto:" + C.brand.email + "?subject=" + encodeURIComponent("Poster order: " + payload.city + ", " + payload.mapYear) +

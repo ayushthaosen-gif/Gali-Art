@@ -35,15 +35,22 @@ window.GALI_CONFIG = {
     { id: "18x24", label: "18 × 24 in (46 × 61 cm)", w: 18, h: 24, price: 2999 }
   ],
 
+  // facts: optional detail lines the customer can print under the year. Numbers are computed from the same OpenStreetMap
+  // data the poster is drawn from (generator/city_facts.py), rounded; they describe the 2025 map only. areaKm2 is set only
+  // where the poster shows the city boundary (not for a square map around the centre). Nothing hand-typed from memory.
   // seed makes each city's placeholder pattern different. Only Delhi is a real product for now.
   cities: [
   { id: "delhi",   name: "Delhi",   seed: 11, region: "India", lat: 28.6139, lon: 77.2090,
+    facts: { streetsKm: 18400, areaKm2: 1480 },
     maps: { "1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp" } },
     { id: "mumbai", name: "Mumbai", seed: 20, region: "India", lat: 19.076, lon: 72.8777,
+      facts: { streetsKm: 4000 },
       maps: { "2025": "assets/mumbai-lines.webp" } },
     { id: "kolkata", name: "Kolkata", seed: 21, region: "India", lat: 22.5726, lon: 88.3639,
+      facts: { streetsKm: 3500, areaKm2: 200 },
       maps: { "2025": "assets/kolkata-lines.webp" } },
     { id: "panaji", name: "Panaji", seed: 60, region: "India", lat: 15.4909, lon: 73.8278,
+      facts: { streetsKm: 520 },
       maps: { "2025": "assets/panaji-lines.webp" } }
   ],
 
