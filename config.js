@@ -52,5 +52,17 @@ window.GALI_CONFIG = {
     { id: "mono",       name: "Mono Grey",   bg: "#E4E4E4", line: "#222222" }
   ],
 
-  defaults: { city: "delhi", theme: "blue", size: "a3" }
+  // Map editions: which year's street network the poster shows. Steps of 25 years from 1920, then 2025.
+  // density only drives the placeholder preview (older = smaller, sparser city); it is not real data.
+  eras: [
+    { id: "1920", year: 1920, density: 0.25 },
+    { id: "1945", year: 1945, density: 0.4 },
+    { id: "1970", year: 1970, density: 0.6 },
+    { id: "1995", year: 1995, density: 0.8 },
+    { id: "2020", year: 2020, density: 0.95 },
+    { id: "2025", year: 2025, density: 1 }
+  ],
+  eraNote: "Historical editions are drawn from archival maps. We confirm availability for your city by email.",
+
+  defaults: { city: "delhi", theme: "blue", size: "a3", era: "2025" }
 };

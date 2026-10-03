@@ -2,7 +2,7 @@
   "use strict";
   var C = window.GALI_CONFIG;
   var $ = function (s) { return document.querySelector(s); };
-  var state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size };
+  var state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era };
 
   function byId(list, id) { return list.filter(function (x) { return x.id === id; })[0] || list[0]; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -33,13 +33,21 @@
   function fill(sel, items, fmt) {
     sel.innerHTML = items.map(function (i) { return '<option value="' + esc(i.id) + '">' + esc(fmt(i)) + "</option>"; }).join("");
   }
-  var pickCity = $("#pick-city"), fCity = $("#f-city"), fSize = $("#f-size"), fTheme = $("#f-theme");
+  var pickCity = $("#pick-city"), fCity = $("#f-city"), fSize = $("#f-size"), fTheme = $("#f-theme"), fEra = $("#f-era");
   var cityLabel = function (c) { return c.name + (c.soon ? " (preview only)" : ""); };
   fill(pickCity, C.cities, cityLabel);
   fill(fCity, C.cities, cityLabel);
   fCity.insertAdjacentHTML("beforeend", '<option value="other">Other city (tell us below)</option>');
   fill(fSize, C.sizes, function (s) { return s.label + " — " + money(s.price); });
   fill(fTheme, C.themes, function (t) { return t.name; });
+  fill(fEra, C.eras, function (e) { return e.year + (e.year === 2025 ? " (current)" : ""); });
+  $("#era-note").textContent = C.eraNote || "";
+  var eraPicker = $("#era-picker");
+  eraPicker.insertAdjacentHTML("beforeend", C.eras.map(function (e) {
+    return '<label class="era"><input type="radio" name="era" value="' + esc(e.id) + '"><span>' + e.year + "</span></label>";
+  }).join(""));
+  eraPicker.addEventListener("change", function (e) { if (e.target.name === "era") set({ era: e.target.value }); });
+  fEra.addEventListener("change", function () { set({ era: fEra.value }); });
 
   var picker = $("#theme-picker");
   picker.insertAdjacentHTML("beforeend", C.themes.map(function (t) {
@@ -57,14 +65,19 @@
   function set(patch) { for (var k in patch) state[k] = patch[k]; render(); }
 
   function render() {
-    var theme = byId(C.themes, state.theme), size = byId(C.sizes, state.size);
+    var theme = byId(C.themes, state.theme), size = byId(C.sizes, state.size), era = byId(C.eras, state.era);
     var city = C.cities.filter(function (c) { return c.id === state.city; })[0];
     var svg = GaliPoster.svg({
-      seed: city ? city.seed : 99, theme: theme, aspect: aspect(size),
-      label: "Preview: " + (city ? city.name : "custom city") + " in " + theme.name + " (placeholder pattern)"
+      seed: city ? city.seed : 99, theme: theme, aspect: aspect(size), density: era.density,
+      label: "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + " (placeholder pattern)"
     });
     $("#picker-preview").innerHTML = svg;
     $("#order-preview").innerHTML = svg;
+    var cap = (city ? city.name : "Your city") + " · " + era.year;
+    $("#picker-caption").textContent = cap;
+    $("#order-caption").textContent = cap;
+    eraPicker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.era; });
+    fEra.value = state.era;
     picker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.theme; });
     fTheme.value = state.theme; fSize.value = state.size; fCity.value = state.city;
     if (city) pickCity.value = state.city;
@@ -123,14 +136,14 @@
     var size = byId(C.sizes, fSize.value), btn = $("#submit-btn");
     var payload = {
       brand: C.brand.name, city: fCity.value === "other" ? $("#f-other").value.trim() : byId(C.cities, fCity.value).name,
-      size: size.label, theme: byId(C.themes, fTheme.value).name,
+      size: size.label, theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year,
       name: $("#f-name").value.trim(), email: $("#f-email").value.trim(), notes: $("#f-notes").value.trim(),
       price: size.price, currency: C.currency.code, submittedAt: new Date().toISOString()
     };
     var done = function () {
       show("Thank you, " + payload.name.split(" ")[0] + "! Your request is in. We'll email " + payload.email + " shortly.");
       if (C.payment.link) { var a = $("#pay-link"); a.href = C.payment.link; a.textContent = C.payment.label; $("#pay-wrap").classList.remove("hidden"); }
-      form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size }; $("#other-city-wrap").classList.add("hidden"); render();
+      form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era }; $("#other-city-wrap").classList.add("hidden"); render();
     };
     if (!C.form.endpoint) { // demo mode
       console.info("Demo mode (no form endpoint set in config.js). Payload:", payload);

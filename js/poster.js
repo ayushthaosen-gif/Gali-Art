@@ -24,10 +24,12 @@
 
   // Irregular lattice, rotated, with dropped edges (minor), continuous avenues (major),
   // a few diagonals and a ring road.
-  function build(seed, H) {
-    var key = seed + ":" + H;
+  function build(seed, H, density) {
+    var key = seed + ":" + H + ":" + density;
     if (cache[key]) return cache[key];
     var r = rng(seed);
+    var pMinor = 0.5 + 0.34 * density;
+    var rmax = Math.hypot(W, H) / 2 * (0.38 + 0.62 * density); // older eras: smaller city
     var ang = (-14 + r() * 8) * Math.PI / 180;
     var cx = W / 2, cy = H / 2, span = Math.max(W, H) * 1.5;
 
@@ -49,28 +51,29 @@
     for (m = 2; m < ys.length; m += 3 + Math.floor(r() * 3)) majY[m] = 1;
 
     var minor = "", major = "", i, j, a, b;
+    function inside(a, b) { return Math.hypot((a[0] + b[0]) / 2 - cx, (a[1] + b[1]) / 2 - cy) <= rmax; }
     function seg(a, b) { return "M" + f(a[0]) + " " + f(a[1]) + "L" + f(b[0]) + " " + f(b[1]); }
     for (i = 0; i < xs.length; i++) {
       for (j = 0; j < ys.length; j++) {
         a = nodes[i][j];
         if (i + 1 < xs.length) {
           b = nodes[i + 1][j];
-          if (majY[j]) major += seg(a, b); else if (r() < 0.84) minor += seg(a, b);
+          if (!inside(a, b)) { r(); } else if (majY[j]) major += seg(a, b); else if (r() < pMinor) minor += seg(a, b);
         }
         if (j + 1 < ys.length) {
           b = nodes[i][j + 1];
-          if (majX[i]) major += seg(a, b); else if (r() < 0.84) minor += seg(a, b);
+          if (!inside(a, b)) { r(); } else if (majX[i]) major += seg(a, b); else if (r() < pMinor) minor += seg(a, b);
         }
       }
     }
     // diagonals
     for (i = 0; i < 3; i++) {
       var d = ang + (0.5 + r() * 0.9) * (r() < 0.5 ? 1 : -1);
-      var px = W * (0.15 + r() * 0.7), py = H * (0.15 + r() * 0.7), L = span / 2;
+      var px = W * (0.15 + r() * 0.7), py = H * (0.15 + r() * 0.7), L = Math.min(span / 2, rmax);
       major += seg([px - Math.cos(d) * L, py - Math.sin(d) * L], [px + Math.cos(d) * L, py + Math.sin(d) * L]);
     }
     // ring road
-    var rr = W * (0.26 + r() * 0.06), ox = cx + (r() - 0.5) * 40, oy = cy + (r() - 0.5) * 40, ring = "";
+    var rr = Math.min(W * (0.26 + r() * 0.06), rmax * 0.9), ox = cx + (r() - 0.5) * 40, oy = cy + (r() - 0.5) * 40, ring = "";
     for (i = 0; i <= 48; i++) {
       var t = (i / 48) * Math.PI * 2, k = rr * (1 + 0.06 * Math.sin(t * 3 + seed));
       ring += (i ? "L" : "M") + f(ox + Math.cos(t) * k) + " " + f(oy + Math.sin(t) * k * 1.1);
@@ -87,7 +90,7 @@
     svg: function (o) {
       var aspect = o.aspect || 4 / 3;
       var H = Math.round(W * aspect);
-      var p = build(o.seed || 1, H);
+      var p = build(o.seed || 1, H, o.density || 1);
       var id = "gp" + (uid++), m = W * 0.07;
       var label = o.label || "Placeholder street-map poster";
       return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H +

@@ -63,7 +63,7 @@
 
   <section id="design">
     <div class="wrap two">
-      <div class="sticky"><div class="preview" id="picker-preview"></div></div>
+      <div class="sticky"><div class="preview" id="picker-preview"></div><p class="caption" id="picker-caption" aria-live="polite"></p></div>
       <div>
         <p class="eyebrow">Style picker</p>
         <h2>Choose your colours</h2>
@@ -72,6 +72,8 @@
           <label for="pick-city">City</label>
           <select id="pick-city"></select>
         </div>
+        <fieldset class="eras" id="era-picker"><legend>Map year</legend></fieldset>
+        <p class="note" id="era-note"></p>
         <fieldset class="themes" id="theme-picker"><legend>Colour theme</legend></fieldset>
         <a class="btn" href="#order">Order this style</a>
       </div>
@@ -85,6 +87,7 @@
         <h2>Request your poster</h2>
         <p class="lede">Send your details and we'll confirm by email.</p>
         <div class="preview" id="order-preview"></div>
+        <p class="caption" id="order-caption"></p>
       </div>
       <form id="order-form" novalidate>
         <div class="field">
@@ -99,6 +102,10 @@
         <div class="field">
           <label for="f-size">Poster size</label>
           <select id="f-size" name="size" required></select>
+        </div>
+        <div class="field">
+          <label for="f-era">Map year</label>
+          <select id="f-era" name="era" required></select>
         </div>
         <div class="field">
           <label for="f-theme">Colour theme</label>
