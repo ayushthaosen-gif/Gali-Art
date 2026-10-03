@@ -18,6 +18,26 @@ from extent import build_mask, filter_edges
 from make_poster import synthetic_edges, tier_of
 
 
+def test_closing_border(tmp):
+    for name in ("full", "gap"):
+        values = np.full((40, 40), 1000, dtype="uint16")
+        if name == "gap":
+            values[:] = 0
+            values[5:35, 5:35] = 1000
+            values[5:35, 19:21] = 0  # open-ended gap, so hole filling cannot bridge it
+        raster = tmp / f"closing-{name}.tif"
+        with rasterio.open(raster, "w", driver="GTiff", height=40, width=40,
+                           count=1, dtype="uint16", crs="EPSG:4326",
+                           transform=from_origin(0, 40, 1, 1)) as dst:
+            dst.write(values, 1)
+        mask = build_mask(raster, (0, 0, 40, 40), "EPSG:4326", 500, 3, 30)
+        assert mask.cells.shape == values.shape
+        if name == "full":
+            assert np.count_nonzero(~mask.cells) == 0, "Closing erased built-up border cells"
+        else:
+            assert mask.cells[10:30, 19:21].all(), "Closing did not bridge the 2-cell gap"
+
+
 def main():
     edges = synthetic_edges()
     crs = "EPSG:32643"
@@ -34,6 +54,7 @@ def main():
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
+        test_closing_border(tmp)
         for year, radius in ((1975, 2500), (1995, 5500)):
             raster = tmp / f"built-{year}.tif"
             cells = distance <= radius
@@ -98,13 +119,15 @@ def main():
         script = Path(__file__).with_name("make_poster.py")
         argv = [str(script), "--preview", "--extent-raster", str(tiles[0]),
                 "--extent-raster", str(tiles[1]), "--year", "1995",
-                "--size", "a4", "--dpi", "40", "--formats", "pdf,png,mask", "--out", str(tmp)]
+                "--size", "a4", "--dpi", "40", "--formats", "pdf,png,mask",
+                "--date", "14 feb 2026", "--out", str(tmp)]
         fonts = (FontProperties(family="DejaVu Sans"), FontProperties(family="DejaVu Sans Mono"))
         with patch.object(sys, "argv", argv), patch("urllib.request.urlretrieve",
                                                     side_effect=AssertionError("Network forbidden")):
             namespace = runpy.run_path(str(script))
             namespace["main"].__globals__["get_fonts"] = lambda: fonts
-            namespace["main"]()
+            with patch("urllib.request.urlopen", side_effect=AssertionError("Network forbidden")):
+                namespace["main"]()
         for year in (1920, 1945):
             with patch.object(sys, "argv", [str(script), "--year", str(year), "--extent-auto"]), redirect_stderr(io.StringIO()):
                 with patch("urllib.request.urlopen", side_effect=AssertionError("Network forbidden")):
@@ -129,6 +152,7 @@ def main():
         import matplotlib.image as mpimg
         image = mpimg.imread(tmp / "preview-1995-lines.png")
         assert image.shape[2] == 4
+        assert image.shape[1] == 1600  # main's render_mask uses a fixed website width
         assert (image[:, :, 3] == 0).any() and (image[:, :, 3] > 0).any()
         assert np.all(image[:, :, :3][image[:, :, 3] > 0] == 1)
     print(f"Extent tests passed: smaller year {counts[0]:,}, larger year {counts[1]:,} segments")

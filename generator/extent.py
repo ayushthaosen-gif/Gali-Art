@@ -72,7 +72,9 @@ def build_mask(raster_path, bounds_xy, edge_crs, threshold, buffer_cells, min_bl
             values = values[0]
         cells = values >= threshold
         if buffer_cells:
-            cells = ndimage.binary_closing(cells, iterations=buffer_cells)
+            padded = np.pad(cells, buffer_cells, mode="edge")
+            closed = ndimage.binary_closing(padded, iterations=buffer_cells)
+            cells = closed[buffer_cells:-buffer_cells, buffer_cells:-buffer_cells]
         cells = ndimage.binary_fill_holes(cells)
         if min_blob_cells:
             labels, _ = ndimage.label(cells)
