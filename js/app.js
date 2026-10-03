@@ -193,6 +193,27 @@
     .then(function (l) { GaliPoster.setLayout(l); renderHero(); render(); })
     .catch(function () {});
 
+  // ---- swipeable rows: dots follow the swipe and jump to a card when tapped (only shown on phones) ----
+  [].forEach.call(document.querySelectorAll(".swipe"), function (row) {
+    var items = [].slice.call(row.children), dots = document.createElement("div");
+    dots.className = "swipe-dots";
+    items.forEach(function (item, i) {
+      var b = document.createElement("button");
+      b.type = "button"; b.setAttribute("aria-label", "Show card " + (i + 1) + " of " + items.length);
+      b.addEventListener("click", function () { item.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); });
+      dots.appendChild(b);
+    });
+    row.insertAdjacentElement("afterend", dots);
+    function mark(active) { [].forEach.call(dots.children, function (d, i) { if (i === active) d.setAttribute("aria-current", "true"); else d.removeAttribute("aria-current"); }); }
+    mark(0);
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) mark(items.indexOf(e.target)); });
+      }, { root: row, threshold: 0.6 });
+      items.forEach(function (item) { io.observe(item); });
+    }
+  });
+
   // ---- order form ----
   var form = $("#order-form"), statusEl = $("#status");
   function setErr(id, msg, input) {
