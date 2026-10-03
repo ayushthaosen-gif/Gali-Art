@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1800" width="1600" height="1200" role="img" aria-labelledby="title desc">
+<title id="title">A4, A3 and 18 by 24 inch prints above a 180 centimetre sofa</title>
+<desc id="desc">Print rectangles are drawn at one shared scale using their millimetre dimensions. The sofa outline is an illustrative 1800 millimetre wide reference. Frames and mats are excluded.</desc>
+<rect width="2400" height="1800" fill="#E6E1D8"/>
+<g font-family="Arial,sans-serif" fill="#343A30" text-anchor="middle">
+<rect x="545.0" y="403" width="210" height="297" fill="#3F6BA8"/>
+<text x="650" y="674.8" fill="white" font-size="15.12" letter-spacing="3.15">DELHI</text>
+<text x="650" y="760" font-size="36">A4</text>
+<text x="650" y="810" font-size="28" fill="#6F7366">210 × 297 mm</text>
+<rect x="1051.5" y="280" width="297" height="420" fill="#3F6BA8"/>
+<text x="1200" y="664.36" fill="white" font-size="21.383999999999997" letter-spacing="4.455">DELHI</text>
+<text x="1200" y="760" font-size="36">A3</text>
+<text x="1200" y="810" font-size="28" fill="#6F7366">297 × 420 mm</text>
+<rect x="1521.5" y="90" width="457" height="610" fill="#3F6BA8"/>
+<text x="1750" y="645.16" fill="white" font-size="32.903999999999996" letter-spacing="6.8549999999999995">DELHI</text>
+<text x="1750" y="760" font-size="36">18 × 24 in</text>
+<text x="1750" y="810" font-size="28" fill="#6F7366">457 × 610 mm</text>
+</g>
+<g fill="none" stroke="#7C8073" stroke-width="5" stroke-linejoin="round">
+<path d="M380 1110V915Q380 850 450 850H1950Q2020 850 2020 915V1110"/>
+<path d="M300 1430V1130Q300 1100 330 1100H405Q435 1100 435 1130V1370H1965V1130Q1965 1100 1995 1100H2070Q2100 1100 2100 1130V1430Z"/>
+<path d="M435 1220H1965M1200 870V1210M460 1240H1180V1350H460ZM1220 1240H1940V1350H1220Z"/>
+<path d="M350 1430V1600H395V1430M2005 1430V1600H2050V1430"/>
+<path d="M220 1600H2180" stroke="#C0C0B3"/>
+<path d="M300 1680H2100M300 1655V1705M2100 1655V1705"/>
+</g><text x="1200" y="1750" text-anchor="middle" fill="#63695C" font-family="Arial,sans-serif" font-size="28" letter-spacing="3">REFERENCE SOFA · 180 CM WIDE</text></svg>
