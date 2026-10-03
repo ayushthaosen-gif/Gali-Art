@@ -70,29 +70,31 @@ section { padding: 4rem 0; }
 .steps h3 { margin-top: .3rem; }
 @media (min-width: 720px) { .steps { grid-template-columns: repeat(3, 1fr); } }
 
-/* gallery: framed cards on the plaster wall (more blocks in frame-preview/product-gallery.css) */
-.wall-grid { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; gap: 1.2rem; grid-template-columns: 1fr; }
-@media (min-width: 720px) { .wall-grid { grid-template-columns: repeat(3, 1fr); } }
-.wall-card .frame-wall { aspect-ratio: 4 / 5; display: grid; place-items: center; padding: 0; border-radius: .6rem; overflow: hidden; }
-/* One shared scale for the three cards, so the sizes are true to each other: an A3 frame is 337 mm wide without a mat and
-   440 mm with one. The widest (oak with mat) takes 72% of the card; 337 / 440 x 72% = 55.1% for the other two. */
-.wall-card .framed { width: 55.1%; min-width: 0; }
-.wall-card .framed[data-frame="oak"] { width: 72%; }
-/* swipeable rows: a sideways swipe on phones with the next card peeking in, plain columns from 720px up */
-.swipe-dots { display: flex; justify-content: center; gap: .5rem; margin-top: .9rem; }
+/* gallery: ONE swipeable carousel (scenes on our wall, up close, size, at home) with section buttons, dots and arrows */
+.seg { display: flex; gap: .5rem; overflow-x: auto; scrollbar-width: none; margin: 1.2rem 0 1.1rem; padding-bottom: .2rem; }
+.seg::-webkit-scrollbar { display: none; }
+.seg button { flex: none; border: 1px solid var(--line); background: var(--white); color: var(--ink); border-radius: 999px; padding: .45rem .95rem; font: inherit; font-size: .9rem; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+.seg button:focus-visible { outline: 3px solid #ffb400; outline-offset: 2px; }
+.swipe { list-style: none; margin: 0; padding: 0 0 .2rem; display: flex; gap: 1rem; align-items: flex-start; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+.swipe::-webkit-scrollbar { display: none; }
+.swipe > * { flex: 0 0 88%; min-width: 0; scroll-snap-align: start; }
+@media (min-width: 720px) { .swipe > * { flex-basis: min(64%, 640px); } }
+.swipe:focus-visible { outline: 3px solid #ffb400; outline-offset: 4px; }
+@media (prefers-reduced-motion: no-preference) { .swipe { scroll-behavior: smooth; } }
+.slide figure { margin: 0; }
+.slide figcaption { margin-top: .8rem; }
+.slide h3 { margin: 0 0 .3rem; }
+.slide p { margin: 0; font-size: .9rem; color: var(--muted); }
+.slide .asset-link { margin-top: .5rem; }
+.swipe-nav { display: flex; justify-content: center; align-items: center; gap: .9rem; margin-top: .9rem; }
+.swipe-dots { display: flex; justify-content: center; gap: .5rem; }
 .swipe-dots button { width: .55rem; height: .55rem; padding: 0; border: 0; border-radius: 50%; background: var(--line); cursor: pointer; }
 .swipe-dots button[aria-current="true"] { background: var(--blue); }
-.swipe-dots button:focus-visible { outline: 3px solid #ffb400; outline-offset: 3px; }
-@media (max-width: 719px) {
-  .swipe { display: flex !important; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; padding-bottom: .2rem; -webkit-overflow-scrolling: touch; }
-  .swipe::-webkit-scrollbar { display: none; }
-  .swipe > * { flex: 0 0 82%; min-width: 0; scroll-snap-align: center; }
-  .swipe:focus-visible { outline: 3px solid #ffb400; outline-offset: 4px; }
-}
-@media (min-width: 720px) { .swipe-dots { display: none; } }
-@media (prefers-reduced-motion: no-preference) { .swipe { scroll-behavior: smooth; } }
-.wall-caption { font-size: .9rem; margin: .6rem 0 0; color: var(--muted); }
-.wall-card .note { margin-top: .2rem; }
+.swipe-arrow { display: none; width: 2.2rem; height: 2.2rem; border: 1px solid var(--line); border-radius: 50%; background: var(--white); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; }
+@media (min-width: 720px) { .swipe-arrow { display: inline-flex; align-items: center; justify-content: center; } }
+.swipe-arrow:focus-visible, .swipe-dots button:focus-visible { outline: 3px solid #ffb400; outline-offset: 3px; }
+.swipe-arrow:disabled { opacity: .35; cursor: default; }
 .note { font-size: .85rem; color: var(--muted); margin-top: 1.2rem; }
 
 /* picker + order */

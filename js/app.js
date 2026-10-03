@@ -123,13 +123,17 @@
   // Their sizes are fixed by the markup (data-size), so the main size selector never changes the scale comparison.
   var FRAME_TO_SIZE = { A4: "a4", A3: "a3", "18x24": "18x24" };
   var galleryPosters = [].map.call(document.querySelectorAll("#gallery .framed .poster"), function (poster) {
-    return { poster: poster, size: byId(C.sizes, FRAME_TO_SIZE[poster.closest(".framed").dataset.size]) };
+    var framed = poster.closest(".framed");
+    return { poster: poster, city: framed.dataset.city || "", size: byId(C.sizes, FRAME_TO_SIZE[framed.dataset.size]) };
   });
   function renderGallery(city, theme, era) {
+    var current = byId(C.eras, C.defaults.era);
     galleryPosters.forEach(function (g) {
-      var o = posterOpts(city, era.year);
-      o.theme = theme; o.aspect = aspect(g.size); o.density = era.density;
-      o.label = (city ? city.name : "Sample") + " " + era.year + " poster in " + theme.name + ", " + g.size.label.split(" (")[0];
+      // slides that name a city always show it (current map); the others follow the city and map-year pickers
+      var c = g.city ? cityOf(g.city) : city, e = g.city ? current : era;
+      var o = posterOpts(c, e.year);
+      o.theme = theme; o.aspect = aspect(g.size); o.density = e.density;
+      o.label = (c ? c.name : "Sample") + " " + e.year + " poster in " + theme.name + ", " + g.size.label.split(" (")[0];
       g.poster.innerHTML = GaliPoster.svg(o);
     });
     var white = byId(C.frames, "white"), avoid = !!(white.avoid && white.avoid.indexOf(theme.id) >= 0);
@@ -193,25 +197,50 @@
     .then(function (l) { GaliPoster.setLayout(l); renderHero(); render(); })
     .catch(function () {});
 
-  // ---- swipeable rows: dots follow the swipe and jump to a card when tapped (only shown on phones) ----
+  // ---- swipeable carousel: section buttons, dots and arrows follow the swipe and jump to a slide ----
   [].forEach.call(document.querySelectorAll(".swipe"), function (row) {
-    var items = [].slice.call(row.children), dots = document.createElement("div");
-    dots.className = "swipe-dots";
+    var items = [].slice.call(row.children), nav = document.createElement("div"), dots = document.createElement("div"), current = 0;
+    var seg = row.previousElementSibling && row.previousElementSibling.classList.contains("seg") ? row.previousElementSibling : null;
+    nav.className = "swipe-nav"; dots.className = "swipe-dots";
+    function go(i) { i = Math.max(0, Math.min(items.length - 1, i)); items[i].scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" }); }
+    function arrow(label, glyph, dir) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "swipe-arrow"; b.setAttribute("aria-label", label); b.textContent = glyph;
+      b.addEventListener("click", function () { go(current + dir); });
+      return b;
+    }
+    var prev = arrow("Previous slide", "\u2039", -1), next = arrow("Next slide", "\u203a", 1);
     items.forEach(function (item, i) {
       var b = document.createElement("button");
-      b.type = "button"; b.setAttribute("aria-label", "Show card " + (i + 1) + " of " + items.length);
-      b.addEventListener("click", function () { item.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); });
+      b.type = "button"; b.setAttribute("aria-label", "Show slide " + (i + 1) + " of " + items.length);
+      b.addEventListener("click", function () { go(i); });
       dots.appendChild(b);
     });
-    row.insertAdjacentElement("afterend", dots);
-    function mark(active) { [].forEach.call(dots.children, function (d, i) { if (i === active) d.setAttribute("aria-current", "true"); else d.removeAttribute("aria-current"); }); }
-    mark(0);
-    if ("IntersectionObserver" in window) {
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) { if (e.isIntersecting) mark(items.indexOf(e.target)); });
-      }, { root: row, threshold: 0.6 });
-      items.forEach(function (item) { io.observe(item); });
+    nav.appendChild(prev); nav.appendChild(dots); nav.appendChild(next);
+    row.insertAdjacentElement("afterend", nav);
+    if (seg) [].forEach.call(seg.children, function (b) { b.addEventListener("click", function () { go(Number(b.dataset.slide)); }); });
+    function mark(i) {
+      current = i;
+      [].forEach.call(dots.children, function (d, k) { if (k === i) d.setAttribute("aria-current", "true"); else d.removeAttribute("aria-current"); });
+      prev.disabled = i === 0; next.disabled = i === items.length - 1;
+      if (seg) {
+        var active = null;
+        [].forEach.call(seg.children, function (b) { if (Number(b.dataset.slide) <= i) active = b; });
+        [].forEach.call(seg.children, function (b) { b.setAttribute("aria-pressed", String(b === active)); });
+      }
     }
+    mark(0);
+    // the active slide is the one nearest the row's left edge (more than one slide can be mostly visible on wide screens)
+    var queued = false;
+    function sync() {
+      queued = false;
+      var left = row.getBoundingClientRect().left, best = 0, gap = Infinity;
+      items.forEach(function (item, i) { var d = Math.abs(item.getBoundingClientRect().left - left); if (d < gap) { gap = d; best = i; } });
+      if (row.scrollLeft <= 2) best = 0;
+      else if (row.scrollLeft >= row.scrollWidth - row.clientWidth - 2) best = items.length - 1;
+      if (best !== current) mark(best);
+    }
+    row.addEventListener("scroll", function () { if (!queued) { queued = true; requestAnimationFrame(sync); } }, { passive: true });
   });
 
   // ---- order form ----

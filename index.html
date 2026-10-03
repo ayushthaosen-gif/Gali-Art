@@ -64,56 +64,40 @@
 
   <section id="gallery" class="alt">
     <div class="wrap">
-      <div class="section-head"><p class="eyebrow">Gallery</p><h2>On the wall</h2></div>
-      <p class="lede">Three frames, drawn with the city and colours you picked.</p>
-      <ul class="wall-grid swipe" tabindex="0" role="group" aria-label="Three framed examples, swipe sideways">
-        <li class="wall-card"><div class="frame-wall"><div class="framed" data-frame="black" data-mat="false" data-size="A3"><div class="poster"></div></div></div><p class="wall-caption">Black wood</p></li>
-        <li class="wall-card"><div class="frame-wall"><div class="framed" data-frame="oak" data-mat="true" data-size="A3"><div class="poster"></div></div></div><p class="wall-caption">Natural oak with a mat</p></li>
-        <li class="wall-card"><div class="frame-wall"><div class="framed" data-frame="white" data-mat="false" data-size="A3"><div class="poster"></div></div></div><p class="wall-caption">White wood</p><p class="note wall-note hidden" id="white-note"></p></li>
-      </ul>
-      <p class="note">These are previews drawn from our map data. The frames and the wall are generated images, not photos of real frames.</p>
-
-      <div class="product-section" role="group" aria-labelledby="detail-title">
-        <div class="section-head"><p class="eyebrow">Up close</p><h2 id="detail-title">Every street, up close</h2></div>
-        <div class="detail-layout">
-          <figure class="detail-figure"><img src="frame-preview/delhi-line-detail.webp" width="1000" height="850" loading="lazy" decoding="async" alt="Close-up of fine Delhi streets from the blue A3 print file"></figure>
-          <div class="detail-copy">
-            <h3>Fine lines at 300 dpi</h3>
-            <p>This is a crop of the real Delhi print file, exported at 300 dpi. Nothing has been sharpened or added. The small lanes and the main roads both come from the map.</p>
-            <p class="detail-meta">Delhi, blue, A3 file.<br>The crop covers 84.67 × 71.97 mm of the print.</p>
-            <a class="asset-link" href="frame-preview/delhi-line-detail.png" target="_blank" rel="noopener">Open the 300 dpi crop (PNG)</a>
-          </div>
-        </div>
+      <div class="section-head"><p class="eyebrow">Gallery</p><h2>See it on a wall</h2></div>
+      <p class="lede">Swipe through our maps on a wall, up close, to scale and at home.</p>
+      <div class="seg" role="group" aria-label="Jump to a part of the gallery">
+        <button type="button" data-slide="0">Cities</button>
+        <button type="button" data-slide="2">Finishes</button>
+        <button type="button" data-slide="3">Up close</button>
+        <button type="button" data-slide="4">Size</button>
+        <button type="button" data-slide="5">At home</button>
       </div>
-
-      <div class="product-section" role="group" aria-labelledby="scale-title">
-        <div class="section-head"><p class="eyebrow">Size</p><h2 id="scale-title">How big is it?</h2></div>
-        <figure class="scale-figure">
+      <ul class="swipe slides" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Gallery, swipe sideways">
+        <li class="slide"><figure><div class="scene" data-scene-mm="1500"><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="mumbai" data-at="-427,-60" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="kolkata" data-at="0,-60" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="delhi" data-at="427,-60" aria-hidden="true"><div class="poster"></div></div><span class="image-kind">Preview from our map data</span></div><figcaption><h3>Three cities, one wall</h3><p>Mumbai, Kolkata and Delhi in black wood frames. The colours follow your pick above.</p></figcaption></figure></li>
+        <li class="slide"><figure><div class="scene" data-scene-mm="1100"><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="delhi" data-at="-300,-223" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="mumbai" data-at="0,-223" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="kolkata" data-at="300,-223" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="panaji" data-at="-300,164" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="dubai" data-at="0,164" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="washington-dc" data-at="300,164" aria-hidden="true"><div class="poster"></div></div><span class="image-kind">Preview from our map data</span></div><figcaption><h3>A wall of cities</h3><p>Six of our maps in A4 frames.</p></figcaption></figure></li>
+        <li class="slide"><figure><div class="scene" data-scene-mm="1700"><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-at="-489,-50" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="oak" data-mat="true" data-size="A3" data-at="0,-50" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="white" data-mat="false" data-size="A3" data-at="489,-50" aria-hidden="true"><div class="poster"></div></div><span class="image-kind">Preview from our map data</span></div><figcaption><h3>Three finishes</h3><p>Black wood, natural oak with a mat and white wood, at the same scale, with the city you picked. <span class="note wall-note hidden" id="white-note"></span></p></figcaption></figure></li>
+        <li class="slide"><figure>
+          <div class="scene scene-detail"><img src="frame-preview/delhi-line-detail.webp" width="1000" height="850" loading="lazy" decoding="async" alt="Close-up of fine Delhi streets from the blue A3 print file"></div>
+          <figcaption><h3>Every street, up close</h3><p>A crop of the real Delhi print file at 300 dpi. Nothing has been sharpened or added. It covers 84.67 × 71.97 mm of the A3 print.</p><a class="asset-link" href="frame-preview/delhi-line-detail.png" target="_blank" rel="noopener">Open the 300 dpi crop (PNG)</a></figcaption>
+        </figure></li>
+        <li class="slide"><figure>
           <div class="scale-room" data-sofa-left="0.1291" data-sofa-width="0.7403" data-print-bottom="0.42">
             <img class="scale-room-photo" src="frame-preview/scale-room.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="A room mock-up with a linen sofa and three framed Delhi prints above it, A4, A3 and 18 by 24 inch">
             <div class="scale-print framed" data-frame="black" data-mat="false" data-size="A4" aria-label="Framed A4 print"><div class="poster"></div></div>
             <div class="scale-print framed" data-frame="black" data-mat="false" data-size="A3" aria-label="Framed A3 print"><div class="poster"></div></div>
             <div class="scale-print framed" data-frame="black" data-mat="false" data-size="18x24" aria-label="Framed 18 by 24 inch print"><div class="poster"></div></div>
           </div>
-          <div class="scale-legend">
-            <div><strong>A4</strong><span>Print 210 × 297 mm</span><span>Frame 250 × 337 mm</span></div>
-            <div><strong>A3</strong><span>Print 297 × 420 mm</span><span>Frame 337 × 460 mm</span></div>
-            <div><strong>18 × 24 in</strong><span>Print 457 × 610 mm</span><span>Frame 497 × 650 mm</span></div>
-          </div>
-          <figcaption>A room mock-up. The sofa is 180 cm wide. All three prints are in black frames with a 20 mm face and no mat, at the same scale.</figcaption>
-        </figure>
-        <a class="asset-link" href="frame-preview/size-comparison.svg" download>Download the size diagram (SVG)</a>
-      </div>
-
-      <div class="product-section" role="group" aria-labelledby="sample-title">
-        <div class="section-head"><p class="eyebrow">Lifestyle views</p><h2 id="sample-title">At home</h2></div>
-        <p class="note" style="margin:0 0 1rem">These three are generated visualisations, not photos of real prints. The map lines and text in them can differ from the real print, so use the close-up above as the proof of the artwork. We'll add real photos once samples exist.</p>
-        <div class="sample-gallery swipe" tabindex="0" role="group" aria-label="Three generated lifestyle views, swipe sideways">
-          <figure class="sample-card"><div class="sample-image" data-sample-photo="wall"><span class="sample-pending">Image unavailable</span></div><figcaption><h3>On a wall</h3><p>An oak frame, with some books and decor around it.</p></figcaption></figure>
-          <figure class="sample-card"><div class="sample-image" data-sample-photo="shelf"><span class="sample-pending">Image unavailable</span></div><figcaption><h3>On a shelf</h3><p>An oak frame standing on a shelf.</p></figcaption></figure>
-          <figure class="sample-card"><div class="sample-image" data-sample-photo="packaging"><span class="sample-pending">Image unavailable</span></div><figcaption><h3>Packaging idea</h3><p>A kraft mailing tube. This is only a concept. We haven't confirmed how orders will be packed or delivered.</p></figcaption></figure>
-        </div>
-      </div>
+          <figcaption><h3>How big is it?</h3>
+            <div class="scale-legend"><div><strong>A4</strong><span>Print 210 × 297 mm</span><span>Frame 250 × 337 mm</span></div><div><strong>A3</strong><span>Print 297 × 420 mm</span><span>Frame 337 × 460 mm</span></div><div><strong>18 × 24 in</strong><span>Print 457 × 610 mm</span><span>Frame 497 × 650 mm</span></div></div>
+            <p>A room mock-up. The sofa is 180 cm wide, and all three prints are in black frames (20 mm face, no mat) at the same scale. <a class="asset-link" href="frame-preview/size-comparison.svg" download>Download the size diagram (SVG)</a></p>
+          </figcaption>
+        </figure></li>
+        <li class="slide"><figure><div class="scene scene-photo"><img src="frame-preview/lifestyle-wall.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Generated visualisation of an oak-framed Delhi poster on a plaster wall above books and decor"><span class="image-kind">Generated visualisation</span></div><figcaption><h3>On a wall</h3><p>An oak frame, with some books and decor around it.</p></figcaption></figure></li>
+        <li class="slide"><figure><div class="scene scene-photo"><img src="frame-preview/lifestyle-shelf.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Generated visualisation of an oak-framed Delhi print on a shelf"><span class="image-kind">Generated visualisation</span></div><figcaption><h3>On a shelf</h3><p>An oak frame standing on a shelf.</p></figcaption></figure></li>
+        <li class="slide"><figure><div class="scene scene-photo"><img src="frame-preview/lifestyle-packaging.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Generated concept of a Delhi print beside a kraft mailing tube and tissue"><span class="image-kind">Generated visualisation</span></div><figcaption><h3>Packaging idea</h3><p>A kraft mailing tube. This is only a concept. We haven't confirmed how orders will be packed or delivered.</p></figcaption></figure></li>
+      </ul>
+      <p class="note">The frames and walls are generated images, not photos of real frames. The last three slides are generated visualisations. Their map lines and text can differ from the real print, so use the close-up as the proof of the artwork. We'll add real photos once samples exist.</p>
     </div>
   </section>
 

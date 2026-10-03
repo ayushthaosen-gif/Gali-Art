@@ -1,11 +1,3 @@
-/* Generated lifestyle concepts. They are static: the city, theme and text controls never change them. Paths are relative to the page.
-   When real photographs exist, set src to the photo, kind to "photo" (which drops the label) and revise the alt text and caption. */
-const SAMPLE_PHOTOS = {
-  wall: { src: "frame-preview/lifestyle-wall.webp", kind: "generated", alt: "Generated visualisation of an oak-framed Delhi poster on a plaster wall above books and decor" },
-  shelf: { src: "frame-preview/lifestyle-shelf.webp", kind: "generated", alt: "Generated visualisation of an oak-framed Delhi print on a shelf" },
-  packaging: { src: "frame-preview/lifestyle-packaging.webp", kind: "generated", alt: "Generated concept of a Delhi print beside a kraft mailing tube and tissue" }
-};
-
 const room = document.querySelector(".scale-room");
 if (room) {
   const photo = room.querySelector(".scale-room-photo");
@@ -30,22 +22,15 @@ if (room) {
   layoutRoom();
 }
 
-document.querySelectorAll("[data-sample-photo]").forEach(slot => {
-  const config = SAMPLE_PHOTOS[slot.dataset.samplePhoto];
-  if (!config?.src) return;
-  const image = new Image();
-  image.alt = config.alt;
-  image.loading = "lazy";
-  image.decoding = "async";
-  image.onload = () => {
-    slot.replaceChildren(image); slot.dataset.ready = "true";
-    if (config.kind === "generated") { // label sits on the image itself so it survives cropping and screenshots
-      const tag = document.createElement("span");
-      tag.className = "image-kind"; tag.textContent = "Generated visualisation";
-      slot.append(tag);
-    }
-  };
-  image.onerror = () => image.remove();
-  slot.append(image);
-  image.src = config.src;
+/* Scenes: frames placed on the wall image by real millimetres. data-scene-mm is how many mm the scene's full width represents (the
+   scene is 4:3); each frame's data-at="x,y" is its centre in mm from the scene centre (y down). Sizes come from FramePreview.geometry. */
+document.querySelectorAll(".scene[data-scene-mm]").forEach(scene => {
+  const sceneW = Number(scene.dataset.sceneMm), sceneH = sceneW * 3 / 4;
+  scene.querySelectorAll(".framed[data-at]").forEach(frame => {
+    const [x, y] = frame.dataset.at.split(",").map(Number);
+    const [w, h] = FramePreview.geometry(frame.dataset.size, frame.dataset.frame, frame.dataset.mat === "true").outer;
+    frame.style.width = `${w / sceneW * 100}%`;
+    frame.style.left = `${50 + (x - w / 2) / sceneW * 100}%`;
+    frame.style.top = `${50 + (y - h / 2) / sceneH * 100}%`;
+  });
 });
