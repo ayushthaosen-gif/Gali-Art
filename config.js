@@ -54,12 +54,18 @@ window.GALI_CONFIG = {
     { id: "panaji", name: "Panaji", seed: 60, region: "India", lat: 15.4909, lon: 73.8278,
       facts: { streetsKm: 520 },
       maps: { "2025": "assets/panaji-lines.webp" } },
+    { id: "london", name: "London", seed: 68, region: "United Kingdom", lat: 51.5074, lon: -0.1278,
+      facts: { streetsKm: 15700, areaKm2: 1600 },
+      maps: { "2025": "assets/london-lines.webp" } },
     { id: "dubai", name: "Dubai", seed: 73, region: "United Arab Emirates", lat: 25.2048, lon: 55.2708,
       facts: { streetsKm: 6700 },
       maps: { "2025": "assets/dubai-lines.webp" } },
     { id: "washington-dc", name: "Washington DC", seed: 78, region: "USA", lat: 38.9072, lon: -77.0369,
       facts: { streetsKm: 2000, areaKm2: 180 },
-      maps: { "2025": "assets/washington-dc-lines.webp" } }
+      maps: { "2025": "assets/washington-dc-lines.webp" } },
+    { id: "moscow", name: "Moscow", seed: 79, region: "Russia", lat: 55.7558, lon: 37.6173,
+      facts: { streetsKm: 5600 },
+      maps: { "2025": "assets/moscow-lines.webp" } }
   ],
 
   // Optional frame (design "Frames", launch range 6a-6c): one 20 mm flat-face profile in three finishes; oak and white can add

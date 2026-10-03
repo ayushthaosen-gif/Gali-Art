@@ -508,6 +508,15 @@
    "region": "USA",
    "lat": 38.9072,
    "lon": -77.0369
+  },
+  {
+   "id": "moscow",
+   "name": "Moscow",
+   "place": "Moscow, Russia",
+   "region": "Russia",
+   "lat": 55.7558,
+   "lon": 37.6173,
+   "dist": 16000
   }
  ]
 }
