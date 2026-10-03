@@ -244,6 +244,8 @@ def footer_lines(L, Wp, Hp, texts):
                       "mono": mono, "base": top + h / 2 + 0.35 * s})
         cursor = top - gap_above * Wp
 
+    if texts.get("date"):  # optional personalised date, e.g. "14 FEB 2026", under the year
+        line("date", L.get("date", L["year"]), texts["date"], 1.2, True, False, L.get("date", L["year"])["above"])
     line("year", L["year"], str(texts["year"]), 1.2, True, False, L["year"]["above"])
     if texts.get("coords"):
         line("coords", L["coords"], texts["coords"], 1.2, True, False, L["coords"]["above"])
@@ -309,29 +311,47 @@ def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, 
 
     outdir.mkdir(parents=True, exist_ok=True)
     for ext in formats:
-        if ext == "mask":
-            continue
         path = outdir / f"{name}-{year}-{theme}-{size_key}.{ext}"
         fig.savefig(path, facecolor=bg, dpi=dpi)  # no bbox_inches="tight": exact page size (+bleed)
         print("Saved", path)
     plt.close(fig)
-    if "mask" in formats:
-        fig = plt.figure(figsize=(mw / 72, mh / 72))
-        ax = fig.add_axes([0, 0, 1, 1])
-        ax.axis("off")
-        ax.set_aspect("equal", adjustable="box")
-        ax.set_anchor("N")
-        ax.set_xlim(min(allx), max(allx))
-        ax.set_ylim(min(ally), max(ally))
-        for t in (5, 4, 3, 2, 1):
-            segs, widths = buckets[t]
-            if segs:
-                ax.add_collection(LineCollection(segs, colors="white", linewidths=widths,
-                                                 capstyle="round", joinstyle="round"))
-        path = outdir / f"{name}-{year}-lines.png"
-        fig.savefig(path, transparent=True, dpi=dpi)
-        print("Saved", path)
-        plt.close(fig)
+
+
+def render_mask(edges, L, outdir, name, year, width_px=1600):
+    """White streets on a transparent background, sized to the map box (layout map.aspect).
+    The website recolours this per theme with an alpha mask. Drop it in assets/ and register it in
+    config.js under the city's `maps`."""
+    plt.rcParams["pdf.fonttype"] = 42
+    mw_in = 8.0
+    mh_in = mw_in / L["map"]["aspect"]
+    poster_w_pt = mw_in * 72.0 / L["map"]["width"]  # width the poster would have if this map were 80% of it
+    buckets = {t: ([], []) for t in range(1, 6)}
+    for coords, hw in edges:
+        t = tier_of(hw)
+        if t is not None:
+            buckets[t][0].append(coords)
+            buckets[t][1].append(max(L["roads"]["min_pt"], L["roads"][f"t{t}"] * poster_w_pt))
+    allx = [p[0] for t in buckets.values() for s in t[0] for p in s]
+    ally = [p[1] for t in buckets.values() for s in t[0] for p in s]
+    fig = plt.figure(figsize=(mw_in, mh_in))
+    fig.patch.set_alpha(0)
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.patch.set_alpha(0)
+    ax.axis("off")
+    ax.set_aspect("equal", adjustable="box")
+    ax.set_anchor("N")  # same anchoring as the poster's map box
+    ax.set_xlim(min(allx), max(allx))
+    ax.set_ylim(min(ally), max(ally))
+    for z, t in enumerate((5, 4, 3, 2, 1)):
+        segs, widths = buckets[t]
+        if segs:
+            ax.add_collection(LineCollection(segs, colors="#FFFFFF", linewidths=widths,
+                                             capstyle="round", joinstyle="round", zorder=z + 1))
+    outdir.mkdir(parents=True, exist_ok=True)
+    path = outdir / f"{name}-{year}-lines.png"
+    fig.savefig(path, dpi=width_px / mw_in, transparent=True)
+    print("Saved", path)
+    plt.close(fig)
 
 
 def parse_size(text):
@@ -355,13 +375,15 @@ def main():
     ap.add_argument("--city-name", help="Footer title (default: first part of --place)")
     ap.add_argument("--region", help="Footer region line (default: last part of --place, e.g. India)")
     ap.add_argument("--coords", type=float, nargs=2, metavar=("LAT", "LON"), help="Footer coordinates (default: city centre)")
+    ap.add_argument("--date", default="", help='Optional personal date line, e.g. "14 FEB 2026" (use DD MON YYYY)')
     ap.add_argument("--year", type=int, default=2025, help="Map year shown in the footer (OSM data is current, see README)")
     ap.add_argument("--theme", default="blue", choices=sorted(THEMES))
     ap.add_argument("--size", type=parse_size, default="a3", help="a4 | a3 | 18x24 | custom WxH inches")
     ap.add_argument("--dpi", type=int, default=300, help="PNG resolution (300 for print, ~100 for web)")
     ap.add_argument("--min-width", type=float, default=L["roads"]["min_pt"], help="Thinnest line in points")
     ap.add_argument("--bleed-mm", type=float, default=0.0, help="Bleed per side; background fills it. Printers want 3 (0.125 in = 3.2 mm on 18x24)")
-    ap.add_argument("--formats", default="pdf,png", help="Comma list of pdf,png,svg,mask. Mask is white roads on transparent PNG")
+    ap.add_argument("--formats", default="pdf,png", help="Comma list of pdf,png,svg,mask. SVG can be hundreds of MB for a big city. "
+                    "mask = white-lines-on-transparent map image for the website (see README)")
     extent_src = ap.add_mutually_exclusive_group()
     extent_src.add_argument("--extent-raster", type=Path, action="append", help="GHSL GeoTIFF for a city extent approximation (repeat for several tiles)")
     extent_src.add_argument("--extent-auto", action="store_true", help="Download/cache GHSL 100 m tiles for a city extent approximation")
@@ -390,7 +412,7 @@ def main():
     city = args.city_name or place_title[0].strip()
     region = args.region if args.region is not None else (place_title[-1].strip() if len(place_title) > 1 else "")
     centre = tuple(args.coords) if args.coords else (args.point if args.point else CENTRES.get(slugify(city)))
-    texts = {"city": city, "region": region, "year": args.year,
+    texts = {"city": city, "region": region, "year": args.year, "date": args.date.upper(),
              "coords": fmt_coords(*centre) if centre else ""}
     name = args.name or ("preview" if args.preview else slugify(city))
 
@@ -441,8 +463,12 @@ def main():
         ap.error("formats must be a comma list of pdf,png,svg,mask")
     print(f"Rendering {w_in} x {h_in} in ({int(w_in * args.dpi)}x{int(h_in * args.dpi)} px PNG at {args.dpi} dpi), "
           f"theme '{args.theme}', year {args.year} ...")
-    render(edges, L, args.theme, size_key, w_in, h_in, args.min_width, formats, args.dpi,
-           Path(args.out), name, args.year, texts, args.bleed_mm)
+    if "mask" in formats:
+        render_mask(edges, L, Path(args.out), name, args.year)
+        formats = [f for f in formats if f != "mask"]
+    if formats:
+        render(edges, L, args.theme, size_key, w_in, h_in, args.min_width, formats, args.dpi,
+               Path(args.out), name, args.year, texts, args.bleed_mm)
 
 
 if __name__ == "__main__":

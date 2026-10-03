@@ -20,11 +20,13 @@ Output goes to `assets/<name>-<year>-<theme>-<size>.pdf` and `.png` (e.g. `asset
 ## Layout
 Layout 1a from the design spec: map 80% of the width centred with its top edge at 12% of the width, then a footer anchored 10% of the width above the bottom: city, fine rule, region, coordinates, map year. **All measurements live in `data/layout.json`**, which the website reads too, so edit it there and both change together. Footer text is set in Jost and DM Mono (open licence); the script downloads them into `generator/fonts/` on first run and falls back to a system font with a warning if it can't.
 
+Optional personal date line (weddings, moves, births): `--date "14 FEB 2026"`, printed under the year in the same small type.
+
 Footer text: `--city-name`, `--region`, `--coords LAT LON`, `--year`. Defaults come from `--place` ("Delhi, India" gives DELHI / INDIA) and a built-in list of recognisable city centres. `--year` only changes the label: the road data is always current OpenStreetMap. The optional extent filter below approximates a past city's footprint; real historical street maps need archival data.
 
 - **PDF is the print master** (vector, exact page size). PNG is 300 dpi by default: A3 = 3508×4961 px, 18×24 in = 5400×7200 px. For the website use a small PNG (`--dpi 100`) and reference it from `data/posters.json` (`"image": "assets/delhi-blue-a3.png"`).
+- **Website map mask:** `--formats mask` writes `assets/<name>-<year>-lines.png`, white streets on a transparent background. The website recolours it per theme. It has no footer and also works with the city extent filter. To use it, convert to WebP if you like, put it in `assets/`, and add it to the city in `config.js`, e.g. `maps: { "2025": "assets/mumbai-lines.webp" }` (one entry per map year; years without one show the placeholder pattern).
 - **SVG** is available (`--formats pdf,png,svg`) but can be hundreds of MB for a large city.
-- **Website mask:** `--formats mask` exports white roads on transparent background, without the footer, as `assets/<name>-<year>-lines.png`. It also works with the extent filter.
 - **Sizes:** `a4`, `a3`, `18x24`, or any `WxH` in inches (e.g. `12x16`).
 - **Line widths** scale with poster width, so every size looks alike. `--min-width` (default 0.25 pt) stops hairlines that printers drop.
 - **Roads:** drivable network only. Five tiers by OSM class (motorway/trunk, primary, secondary, tertiary, residential/unclassified/living street); service roads, tracks and paths are dropped. Widths come from `layout.json` as a share of poster width, never thinner than 0.25 pt. Minor streets use a solid mix of the line colour and background (no transparency); round caps and joins.
