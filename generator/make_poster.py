@@ -146,7 +146,7 @@ def tracked_text(fig, fp, text, size_pt, track_em, cx_pt, base_pt, color, fw_pt,
 # ---------------------------------------------------------------- data
 
 def load_edges(args):
-    """Return [(coords, highway), ...] in a projected CRS (metres)."""
+    """Return ([(coords, highway), ...], CRS) in projected metres."""
     import osmnx as ox
 
     ox.settings.timeout = 600
@@ -178,10 +178,11 @@ def load_edges(args):
         ox.save_graphml(G, path)
         print(f"Cached graph to {path}")
 
+    G = ox.project_graph(G)
     edges = ox.graph_to_gdfs(G, nodes=False, fill_edge_geometry=True)
     out = [(list(g.coords), hw) for g, hw in zip(edges.geometry, edges["highway"])]
     print(f"{len(out):,} road segments")
-    return out
+    return out, edges.crs
 
 
 def synthetic_edges(seed=7):
@@ -215,7 +216,9 @@ def synthetic_edges(seed=7):
                      rot(px + 12000 * math.cos(d), py + 12000 * math.sin(d))], "trunk"))
     cx, cy = rot(size / 2.4, size / 2.4)
     rad = size * 0.32
-    return [e for e in out if math.hypot(e[0][0][0] - cx, e[0][0][1] - cy) < rad]
+    # Translation preserves the preview's shape and rendering; coordinates are UTM zone 43N.
+    return [([(x - cx + 717987, y - cy + 3167131) for x, y in coords], hw)
+            for coords, hw in out if math.hypot(coords[0][0] - cx, coords[0][1] - cy) < rad]
 
 
 def tier_of(highway):
@@ -270,6 +273,8 @@ def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, 
         buckets[t][1].append(max(min_pt, L["roads"][f"t{t}"] * Wp))
     allx = [p[0] for t in buckets.values() for s in t[0] for p in s]
     ally = [p[1] for t in buckets.values() for s in t[0] for p in s]
+    if not allx:
+        raise ValueError("No renderable road segments remain; check the raster, threshold or max tier")
 
     plt.rcParams["pdf.fonttype"] = 42  # embed fonts as TrueType
     fig = plt.figure(figsize=(FW / 72, FH / 72), facecolor=bg)
@@ -303,10 +308,29 @@ def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, 
 
     outdir.mkdir(parents=True, exist_ok=True)
     for ext in formats:
+        if ext == "mask":
+            continue
         path = outdir / f"{name}-{year}-{theme}-{size_key}.{ext}"
         fig.savefig(path, facecolor=bg, dpi=dpi)  # no bbox_inches="tight": exact page size (+bleed)
         print("Saved", path)
     plt.close(fig)
+    if "mask" in formats:
+        fig = plt.figure(figsize=(mw / 72, mh / 72))
+        ax = fig.add_axes([0, 0, 1, 1])
+        ax.axis("off")
+        ax.set_aspect("equal", adjustable="box")
+        ax.set_anchor("N")
+        ax.set_xlim(min(allx), max(allx))
+        ax.set_ylim(min(ally), max(ally))
+        for t in (5, 4, 3, 2, 1):
+            segs, widths = buckets[t]
+            if segs:
+                ax.add_collection(LineCollection(segs, colors="white", linewidths=widths,
+                                                 capstyle="round", joinstyle="round"))
+        path = outdir / f"{name}-{year}-lines.png"
+        fig.savefig(path, transparent=True, dpi=dpi)
+        print("Saved", path)
+        plt.close(fig)
 
 
 def parse_size(text):
@@ -336,7 +360,12 @@ def main():
     ap.add_argument("--dpi", type=int, default=300, help="PNG resolution (300 for print, ~100 for web)")
     ap.add_argument("--min-width", type=float, default=L["roads"]["min_pt"], help="Thinnest line in points")
     ap.add_argument("--bleed-mm", type=float, default=0.0, help="Bleed per side; background fills it. Printers want 3 (0.125 in = 3.2 mm on 18x24)")
-    ap.add_argument("--formats", default="pdf,png", help="Comma list of pdf,png,svg. SVG can be hundreds of MB for a big city")
+    ap.add_argument("--formats", default="pdf,png", help="Comma list of pdf,png,svg,mask. Mask is white roads on transparent PNG")
+    ap.add_argument("--extent-raster", type=Path, help="GHSL GHS-BUILT-S GeoTIFF for a city extent approximation")
+    ap.add_argument("--extent-threshold", type=float, default=500, help="Minimum built-up surface per cell (m2)")
+    ap.add_argument("--extent-buffer", type=int, default=3, help="Morphological closing iterations in cells")
+    ap.add_argument("--extent-min-blob", type=int, default=30, help="Minimum connected built-up blob in cells")
+    ap.add_argument("--max-tier", type=int, choices=range(1, 6), help="Keep road tiers up to N (1 major, 5 minor)")
     ap.add_argument("--out", default=str(HERE.parent / "assets"))
     args = ap.parse_args()
 
@@ -352,16 +381,39 @@ def main():
 
     if args.preview:
         edges = synthetic_edges()
+        edge_crs = "EPSG:32643"
     else:
-        if args.year != 2025:
+        if args.year != 2025 and not args.extent_raster:
             print(f"NOTE: the road data is current OpenStreetMap. --year {args.year} only changes the label; "
                   "historical maps need archival data.")
-        edges = load_edges(args)
+        edges, edge_crs = load_edges(args)
         if not centre:
             import osmnx as ox
             texts["coords"] = fmt_coords(*ox.geocode(args.place))
 
+    if args.extent_raster or args.max_tier is not None:
+        from extent import build_mask, filter_edges
+        total = len(edges)
+        mask = None
+        if args.extent_raster:
+            import numpy as np
+            points = np.asarray([p for coords, _ in edges for p in coords])
+            if not len(points):
+                ap.error("No road segments loaded")
+            bounds = (*points.min(axis=0), *points.max(axis=0))
+            mask = build_mask(args.extent_raster, bounds, edge_crs, args.extent_threshold,
+                              args.extent_buffer, args.extent_min_blob)
+            print("NOTE: city extent approximation: modern roads within the historic built-up area.")
+        edges = filter_edges(edges, mask, args.max_tier)
+        print(f"Kept {len(edges):,} of {total:,} road segments")
+        if len(edges) < total * 0.05:
+            print("WARNING: fewer than 5% kept; check the raster coverage and threshold.")
+        if not edges:
+            ap.error("No road segments remain after filtering")
+
     formats = [f.strip() for f in args.formats.split(",") if f.strip()]
+    if not formats or any(f not in {"pdf", "png", "svg", "mask"} for f in formats):
+        ap.error("formats must be a comma list of pdf,png,svg,mask")
     print(f"Rendering {w_in} x {h_in} in ({int(w_in * args.dpi)}x{int(h_in * args.dpi)} px PNG at {args.dpi} dpi), "
           f"theme '{args.theme}', year {args.year} ...")
     render(edges, L, args.theme, size_key, w_in, h_in, args.min_width, formats, args.dpi,

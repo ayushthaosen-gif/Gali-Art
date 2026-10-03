@@ -1,2 +1,4 @@
 osmnx>=1.9
 matplotlib>=3.8
+rasterio
+scipy
