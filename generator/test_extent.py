@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Offline regression checks: python test_extent.py (no pytest or downloads)."""
 import runpy
+import io
 import sys
 import tempfile
+from contextlib import redirect_stdout, redirect_stderr
 from pathlib import Path
 from unittest.mock import patch
 
@@ -63,9 +65,39 @@ def main():
             assert not build_mask(raster, bounds, crs, 2000, 0, 0).cells.any()
 
         assert counts[0] < counts[1], counts
+        tiles = []
+        for col in (0, 160):
+            tile = tmp / f"tile-{col}.tif"
+            with rasterio.open(tile, "w", driver="GTiff", height=320, width=160,
+                               count=1, dtype="uint16", crs="EPSG:4326",
+                               transform=transform * rasterio.Affine.translation(col, 0), nodata=65535) as dst:
+                dst.write(values[:, col:col + 160], 1)
+            tiles.append(tile)
+        mosaic = build_mask(tiles, bounds, crs, 500, 3, 30)
+        reverse = build_mask(tiles[::-1], bounds, crs, 500, 3, 30)
+        middle = np.asarray([coords[len(coords) // 2] for coords, _ in edges])
+        expected = mask.contains(middle[:, 0], middle[:, 1])
+        np.testing.assert_array_equal(mosaic.contains(middle[:, 0], middle[:, 1]), expected)
+        np.testing.assert_array_equal(reverse.contains(middle[:, 0], middle[:, 1]), expected)
+        assert mosaic.cells.size < values.size  # only the road window is loaded
+
+        clean = tmp / "cleanup.tif"
+        small = np.zeros((40, 40), dtype="uint16")
+        small[10:30, 10:30] = 1000
+        small[20, 20] = 0
+        small[3:5, 3:5] = 1000
+        small[35, 35] = 65535
+        with rasterio.open(clean, "w", driver="GTiff", height=40, width=40,
+                           count=1, dtype="uint16", crs="EPSG:4326",
+                           transform=from_origin(0, 40, 1, 1), nodata=65535) as dst:
+            dst.write(small, 1)
+        cleaned = build_mask(clean, (0, 0, 40, 40), "EPSG:4326", 500, 0, 30)
+        assert cleaned.contains(np.array([20.5, 3.5, 35.5]), np.array([19.5, 36.5, 4.5])).tolist() == [True, False, False]
+
         # Execute the actual CLI, replacing font fetching so this is offline on a fresh checkout.
         script = Path(__file__).with_name("make_poster.py")
-        argv = [str(script), "--preview", "--extent-raster", str(raster), "--year", "1995",
+        argv = [str(script), "--preview", "--extent-raster", str(tiles[0]),
+                "--extent-raster", str(tiles[1]), "--year", "1995",
                 "--size", "a4", "--dpi", "40", "--formats", "pdf,png,mask", "--out", str(tmp)]
         fonts = (FontProperties(family="DejaVu Sans"), FontProperties(family="DejaVu Sans Mono"))
         with patch.object(sys, "argv", argv), patch("urllib.request.urlretrieve",
@@ -73,6 +105,24 @@ def main():
             namespace = runpy.run_path(str(script))
             namespace["main"].__globals__["get_fonts"] = lambda: fonts
             namespace["main"]()
+        for year in (1920, 1945):
+            with patch.object(sys, "argv", [str(script), "--year", str(year), "--extent-auto"]), redirect_stderr(io.StringIO()):
+                with patch("urllib.request.urlopen", side_effect=AssertionError("Network forbidden")):
+                    try:
+                        namespace["main"]()
+                    except SystemExit as exc:
+                        assert exc.code == 2
+                    else:
+                        raise AssertionError("Unsupported epoch accepted")
+        output = io.StringIO()
+        with patch.object(sys, "argv", argv + ["--extent-threshold", "2000"]), redirect_stdout(output), redirect_stderr(io.StringIO()):
+            try:
+                namespace["main"]()
+            except SystemExit as exc:
+                assert exc.code == 2
+            else:
+                raise AssertionError("Empty extent rendered")
+        assert "fewer than 5%" in output.getvalue()
         for name in ("preview-1995-blue-a4.pdf", "preview-1995-blue-a4.png",
                      "preview-1995-lines.png"):
             assert (tmp / name).stat().st_size > 0, name

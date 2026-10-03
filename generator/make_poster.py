@@ -22,6 +22,7 @@ import json
 import math
 import random
 import re
+import sys
 import urllib.request
 from pathlib import Path
 
@@ -361,13 +362,27 @@ def main():
     ap.add_argument("--min-width", type=float, default=L["roads"]["min_pt"], help="Thinnest line in points")
     ap.add_argument("--bleed-mm", type=float, default=0.0, help="Bleed per side; background fills it. Printers want 3 (0.125 in = 3.2 mm on 18x24)")
     ap.add_argument("--formats", default="pdf,png", help="Comma list of pdf,png,svg,mask. Mask is white roads on transparent PNG")
-    ap.add_argument("--extent-raster", type=Path, help="GHSL GHS-BUILT-S GeoTIFF for a city extent approximation")
+    extent_src = ap.add_mutually_exclusive_group()
+    extent_src.add_argument("--extent-raster", type=Path, action="append", help="GHSL GeoTIFF for a city extent approximation (repeat for several tiles)")
+    extent_src.add_argument("--extent-auto", action="store_true", help="Download/cache GHSL 100 m tiles for a city extent approximation")
     ap.add_argument("--extent-threshold", type=float, default=500, help="Minimum built-up surface per cell (m2)")
     ap.add_argument("--extent-buffer", type=int, default=3, help="Morphological closing iterations in cells")
     ap.add_argument("--extent-min-blob", type=int, default=30, help="Minimum connected built-up blob in cells")
     ap.add_argument("--max-tier", type=int, choices=range(1, 6), help="Keep road tiers up to N (1 major, 5 minor)")
     ap.add_argument("--out", default=str(HERE.parent / "assets"))
     args = ap.parse_args()
+    extent_requested = args.extent_raster or args.extent_auto
+    extent_options = any(arg.startswith("--extent-") for arg in sys.argv[1:])
+    if extent_options:
+        from fetch_ghsl import epoch_for_year
+        try:
+            epoch = epoch_for_year(args.year)
+        except ValueError as exc:
+            ap.error(str(exc))
+        if not extent_requested:
+            ap.error("Extent settings require --extent-raster or --extent-auto")
+        if not math.isfinite(args.extent_threshold) or args.extent_threshold <= 0 or args.extent_buffer < 0 or args.extent_min_blob < 0:
+            ap.error("Extent threshold must be positive; buffer and min blob must be nonnegative")
 
     size_key, (w_in, h_in) = args.size if isinstance(args.size, tuple) else parse_size(args.size)
 
@@ -383,7 +398,7 @@ def main():
         edges = synthetic_edges()
         edge_crs = "EPSG:32643"
     else:
-        if args.year != 2025 and not args.extent_raster:
+        if args.year != 2025 and not extent_requested:
             print(f"NOTE: the road data is current OpenStreetMap. --year {args.year} only changes the label; "
                   "historical maps need archival data.")
         edges, edge_crs = load_edges(args)
@@ -391,19 +406,29 @@ def main():
             import osmnx as ox
             texts["coords"] = fmt_coords(*ox.geocode(args.place))
 
-    if args.extent_raster or args.max_tier is not None:
+    if extent_requested or args.max_tier is not None:
         from extent import build_mask, filter_edges
         total = len(edges)
         mask = None
-        if args.extent_raster:
+        if extent_requested:
             import numpy as np
             points = np.asarray([p for coords, _ in edges for p in coords])
             if not len(points):
                 ap.error("No road segments loaded")
             bounds = (*points.min(axis=0), *points.max(axis=0))
-            mask = build_mask(args.extent_raster, bounds, edge_crs, args.extent_threshold,
+            rasters = args.extent_raster
+            if args.extent_auto:
+                from fetch_ghsl import ensure_ghsl_tiles
+                from rasterio.warp import transform_bounds
+                bbox = transform_bounds(edge_crs, "EPSG:4326", *bounds, densify_pts=101)
+                rasters = ensure_ghsl_tiles(bbox, args.year)
+            else:
+                print(f"City extent approximation: year {args.year} uses epoch {epoch}; "
+                      "ensure the supplied rasters match this epoch.")
+            mask = build_mask(rasters, bounds, edge_crs, args.extent_threshold,
                               args.extent_buffer, args.extent_min_blob)
-            print("NOTE: city extent approximation: modern roads within the historic built-up area.")
+            print("NOTE: city extent approximation: modern roads within the historic built-up area, "
+                  "not the historical street pattern.")
         edges = filter_edges(edges, mask, args.max_tier)
         print(f"Kept {len(edges):,} of {total:,} road segments")
         if len(edges) < total * 0.05:
