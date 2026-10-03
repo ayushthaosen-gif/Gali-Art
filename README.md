@@ -14,6 +14,7 @@ css/style.css
 js/poster.js          placeholder SVG street-pattern renderer
 js/app.js             picker, gallery, order form
 data/posters.json     gallery items (swap in real images here)
+data/layout.json      poster layout (fractions of width), shared by the website and the generator
 assets/               images, favicon
 generator/            Python script that renders real maps (run locally/Colab)
 .github/workflows/pages.yml
@@ -37,14 +38,14 @@ Everything is in `config.js`:
 - `brand.name` — rename the brand here (and nowhere else). `brand.email` — contact address.
 - `form.endpoint` — Formspree URL (`mode: "json"`) or Google Apps Script web-app URL (`mode: "no-cors"`). Empty = demo mode, nothing is sent.
 - `payment.link` — paste a Razorpay/Stripe payment link; shown after a successful request. No payment code exists.
-- `sizes[].price`, `currency`, `cities`, `themes`.
+- `sizes[].price`, `currency`, `cities` (name, region, lat/lon shown on the poster), `themes`, `eras` (map years offered).
 
 Never put secrets in `config.js`: it is public. Payment links and form endpoints are public by design.
 
 ### Real poster images
 
 1. Generate with `generator/` (see its README) into `assets/`.
-2. In `data/posters.json`, set `"image": "assets/delhi-blue-a3.png"` and a descriptive `"alt"`.
+2. In `data/posters.json`, set `"image": "assets/delhi-2025-blue-a3.png"` and a descriptive `"alt"`.
 
 ## Deploy to GitHub Pages
 
