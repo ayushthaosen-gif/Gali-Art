@@ -13,7 +13,10 @@
   // Optional detail line under the year. Facts come from config (computed from the map data); they describe the current map only.
   var nf = new Intl.NumberFormat(C.currency.locale);
   function detailOptions(city, eraId) {
-    var o = [{ id: "none", label: "None" }], f = city && eraId === C.defaults.era && city.facts;
+    // The numbers describe the whole-city map of the current year, so they are only offered for that. A neighbourhood or street-level
+    // area (chosen in "Area of the map") shows a much smaller part of the city and would make the printed fact wrong.
+    var wholeCity = !$("#f-area") || $("#f-area").value === "city";
+    var o = [{ id: "none", label: "None" }], f = city && eraId === C.defaults.era && wholeCity && city.facts;
     if (f && f.streetsKm) o.push({ id: "streets", label: "Street length", text: nf.format(f.streetsKm) + " km of streets mapped" });
     if (f && f.areaKm2) o.push({ id: "area", label: "City area", text: nf.format(f.areaKm2) + " km² area" });
     if (f && f.streetsKm && f.areaKm2) o.push({ id: "both", label: "Area and street length", text: nf.format(f.areaKm2) + " km² · " + nf.format(f.streetsKm) + " km of streets mapped" });
