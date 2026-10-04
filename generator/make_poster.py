@@ -472,7 +472,7 @@ def main():
     extent_src = ap.add_mutually_exclusive_group()
     extent_src.add_argument("--extent-raster", type=Path, action="append", help="GHSL GeoTIFF for a city extent approximation (repeat for several tiles)")
     extent_src.add_argument("--extent-auto", action="store_true", help="Download/cache GHSL 100 m tiles for a city extent approximation")
-    ap.add_argument("--extent-threshold", type=float, default=500, help="Minimum built-up surface per cell (m2)")
+    ap.add_argument("--extent-threshold", type=float, default=1000, help="Minimum built-up surface per cell (m2)")
     ap.add_argument("--extent-buffer", type=int, default=3, help="Morphological closing iterations in cells")
     ap.add_argument("--extent-min-blob", type=int, default=30, help="Minimum connected built-up blob in cells")
     ap.add_argument("--max-tier", type=int, choices=range(1, 6), help="Keep road tiers up to N (1 major, 5 minor)")
