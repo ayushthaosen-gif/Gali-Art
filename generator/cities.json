@@ -317,9 +317,11 @@
    "id": "guwahati",
    "name": "Guwahati",
    "place": "Guwahati, India",
-   "region": "India",
+   "region": "Assam, India",
    "lat": 26.1445,
-   "lon": 91.7362
+   "lon": 91.7362,
+   "mode": "square",
+   "dist": 9000
   },
   {
    "id": "gandhinagar",

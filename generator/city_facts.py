@@ -54,7 +54,7 @@ def main():
         km = streets_km(graph)
         facts = {"streetsKm": round_to(km, 100 if km >= 1000 else 10)}
         boundary = next(iter(CACHE.glob(f"{_slug(c['place'])}-boundary.geojson")), None) if c.get("place") else None
-        if boundary and graph.stem == slugify(c["place"]):
+        if boundary and graph.stem == slugify(c["place"]) and c.get("mode") != "square":
             g = gpd.read_file(boundary)
             facts["areaKm2"] = round_to(g.to_crs(g.estimate_utm_crs()).area.iloc[0] / 1e6, 10)
         result[cid] = facts

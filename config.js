@@ -45,13 +45,16 @@ window.GALI_CONFIG = {
     { id: "delhi", name: "Delhi", seed: 11, region: "India", lat: 28.6139, lon: 77.209,
       facts: { streetsKm: 18400, areaKm2: 1480 },
       maps: { "1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp" },
-      markDemo: { x: 0.715, y: 0.578 } }, // where the preview draws a SAMPLE marker (about India Gate); the real one is placed exactly from the order
+      markDemo: { x: 0.715, y: 0.578 } },
     { id: "mumbai", name: "Mumbai", seed: 20, region: "India", lat: 19.076, lon: 72.8777,
       facts: { streetsKm: 4000 },
       maps: { "2025": "assets/mumbai-lines.webp" } },
     { id: "kolkata", name: "Kolkata", seed: 21, region: "India", lat: 22.5726, lon: 88.3639,
       facts: { streetsKm: 3500, areaKm2: 200 },
       maps: { "2025": "assets/kolkata-lines.webp" } },
+    { id: "guwahati", name: "Guwahati", seed: 56, region: "Assam, India", lat: 26.1445, lon: 91.7362,
+      facts: { streetsKm: 700 },
+      maps: { "2025": "assets/guwahati-lines.webp" } },
     { id: "panaji", name: "Panaji", seed: 60, region: "India", lat: 15.4909, lon: 73.8278,
       facts: { streetsKm: 520 },
       maps: { "2025": "assets/panaji-lines.webp" } },
@@ -66,10 +69,7 @@ window.GALI_CONFIG = {
       maps: { "2025": "assets/washington-dc-lines.webp" } },
     { id: "moscow", name: "Moscow", seed: 79, region: "Russia", lat: 55.7558, lon: 37.6173,
       facts: { streetsKm: 5600 },
-      maps: { "2025": "assets/moscow-lines.webp" } },
-    // Guwahati: preview only until its real map exists. Generate it (see generator/README.md), then add
-    // maps: { "2025": "assets/guwahati-lines.webp" } and remove `soon`.
-    { id: "guwahati", name: "Guwahati", seed: 41, region: "Assam, India", lat: 26.1445, lon: 91.7362, soon: true }
+      maps: { "2025": "assets/moscow-lines.webp" } }
   ],
 
   // Optional frame (design "Frames", launch range 6a-6c): one 20 mm flat-face profile in three finishes; oak and white can add

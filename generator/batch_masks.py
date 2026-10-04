@@ -26,7 +26,8 @@ DEFAULT_MAX_KM2 = 1700
 DEFAULT_DIST = 9000                  # half-width in metres of the square used when no usable city boundary exists
 COMMENT = '    // maps: { "<era id>": "<path to white-lines-on-transparent PNG/WebP>" }. A city/year without an entry\n    // shows the generated placeholder pattern. Make masks with: generator/batch_masks.py (or make_poster.py --formats mask)\n'
 DELHI = {"id": "delhi", "name": "Delhi", "region": "India", "lat": 28.6139, "lon": 77.2090, "seed": 11,
-         "maps": {"1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp"}}
+         "maps": {"1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp"},
+         "markDemo": "{ x: 0.715, y: 0.578 }"}  # where the preview draws a sample marker (about India Gate); kept so --write-config does not drop it
 
 
 def load_cities():
@@ -48,7 +49,7 @@ def build(c, timeout_s):
     except Exception as exc:
         km2, shown = None, f"no polygon ({str(exc)[:40]})"
     limit = MAX_KM2.get(c["region"], DEFAULT_MAX_KM2)
-    use_place = km2 is not None and MIN_KM2 <= km2 <= limit
+    use_place = km2 is not None and MIN_KM2 <= km2 <= limit and c.get("mode") != "square"  # "mode": "square" forces a square around the centre
     mode = "boundary" if use_place else f"square {c.get('dist', DEFAULT_DIST) / 1000:g} km half-width"
     print(f"  resolved: {shown} ({"-" if km2 is None else format(round(km2), ",")} km2) -> {mode}", flush=True)
     TMP.mkdir(parents=True, exist_ok=True)
@@ -80,8 +81,9 @@ def write_config(cities):
         f = facts.get(c["id"])
         fact_js = ("      facts: { " + ", ".join(f"{k}: {v}" for k, v in f.items()) + " },\n") if f else ""
         maps_js = ", ".join(f'"{y}": "{p}"' for y, p in c["maps"].items())
+        mark_js = f',\n      markDemo: {c["markDemo"]}' if c.get("markDemo") else ""
         rows.append(f'    {{ id: "{c["id"]}", name: "{c["name"]}", seed: {c["seed"]}, region: "{c["region"]}", '
-                    f'lat: {c["lat"]}, lon: {c["lon"]},\n{fact_js}      maps: {{ {maps_js} }} }}')
+                    f'lat: {c["lat"]}, lon: {c["lon"]},\n{fact_js}      maps: {{ {maps_js} }}{mark_js} }}')
     block = "  cities: [\n" + COMMENT + ",\n".join(rows) + "\n  ],"
     new, n = re.subn(r"  cities: \[.*?\n  \],", lambda m: block, text, count=1, flags=re.S)
     if n != 1:
