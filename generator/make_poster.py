@@ -64,7 +64,7 @@ TIERS = {
 }
 
 # Recognisable centres for the coordinates line (not the boundary centroid).
-CENTRES = {"delhi": (28.6139, 77.2090), "mumbai": (19.0760, 72.8777), "kolkata": (22.5726, 88.3639)}
+CENTRES = {"delhi": (28.6139, 77.2090), "mumbai": (19.0760, 72.8777), "kolkata": (22.5726, 88.3639), "guwahati": (26.1445, 91.7362)}
 
 FONT_URLS = {
     "Jost.ttf": "https://github.com/google/fonts/raw/main/ofl/jost/Jost%5Bwght%5D.ttf",
@@ -136,7 +136,13 @@ def get_fonts():
 def advances(fp, text, size_pt):
     font = font_manager.get_font(font_manager.findfont(fp))
     font.set_size(size_pt, 72)
-    return [font.load_char(ord(ch), flags=NO_HINT).linearHoriAdvance / 65536.0 for ch in text]
+    out = []
+    for ch in text:
+        try:
+            out.append(font.load_char(ord(ch), flags=NO_HINT).linearHoriAdvance / 65536.0)
+        except RuntimeError:  # glyph missing from this font: keep going with a typical width
+            out.append(0.6 * size_pt)
+    return out
 
 
 def tracked_text(fig, fp, text, size_pt, track_em, cx_pt, base_pt, color, fw_pt, fh_pt):
@@ -262,6 +268,8 @@ def footer_lines(L, Wp, Hp, texts):
 
     if texts.get("detail"):  # optional detail line closes the stack in Jost sentence case after a larger gap (design 5d)
         line("detail", L["detail"], texts["detail"], 1.2, False, False, L["detail"]["above"])
+    if texts.get("edition"):  # optional edition number, e.g. "NO. 14 / 100", above the detail line
+        line("edition", L["year"], texts["edition"], 1.2, True, False, L["year"]["above"])
     if texts.get("date"):  # optional personalised date, e.g. "14 FEB 2026", under the year
         line("date", L.get("date", L["year"]), texts["date"], 1.2, True, False, L.get("date", L["year"])["above"])
     line("year", L["year"], str(texts["year"]), 1.2, True, False, L["year"]["above"])
@@ -277,7 +285,45 @@ def footer_lines(L, Wp, Hp, texts):
     return lines, rule
 
 
-def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, name, year, texts, bleed_mm, water=()):
+def heart_path():
+    """Unit heart outline for scatter markers (matplotlib rescales custom marker paths itself)."""
+    from matplotlib.path import Path
+    pts = []
+    for i in range(81):
+        t = 2 * math.pi * i / 80
+        pts.append((16 * math.sin(t) ** 3,
+                    13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t)))
+    return Path(pts, closed=True)
+
+
+def draw_mark(ax, L, Wp, bg, fg, mark):
+    """mark = (x, y, style) in the map's data coordinates. A background-coloured halo keeps it readable over dense streets."""
+    x, y, style = mark
+    d = L["mark"]["size"] * Wp  # diameter in points
+    ax.scatter([x], [y], s=(d * L["mark"]["halo"]) ** 2, c=bg, marker="o", linewidths=0, zorder=10)
+    if style == "dot":
+        ax.scatter([x], [y], s=d * d, c=fg, marker="o", linewidths=0, zorder=11)
+    elif style == "ring":
+        ax.scatter([x], [y], s=d * d, facecolors="none", edgecolors=fg, marker="o",
+                   linewidths=max(0.8, d * 0.18), zorder=11)
+    elif style == "heart":
+        ax.scatter([x], [y], s=d * d, c=fg, marker=heart_path(), linewidths=0, zorder=11)
+
+
+def warn_scripts(*texts):
+    """Footer text is placed glyph by glyph, which cannot shape Indic/Arabic scripts (conjuncts, joining)."""
+    for t in texts:
+        if t and any(ord(c) > 0x24F for c in t):
+            print(f"WARNING: '{t}' contains non-Latin characters. This generator cannot shape them "
+                  "correctly (e.g. Devanagari conjuncts); set that text in a design tool instead.")
+
+
+def fmt_edition(text):
+    m = re.fullmatch(r"\s*(\d+)\s*/\s*(\d+)\s*", text)
+    return f"NO. {m.group(1)} / {m.group(2)}" if m else text.upper()
+
+
+def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, name, year, texts, bleed_mm, water=(), mark=None):
     bg, fg = THEMES[theme]
     minor_c = mix(fg, bg, L["mix"]["minor"])
     Wp, Hp = w_in * 72.0, h_in * 72.0                       # trim size, points
@@ -326,6 +372,11 @@ def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, 
         if segs:
             ax.add_collection(LineCollection(segs, colors=minor_c if t == 5 else fg, linewidths=widths,
                                              capstyle="round", joinstyle="round", zorder=z + 1))
+
+    if mark:
+        if not (min(allx) <= mark[0] <= max(allx) and min(ally) <= mark[1] <= max(ally)):
+            print("WARNING: the marked point is outside the mapped area, so it will not be drawn.")
+        draw_mark(ax, L, Wp, bg, fg, mark)
 
     # footer
     sans, mono = get_fonts()
@@ -398,6 +449,7 @@ def main():
     src = ap.add_mutually_exclusive_group()
     src.add_argument("--place", default="Delhi, India", help="Place name (full boundary), default Delhi, India")
     src.add_argument("--point", type=float, nargs=2, metavar=("LAT", "LON"), help="Centre point instead of a place")
+    src.add_argument("--address", help="Centre the map on this address or place (geocoded, used like --point; needs internet)")
     src.add_argument("--preview", action="store_true", help="Use a synthetic network, no download (tune the look)")
     ap.add_argument("--dist", type=int, default=9000, help="With --point: half-width of the area in metres")
     ap.add_argument("--name", help="Output file prefix (default: derived from the place)")
@@ -405,6 +457,9 @@ def main():
     ap.add_argument("--region", help="Footer region line (default: last part of --place, e.g. India)")
     ap.add_argument("--coords", type=float, nargs=2, metavar=("LAT", "LON"), help="Footer coordinates (default: city centre)")
     ap.add_argument("--date", default="", help='Optional personal date line, e.g. "14 FEB 2026" (use DD MON YYYY)')
+    ap.add_argument("--edition", default="", help='Optional edition number, e.g. 14/100 prints "NO. 14 / 100"')
+    ap.add_argument("--mark", type=float, nargs=2, metavar=("LAT", "LON"), help="Mark a place on the map")
+    ap.add_argument("--mark-style", choices=["dot", "ring", "heart"], default="dot", help="Marker shape (default dot)")
     ap.add_argument("--detail", default="", help='Optional detail line under the year, e.g. "21,600 km of streets" (max 40 characters)')
     ap.add_argument("--year", type=int, default=2025, help="Map year shown in the footer (OSM data is current, see README)")
     ap.add_argument("--theme", default="blue", choices=sorted(THEMES))
@@ -441,13 +496,21 @@ def main():
 
     size_key, (w_in, h_in) = args.size if isinstance(args.size, tuple) else parse_size(args.size)
 
-    place_title = (args.place if not args.point and not args.preview else "Delhi, India").split(",")
+    if args.address:
+        import osmnx as ox
+        args.point = tuple(ox.geocode(args.address))
+        print(f"Geocoded '{args.address}' -> {args.point[0]:.5f}, {args.point[1]:.5f}")
+
+    place_title = (args.address if args.address else
+                   args.place if not args.point and not args.preview else "Delhi, India").split(",")
     city = args.city_name or place_title[0].strip()
     region = args.region if args.region is not None else (place_title[-1].strip() if len(place_title) > 1 else "")
     centre = tuple(args.coords) if args.coords else (args.point if args.point else CENTRES.get(slugify(city)))
     texts = {"city": city, "region": region, "year": args.year, "date": args.date.upper(), "detail": clean_detail(args.detail),
+             "edition": fmt_edition(args.edition) if args.edition else "",
              "coords": fmt_coords(*centre) if centre else ""}
     name = args.name or ("preview" if args.preview else slugify(city))
+    warn_scripts(city, region, texts["detail"])
 
     if args.preview:
         edges = synthetic_edges()
@@ -514,8 +577,13 @@ def main():
         render_mask(edges, L, Path(args.out), name, args.year)
         formats = [f for f in formats if f != "mask"]
     if formats:
+        mark = None
+        if args.mark:
+            from pyproj import Transformer
+            mx, my = Transformer.from_crs("EPSG:4326", edge_crs, always_xy=True).transform(args.mark[1], args.mark[0])
+            mark = (mx, my, args.mark_style)
         render(edges, L, args.theme, size_key, w_in, h_in, args.min_width, formats, args.dpi,
-               Path(args.out), name, args.year, texts, args.bleed_mm, water)
+               Path(args.out), name, args.year, texts, args.bleed_mm, water, mark)
 
 
 if __name__ == "__main__":

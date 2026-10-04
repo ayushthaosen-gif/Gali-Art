@@ -103,6 +103,9 @@
   eraPicker.addEventListener("change", function (e) { if (e.target.name === "era") set({ era: e.target.value }); });
   fEra.addEventListener("change", function () { set({ era: fEra.value }); });
   $("#f-date").addEventListener("input", function () { render(); });
+  fill($("#f-area"), C.areas, function (x) { return x.label; });
+  fill($("#f-mark"), C.marks, function (x) { return x.label; });
+  ["#f-area", "#f-mark", "#f-set"].forEach(function (id) { $(id).addEventListener("change", function () { render(); }); });
 
   var picker = $("#theme-picker");
   picker.insertAdjacentHTML("beforeend", C.themes.map(function (t) {
@@ -154,6 +157,16 @@
     var o = posterOpts(city, era.year);
     o.theme = theme; o.aspect = aspect(size); o.density = era.density; o.date = fmtDate($("#f-date").value); o.detail = detailText(city, state.era);
     o.label = "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + (city ? "" : " (sample pattern; your city is drawn from real map data)");
+    var markId = $("#f-mark").value;
+    if (markId !== "none") o.mark = { style: markId, x: city && city.markDemo ? city.markDemo.x : 0.5, y: city && city.markDemo ? city.markDemo.y : 0.5 };
+    $("#centre-wrap").classList.toggle("hidden", $("#f-area").value === "city");
+    $("#markat-wrap").classList.toggle("hidden", markId === "none");
+    // then & now pair: an older year plus the matching 2025 poster; only where both maps are real
+    var canPair = state.era !== C.defaults.era && hasMap(city, C.defaults.era) && hasMap(city, state.era);
+    $("#set-wrap").classList.toggle("hidden", !canPair);
+    if (!canPair) $("#f-set").checked = false;
+    var pair = $("#f-set").checked;
+    $("#f-set-label").textContent = "Make it a then & now pair: add the matching " + C.defaults.era + " poster (save " + Math.round(C.pairDiscount * 100) + "%)";
     var svg = GaliPoster.svg(o);
     $("#picker-preview").innerHTML = svg;
     renderGallery(city, theme, era);
@@ -187,8 +200,10 @@
     fDetailText.classList.toggle("hidden", state.detail !== "custom");
     if (city) pickCity.value = state.city;
     var fp = framePrice(frame, size) + (mat ? matPrice(size) : 0);
-    $("#price").textContent = money(size.price + fp);
-    $("#price-detail").textContent = fp ? size.label.split(" (")[0] + " " + money(size.price) + " + " + frame.name.toLowerCase() + (mat ? " with mat " : " ") + money(fp) : "";
+    var one = size.price + fp, total = pair ? Math.round(one * 2 * (1 - C.pairDiscount)) : one;
+    $("#price").textContent = money(total);
+    var detailTxt = fp ? size.label.split(" (")[0] + " " + money(size.price) + " + " + frame.name.toLowerCase() + (mat ? " with mat " : " ") + money(fp) : "";
+    $("#price-detail").textContent = pair ? "2 posters (" + era.year + " and " + C.defaults.era + "), " + Math.round(C.pairDiscount * 100) + "% off. " + detailTxt : detailTxt;
   }
   render();
 
@@ -255,6 +270,9 @@
     setErr("#e-other", needOther && !other.value.trim() ? "Please tell us which city." : "", other);
     setErr("#e-name", name.value.trim().length < 2 ? "Please enter your name." : "", name);
     setErr("#e-email", !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim()) ? "Please enter a valid email address." : "", email);
+    var centre = $("#f-centre"), markAt = $("#f-markat");
+    setErr("#e-centre", $("#f-area").value !== "city" && !centre.value.trim() ? "Tell us which place to centre on." : "", centre);
+    setErr("#e-markat", $("#f-mark").value !== "none" && !markAt.value.trim() ? "Tell us where to place it." : "", markAt);
     form.querySelectorAll("[aria-invalid=true]").forEach(function () { ok = false; });
     if (!ok) form.querySelector("[aria-invalid=true]").focus();
     return ok;
@@ -274,8 +292,12 @@
       brand: C.brand.name, city: fCity.value === "other" ? $("#f-other").value.trim() : byId(C.cities, fCity.value).name,
       detail: detailText(cityOf(state.city), state.era), size: size.label, frame: byId(C.frames, fFrame.value).name + (state.mat && byId(C.frames, fFrame.value).matAllowed ? " with " + C.mat.name.toLowerCase() : ""), framePrice: framePrice(byId(C.frames, fFrame.value), size) + (state.mat && byId(C.frames, fFrame.value).matAllowed ? matPrice(size) : 0), theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year, printDate: fmtDate($("#f-date").value),
       name: $("#f-name").value.trim(), email: $("#f-email").value.trim(), notes: $("#f-notes").value.trim(),
-      price: size.price + framePrice(byId(C.frames, fFrame.value), size) + (state.mat && byId(C.frames, fFrame.value).matAllowed ? matPrice(size) : 0), currency: C.currency.code, submittedAt: new Date().toISOString()
+      price: 0, currency: C.currency.code, submittedAt: new Date().toISOString(),
+      pair: $("#f-set").checked, area: byId(C.areas, $("#f-area").value).label, centreOn: $("#f-area").value === "city" ? "" : $("#f-centre").value.trim(),
+      mark: $("#f-mark").value, markAt: $("#f-mark").value === "none" ? "" : $("#f-markat").value.trim()
     };
+    payload.price = size.price + payload.framePrice;
+    if (payload.pair) payload.price = Math.round(payload.price * 2 * (1 - C.pairDiscount));
     var done = function () {
       show("Thanks, " + payload.name.split(" ")[0] + ". We've got your request and will email you at " + payload.email + " soon.");
       if (C.payment.link) { var a = $("#pay-link"); a.href = C.payment.link; a.textContent = C.payment.label; $("#pay-wrap").classList.remove("hidden"); }
@@ -285,6 +307,9 @@
       var lines = ["Order request (" + payload.brand + ")", "",
         "City: " + payload.city, "Map year: " + payload.mapYear, "Size: " + payload.size, "Frame: " + payload.frame,
         payload.detail ? "Detail line: " + payload.detail : "", "Colour theme: " + payload.theme, payload.printDate ? "Print date: " + payload.printDate : "",
+        payload.pair ? "Then & now pair: yes (2 posters: " + payload.mapYear + " and " + C.defaults.era + ")" : "",
+        payload.area !== byId(C.areas, "city").label ? "Area: " + payload.area + ", centred on " + payload.centreOn : "",
+        payload.mark !== "none" ? "Marker: " + payload.mark + " at " + payload.markAt : "",
         "Total: " + money(payload.price), "", "Name: " + payload.name, "Email: " + payload.email,
         payload.notes ? "Notes: " + payload.notes : ""].filter(function (l, i, a) { return l !== "" || a[i - 1] !== ""; });
       window.location.href = "mailto:" + C.brand.email + "?subject=" + encodeURIComponent("Poster order: " + payload.city + ", " + payload.mapYear) +

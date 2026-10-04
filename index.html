@@ -159,6 +159,29 @@
           <label for="f-theme">Colour theme</label>
           <select id="f-theme" name="theme" required></select>
         </div>
+        <p class="label personalise">Personalise (all optional)</p>
+        <div class="field">
+          <label for="f-area">Area of the map</label>
+          <select id="f-area" name="area"></select>
+        </div>
+        <div class="field hidden" id="centre-wrap">
+          <label for="f-centre">Centre the map on</label>
+          <input type="text" id="f-centre" name="centreOn" autocomplete="off" aria-describedby="e-centre" placeholder="e.g. Hauz Khas Village, or paste a map link">
+          <p class="err" id="e-centre" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="f-mark">Mark a special place</label>
+          <select id="f-mark" name="mark"></select>
+        </div>
+        <div class="field hidden" id="markat-wrap">
+          <label for="f-markat">Where should it go?</label>
+          <input type="text" id="f-markat" name="markAt" autocomplete="off" aria-describedby="e-markat h-markat" placeholder="e.g. our first-date café, or paste a map link">
+          <p class="note" id="h-markat" style="margin:.3rem 0 0">The preview shows a sample position. We place yours exactly and send a proof.</p>
+          <p class="err" id="e-markat" aria-live="polite"></p>
+        </div>
+        <div class="field hidden" id="set-wrap">
+          <label class="check"><input type="checkbox" id="f-set" name="pair"><span id="f-set-label"></span></label>
+        </div>
         <div class="field">
           <label for="f-date">Date to print (optional)</label>
           <input type="date" id="f-date" name="date" aria-describedby="h-date">

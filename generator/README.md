@@ -13,6 +13,7 @@ python make_poster.py --preview --size a4 --dpi 100            # offline look-an
 python make_poster.py --place "Delhi, India" --theme blue --size 18x24
 python make_poster.py --point 28.6139 77.2090 --dist 9000 --city-name Delhi --size a3
 python make_poster.py --place "Delhi, India" --size a3 --bleed-mm 3   # print-shop file
+python make_poster.py --place "Guwahati, Assam, India" --city-name Guwahati --region "Assam, India" --theme blue --size a3   # Guwahati (check the printed area first)
 ```
 
 Output goes to `assets/<name>-<year>-<theme>-<size>.pdf` and `.png` (e.g. `assets/delhi-2025-blue-18x24.pdf`).
@@ -21,6 +22,8 @@ Output goes to `assets/<name>-<year>-<theme>-<size>.pdf` and `.png` (e.g. `asset
 Layout 1a from the design spec: map 80% of the width centred with its top edge at 12% of the width, then a footer anchored 10% of the width above the bottom: city, fine rule, region, coordinates, map year. **All measurements live in `data/layout.json`**, which the website reads too, so edit it there and both change together. Footer text is set in Jost and DM Mono (open licence); the script downloads them into `generator/fonts/` on first run and falls back to a system font with a warning if it can't.
 
 Optional personal date line (weddings, moves, births): `--date "14 FEB 2026"`, printed under the year in the same small type.
+
+Personalisation: `--detail "Where we met"` (the short line under the data, max 40 characters), `--edition 14/100` (prints `NO. 14 / 100`), `--mark LAT LON --mark-style dot|ring|heart` (marks a place, with a background-coloured halo so it reads over dense streets), and `--address "Hauz Khas Village, Delhi"` (geocode a place and centre on it, like `--point`; use `--dist` for the size of the area, about 5000 for a neighbourhood and 2000 for street level). The footer text can't shape non-Latin scripts such as Devanagari; the script warns if you try.
 
 Footer text: `--city-name`, `--region`, `--coords LAT LON`, `--year`. Defaults come from `--place` ("Delhi, India" gives DELHI / INDIA) and a built-in list of recognisable city centres. `--year` only changes the label: the road data is always current OpenStreetMap. The optional extent filter below approximates a past city's footprint; real historical street maps need archival data.
 

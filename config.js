@@ -44,7 +44,8 @@ window.GALI_CONFIG = {
     // shows the generated placeholder pattern. Make masks with: generator/batch_masks.py (or make_poster.py --formats mask)
     { id: "delhi", name: "Delhi", seed: 11, region: "India", lat: 28.6139, lon: 77.209,
       facts: { streetsKm: 18400, areaKm2: 1480 },
-      maps: { "1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp" } },
+      maps: { "1995": "assets/delhi-1995-lines.webp", "2025": "assets/delhi-lines.webp" },
+      markDemo: { x: 0.715, y: 0.578 } }, // where the preview draws a SAMPLE marker (about India Gate); the real one is placed exactly from the order
     { id: "mumbai", name: "Mumbai", seed: 20, region: "India", lat: 19.076, lon: 72.8777,
       facts: { streetsKm: 4000 },
       maps: { "2025": "assets/mumbai-lines.webp" } },
@@ -65,7 +66,10 @@ window.GALI_CONFIG = {
       maps: { "2025": "assets/washington-dc-lines.webp" } },
     { id: "moscow", name: "Moscow", seed: 79, region: "Russia", lat: 55.7558, lon: 37.6173,
       facts: { streetsKm: 5600 },
-      maps: { "2025": "assets/moscow-lines.webp" } }
+      maps: { "2025": "assets/moscow-lines.webp" } },
+    // Guwahati: preview only until its real map exists. Generate it (see generator/README.md), then add
+    // maps: { "2025": "assets/guwahati-lines.webp" } and remove `soon`.
+    { id: "guwahati", name: "Guwahati", seed: 41, region: "Assam, India", lat: 26.1445, lon: 91.7362, soon: true }
   ],
 
   // Optional frame (design "Frames", launch range 6a-6c): one 20 mm flat-face profile in three finishes; oak and white can add
@@ -111,6 +115,22 @@ window.GALI_CONFIG = {
     { id: "2025", year: 2025, density: 1 }
   ],
   eraNote: "The 1995 map shows today's streets inside the area Delhi had built up by 1995. Earlier years aren't ready yet.",
+
+  // Then & now set: an older year plus the matching 2025 poster, for this much off the two-poster price.
+  pairDiscount: 0.15,
+
+  // Personalisation. Orders are fulfilled by hand: these choices are sent with the order and we confirm with a proof.
+  areas: [
+    { id: "city",   label: "Whole city" },
+    { id: "area",   label: "Neighbourhood (about 5 km across)" },
+    { id: "street", label: "Street level (about 2 km across)" }
+  ],
+  marks: [
+    { id: "none",  label: "None" },
+    { id: "dot",   label: "Dot" },
+    { id: "ring",  label: "Ring" },
+    { id: "heart", label: "Heart" }
+  ],
 
   defaults: { city: "delhi", theme: "blue", size: "a3", era: "2025", frame: "none" }
 };
