@@ -40,6 +40,30 @@ def area_km2(place):
     return gdf.to_crs(gdf.estimate_utm_crs()).area.iloc[0] / 1e6, gdf.iloc[0]["display_name"]
 
 
+WAIT_MIN = 60  # minutes to wait for the Overpass server to recover before giving up on a city (set by --wait-min)
+
+
+def overpass_ready():
+    """True when the public Overpass server answers a tiny query. When it is overloaded it returns 504/429 or hangs."""
+    import requests
+    try:
+        r = requests.post("https://overpass-api.de/api/interpreter", timeout=25, headers={"User-Agent": "gali-art-batch"},
+                          data={"data": "[out:json][timeout:10];node(28.61,77.20,28.611,77.201);out count;"})
+        return r.status_code == 200
+    except Exception:
+        return False
+
+
+def wait_for_overpass():
+    t0 = time.time()
+    while not overpass_ready():
+        if time.time() - t0 > WAIT_MIN * 60:
+            return False
+        print("  Overpass busy, waiting 60 s ...", flush=True)
+        time.sleep(60)
+    return True
+
+
 def build(c, timeout_s):
     out = ASSETS / f"{c['id']}-lines.webp"
     if out.exists():
@@ -52,6 +76,8 @@ def build(c, timeout_s):
     use_place = km2 is not None and MIN_KM2 <= km2 <= limit and c.get("mode") != "square"  # "mode": "square" forces a square around the centre
     mode = "boundary" if use_place else f"square {c.get('dist', DEFAULT_DIST) / 1000:g} km half-width"
     print(f"  resolved: {shown} ({"-" if km2 is None else format(round(km2), ",")} km2) -> {mode}", flush=True)
+    if not wait_for_overpass():
+        return {"status": "failed", "mode": mode, "error": f"Overpass stayed unavailable for {WAIT_MIN} minutes"}
     TMP.mkdir(parents=True, exist_ok=True)
     where = ["--place", c["place"]] if use_place else ["--point", str(c["lat"]), str(c["lon"]), "--dist", str(c.get("dist", DEFAULT_DIST))]
     cmd = [sys.executable, str(HERE / "make_poster.py"), *where, "--city-name", c["name"],
@@ -97,7 +123,10 @@ def main():
     ap.add_argument("--only", nargs="*", help="City ids to build")
     ap.add_argument("--write-config", action="store_true")
     ap.add_argument("--timeout-min", type=int, default=45)
+    ap.add_argument("--wait-min", type=int, default=60, help="Minutes to wait for the Overpass server to recover before skipping a city")
     args = ap.parse_args()
+    global WAIT_MIN
+    WAIT_MIN = args.wait_min
     cities = load_cities()
     if args.write_config:
         return write_config(cities)
