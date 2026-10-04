@@ -52,7 +52,7 @@ window.GALI_CONFIG = {
     { id: "kolkata", name: "Kolkata", seed: 21, region: "India", lat: 22.5726, lon: 88.3639,
       facts: { streetsKm: 3500, areaKm2: 200 },
       maps: { "2025": "assets/kolkata-lines.webp" } },
-    { id: "guwahati", name: "Guwahati", seed: 56, region: "Assam, India", lat: 26.1445, lon: 91.7362,
+    { id: "guwahati", name: "Guwahati", seed: 56, region: "India", lat: 26.1445, lon: 91.7362,
       facts: { streetsKm: 700 },
       maps: { "2025": "assets/guwahati-lines.webp" } },
     { id: "panaji", name: "Panaji", seed: 60, region: "India", lat: 15.4909, lon: 73.8278,
