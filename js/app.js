@@ -125,6 +125,96 @@
 
   function set(patch) { for (var k in patch) state[k] = patch[k]; render(); }
 
+  // ---- live place lookup: the marker and the area box on the city map ----
+  // data/geo.json says where each city map sits on the earth (made by generator/city_geo.py), so a latitude and longitude can be
+  // turned into a spot on the picture. Addresses are looked up with OpenStreetMap's Nominatim only when the customer presses
+  // "Find on map" (its usage rules do not allow search-as-you-type); pasted map links are read in the browser.
+  var GEO = null;
+  fetch("data/geo.json" + VQ).then(function (r) { return r.ok ? r.json() : null; }).then(function (g) { GEO = g; render(); }).catch(function () {});
+  var found = { centre: null, mark: null }; // a found place: { lat, lon, label, cityId }
+  function geoOf(city, eraId) { var g = city && GEO && GEO[city.id]; return g ? (g[eraId] || g[C.defaults.era] || null) : null; }
+  function toFrac(geo, lat, lon) {
+    var u = lon - geo.c[1], v = lat - geo.c[0], t = [1, u, v, u * u, u * v, v * v], x = 0, y = 0;
+    for (var i = 0; i < 6; i++) { x += geo.fx[i] * t[i]; y += geo.fy[i] * t[i]; }
+    return { x: x, y: y };
+  }
+  function onMap(geo, p) { return p.x >= geo.box[0] && p.x <= geo.box[2] && p.y >= geo.box[1] && p.y <= geo.box[3]; }
+  function areaBoxFor(geo, lat, lon, halfKm) { // a square halfKm each way around the point, as fractions of the map picture
+    var dLat = halfKm / 110.574, dLon = halfKm / (111.32 * Math.cos(lat * Math.PI / 180));
+    var a = toFrac(geo, lat - dLat, lon - dLon), b = toFrac(geo, lat + dLat, lon + dLon);
+    return { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), w: Math.abs(b.x - a.x), h: Math.abs(b.y - a.y) };
+  }
+  function parseCoords(text) { // "28.61, 77.20", Google Maps / Apple Maps / OpenStreetMap links with a pin or a position
+    var t = String(text || "").trim(), m, lat, lon;
+    try { t = decodeURIComponent(t); } catch (e) { /* keep as typed */ }
+    if ((m = /^(-?\d{1,2}(?:\.\d+)?)\s*[,;\s]\s*(-?\d{1,3}(?:\.\d+)?)$/.exec(t)) ||
+        (m = /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/.exec(t)) ||
+        (m = /[?&](?:q|ll|query|destination|center|sll)=(-?\d+\.\d+),\s*(-?\d+\.\d+)/i.exec(t)) ||
+        (m = /[?&]mlat=(-?\d+\.\d+)&mlon=(-?\d+\.\d+)/.exec(t)) ||
+        (m = /#map=\d+\/(-?\d+\.\d+)\/(-?\d+\.\d+)/.exec(t)) ||
+        (m = /@(-?\d+\.\d+),(-?\d+\.\d+)/.exec(t))) {
+      lat = parseFloat(m[1]); lon = parseFloat(m[2]);
+      if (Math.abs(lat) <= 90 && Math.abs(lon) <= 180) return { lat: lat, lon: lon };
+    }
+    return null;
+  }
+  var lookups = {};
+  function lookup(text, city) {
+    var direct = parseCoords(text);
+    if (direct) return Promise.resolve([{ lat: direct.lat, lon: direct.lon, label: /^https?:|\//i.test(text.trim()) ? "The pin in your link" : "The coordinates you entered" }]);
+    if (/(goo\.gl|maps\.app|g\.co\/kgs|bit\.ly|tinyurl|share\.google)/i.test(text)) return Promise.reject(new Error("short"));
+    var geo = geoOf(city, C.defaults.era), key = (city ? city.id : "") + "|" + text.toLowerCase();
+    if (lookups[key]) return Promise.resolve(lookups[key]);
+    var url = "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=3&accept-language=en&q=" + encodeURIComponent(text);
+    if (geo) url += "&viewbox=" + (geo.c[1] - 0.5) + "," + (geo.c[0] + 0.5) + "," + (geo.c[1] + 0.5) + "," + (geo.c[0] - 0.5); // prefer results near this city
+    return fetch(url, { headers: { Accept: "application/json" } }).then(function (r) { if (!r.ok) throw new Error("http"); return r.json(); }).then(function (list) {
+      var out = list.map(function (x) { return { lat: parseFloat(x.lat), lon: parseFloat(x.lon), label: String(x.display_name || "").split(",").slice(0, 3).join(",").trim() }; });
+      lookups[key] = out; return out;
+    });
+  }
+  function say(kind, nodes, bad) { // nodes: strings and elements
+    var out = $("#found-" + kind); out.textContent = ""; out.classList.toggle("bad", !!bad);
+    [].concat(nodes).forEach(function (n) { out.appendChild(typeof n === "string" ? document.createTextNode(n) : n); });
+  }
+  function accept(kind, r, alternatives) {
+    var city = cityOf(state.city), geo = geoOf(city, state.era), p = geo && toFrac(geo, r.lat, r.lon);
+    if (!geo || !onMap(geo, p)) {
+      found[kind] = null;
+      say(kind, "That place is outside the " + (city ? city.name : "city") + " map. Check the place, or pick the right city above.", true);
+      return render();
+    }
+    found[kind] = { lat: r.lat, lon: r.lon, label: r.label, cityId: city.id };
+    var parts = ["Found: " + r.label + ". "];
+    if (alternatives && alternatives.length) {
+      parts.push("Not right? ");
+      alternatives.forEach(function (alt) {
+        var b = document.createElement("button"); b.type = "button"; b.textContent = alt.label.split(",")[0];
+        b.addEventListener("click", function () { accept(kind, alt, alternatives.filter(function (x) { return x !== alt; }).concat([r])); });
+        parts.push(b, " ");
+      });
+    }
+    say(kind, parts); render();
+  }
+  function findPlace(kind) {
+    var input = $(kind === "centre" ? "#f-centre" : "#f-markat"), btn = document.querySelector('[data-find="' + kind + '"]');
+    var city = cityOf(state.city), text = input.value.trim();
+    if (!text) return say(kind, "Type a place or paste a map link first.", true);
+    if (!city || !geoOf(city, state.era)) return say(kind, "Live placement isn't ready for this city yet. We'll place it from what you wrote and send a proof.", false);
+    btn.disabled = true; say(kind, "Looking…");
+    lookup(text, city).then(function (list) {
+      if (!list.length) return say(kind, "We couldn't find that. Try adding the area or city, or paste a map link.", true);
+      accept(kind, list[0], list.slice(1));
+    }).catch(function (e) {
+      say(kind, e && e.message === "short" ? "Short links can't be opened from here. Open it, then paste the long link from your browser's address bar." : "The place search isn't answering. Try again in a moment, or just send the order and we'll place it for you.", true);
+    }).then(function () { setTimeout(function () { btn.disabled = false; }, 1200); });
+  }
+  function clearFound(kind) { found[kind] = null; $("#found-" + kind).textContent = ""; }
+  [].forEach.call(document.querySelectorAll("[data-find]"), function (b) { b.addEventListener("click", function () { findPlace(b.dataset.find); }); });
+  [["centre", "#f-centre"], ["mark", "#f-markat"]].forEach(function (pair) {
+    $(pair[1]).addEventListener("input", function () { if (found[pair[0]]) { clearFound(pair[0]); render(); } });
+    $(pair[1]).addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); findPlace(pair[0]); } });
+  });
+
   // ---- gallery: the framed cards and the room scene follow the city, colour and map-year pickers ----
   // Their sizes are fixed by the markup (data-size), so the main size selector never changes the scale comparison.
   var FRAME_TO_SIZE = { A4: "a4", A3: "a3", "18x24": "18x24" };
@@ -160,8 +250,21 @@
     var o = posterOpts(city, era.year);
     o.theme = theme; o.aspect = aspect(size); o.density = era.density; o.date = fmtDate($("#f-date").value); o.detail = detailText(city, state.era);
     o.label = "Preview: " + (city ? city.name : "custom city") + " " + era.year + " in " + theme.name + (city ? "" : " (sample pattern; your city is drawn from real map data)");
-    var markId = $("#f-mark").value;
-    if (markId !== "none") o.mark = { style: markId, x: city && city.markDemo ? city.markDemo.x : 0.5, y: city && city.markDemo ? city.markDemo.y : 0.5 };
+    var markId = $("#f-mark").value, geo = geoOf(city, state.era), areaId = $("#f-area").value;
+    ["centre", "mark"].forEach(function (k) { if (found[k] && (!city || found[k].cityId !== city.id)) clearFound(k); }); // a found place belongs to one city
+    if (markId !== "none") {
+      var mp = found.mark && geo ? toFrac(geo, found.mark.lat, found.mark.lon) : null;
+      if (mp && onMap(geo, mp)) o.mark = { style: markId, x: mp.x, y: mp.y };
+      else if (!found.mark) { // nothing found yet: a sample marker at the city centre
+        var dp = geo && city ? toFrac(geo, city.lat, city.lon) : null;
+        o.mark = { style: markId, x: dp ? dp.x : city && city.markDemo ? city.markDemo.x : 0.5, y: dp ? dp.y : city && city.markDemo ? city.markDemo.y : 0.5 };
+      }
+    }
+    if (areaId !== "city" && found.centre && geo) o.areaBox = areaBoxFor(geo, found.centre.lat, found.centre.lon, areaId === "area" ? 2.5 : 1);
+    $("#h-markat").textContent = found.mark
+      ? (geo && o.areaBox && found.mark && (function () { var q = toFrac(geo, found.mark.lat, found.mark.lon); return q.x < o.areaBox.x || q.x > o.areaBox.x + o.areaBox.w || q.y < o.areaBox.y || q.y > o.areaBox.y + o.areaBox.h; })()
+        ? "This place falls outside the area you chose. Widen the area or move the centre." : "Placed from your address. We still send a proof before printing.")
+      : "The preview shows a sample position until you press Find on map. We place yours exactly and send a proof. Place search by OpenStreetMap.";
     $("#centre-wrap").classList.toggle("hidden", $("#f-area").value === "city");
     $("#markat-wrap").classList.toggle("hidden", markId === "none");
     // then & now pair: an older year plus the matching 2025 poster; only where both maps are real
@@ -297,22 +400,24 @@
       name: $("#f-name").value.trim(), email: $("#f-email").value.trim(), notes: $("#f-notes").value.trim(),
       price: 0, currency: C.currency.code, submittedAt: new Date().toISOString(),
       pair: $("#f-set").checked, area: byId(C.areas, $("#f-area").value).label, centreOn: $("#f-area").value === "city" ? "" : $("#f-centre").value.trim(),
-      mark: $("#f-mark").value, markAt: $("#f-mark").value === "none" ? "" : $("#f-markat").value.trim()
+      mark: $("#f-mark").value, markAt: $("#f-mark").value === "none" ? "" : $("#f-markat").value.trim(),
+      markCoords: found.mark && $("#f-mark").value !== "none" ? found.mark.lat.toFixed(5) + ", " + found.mark.lon.toFixed(5) : "",
+      centreCoords: found.centre && $("#f-area").value !== "city" ? found.centre.lat.toFixed(5) + ", " + found.centre.lon.toFixed(5) : ""
     };
     payload.price = size.price + payload.framePrice;
     if (payload.pair) payload.price = Math.round(payload.price * 2 * (1 - C.pairDiscount));
     var done = function () {
       show("Thanks, " + payload.name.split(" ")[0] + ". We've got your request and will email you at " + payload.email + " soon.");
       if (C.payment.link) { var a = $("#pay-link"); a.href = C.payment.link; a.textContent = C.payment.label; $("#pay-wrap").classList.remove("hidden"); }
-      form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none", mat: false, detail: "none" }; $("#other-city-wrap").classList.add("hidden"); render();
+      form.reset(); state = { city: C.defaults.city, theme: C.defaults.theme, size: C.defaults.size, era: C.defaults.era, frame: C.defaults.frame || "none", mat: false, detail: "none" }; $("#other-city-wrap").classList.add("hidden"); clearFound("centre"); clearFound("mark"); render();
     };
     if (!C.form.endpoint) { // no order inbox configured: hand the request to the customer's email app instead of dropping it
       var lines = ["Order request (" + payload.brand + ")", "",
         "City: " + payload.city, "Map year: " + payload.mapYear, "Size: " + payload.size, "Frame: " + payload.frame,
         payload.detail ? "Detail line: " + payload.detail : "", "Colour theme: " + payload.theme, payload.printDate ? "Print date: " + payload.printDate : "",
         payload.pair ? "Then & now pair: yes (2 posters: " + payload.mapYear + " and " + C.defaults.era + ")" : "",
-        payload.area !== byId(C.areas, "city").label ? "Area: " + payload.area + ", centred on " + payload.centreOn : "",
-        payload.mark !== "none" ? "Marker: " + payload.mark + " at " + payload.markAt : "",
+        payload.area !== byId(C.areas, "city").label ? "Area: " + payload.area + ", centred on " + payload.centreOn + (payload.centreCoords ? " (" + payload.centreCoords + ")" : "") : "",
+        payload.mark !== "none" ? "Marker: " + payload.mark + " at " + payload.markAt + (payload.markCoords ? " (" + payload.markCoords + ")" : "") : "",
         "Total: " + money(payload.price), "", "Name: " + payload.name, "Email: " + payload.email,
         payload.notes ? "Notes: " + payload.notes : ""].filter(function (l, i, a) { return l !== "" || a[i - 1] !== ""; });
       window.location.href = "mailto:" + C.brand.email + "?subject=" + encodeURIComponent("Poster order: " + payload.city + ", " + payload.mapYear) +

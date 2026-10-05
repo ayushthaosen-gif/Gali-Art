@@ -159,6 +159,13 @@
           markLayer += '<circle cx="' + f(mx) + '" cy="' + f(my) + '" r="' + f(r) + '" fill="' + line + '"/>';
         }
       }
+      var boxLayer = ""; // customer chose a neighbourhood or street-level area: show the square that will print, dim the rest
+      if (o.areaBox) {
+        var ab = o.areaBox, bx = Math.max(0, ab.x) * MW, by = Math.max(0, ab.y) * MH, bx2 = Math.min(1, ab.x + ab.w) * MW, by2 = Math.min(1, ab.y + ab.h) * MH;
+        boxLayer = '<path fill-rule="evenodd" fill="' + bg + '" fill-opacity=".72" d="M0 0H' + f(MW) + 'V' + f(MH) + 'H0Z M' + f(bx) + ' ' + f(by) + 'H' + f(bx2) + 'V' + f(by2) + 'H' + f(bx) + 'Z"/>' +
+          '<rect x="' + f(bx) + '" y="' + f(by) + '" width="' + f(bx2 - bx) + '" height="' + f(by2 - by) + '" fill="none" stroke="' + line +
+          '" stroke-width="' + f(0.004 * W) + '" stroke-dasharray="' + f(0.014 * W) + ' ' + f(0.009 * W) + '"/>';
+      }
       var mapLayer;
       if (o.mapImage) { // real map: one white-lines-on-transparent image used as an alpha mask over the theme line colour
         mapLayer = '<mask id="m' + id + '" maskUnits="userSpaceOnUse" x="0" y="0" width="' + f(MW) + '" height="' + f(MH) + '" mask-type="alpha" style="mask-type:alpha">' +
@@ -175,7 +182,7 @@
         '<rect width="' + W + '" height="' + H + '" fill="' + bg + '"/>' +
         '<clipPath id="' + id + '"><rect width="' + f(MW) + '" height="' + f(MH) + '"/></clipPath>' +
         '<g transform="translate(' + f((W - MW) / 2) + " " + f(L.map.top * W) + ')">' +
-        mapLayer + markLayer +
+        mapLayer + boxLayer + markLayer +
         '</g>' +
         '<rect x="' + f(ft.rule.x) + '" y="' + f(ft.rule.y) + '" width="' + f(ft.rule.w) + '" height="' + f(Math.max(ft.rule.h, 0.3)) + '" fill="' + line + '"/>';
       ft.texts.forEach(function (t) {

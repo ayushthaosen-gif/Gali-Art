@@ -112,6 +112,14 @@ section { padding: 4rem 0; }
 .mini-frame { width: 8.5rem; margin: .7rem 0 0; }
 .mini-frame .framed { width: 100%; min-width: 0; box-shadow: 0 6px 12px -6px rgba(0,0,0,.4); }
 @media (min-width: 820px) { .mini-frame { display: none; } }
+.input-row { display: flex; gap: .5rem; }
+.input-row input { flex: 1; min-width: 0; }
+.find-btn { flex: none; border: 1px solid var(--blue); background: var(--white); color: var(--blue-deep); border-radius: 999px; padding: 0 1rem; font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.find-btn:disabled { opacity: .5; cursor: default; }
+.find-btn:focus-visible, .found button:focus-visible { outline: 3px solid #ffb400; outline-offset: 2px; }
+.found { margin: .4rem 0 0; font-size: .85rem; color: var(--muted); }
+.found button { background: none; border: 0; padding: 0; color: var(--blue-deep); font: inherit; text-decoration: underline; cursor: pointer; }
+.found .bad { color: var(--error); }
 .price-detail { margin: -.7rem 0 1.2rem; }
 .themes { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; border: 0; padding: 0; margin: 0 0 1.2rem; }
 .themes legend, label, .label { font-weight: 600; font-size: .9rem; }

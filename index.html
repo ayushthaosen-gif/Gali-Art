@@ -166,7 +166,11 @@
         </div>
         <div class="field hidden" id="centre-wrap">
           <label for="f-centre">Centre the map on</label>
-          <input type="text" id="f-centre" name="centreOn" autocomplete="off" aria-describedby="e-centre" placeholder="e.g. Hauz Khas Village, or paste a map link">
+          <div class="input-row">
+            <input type="text" id="f-centre" name="centreOn" autocomplete="off" aria-describedby="e-centre found-centre" placeholder="e.g. Hauz Khas Village, or paste a map link">
+            <button type="button" class="find-btn" data-find="centre">Find on map</button>
+          </div>
+          <p class="found" id="found-centre" aria-live="polite"></p>
           <p class="err" id="e-centre" aria-live="polite"></p>
         </div>
         <div class="field">
@@ -175,8 +179,12 @@
         </div>
         <div class="field hidden" id="markat-wrap">
           <label for="f-markat">Where should it go?</label>
-          <input type="text" id="f-markat" name="markAt" autocomplete="off" aria-describedby="e-markat h-markat" placeholder="e.g. our first-date café, or paste a map link">
-          <p class="note" id="h-markat" style="margin:.3rem 0 0">The preview shows a sample position. We place yours exactly and send a proof.</p>
+          <div class="input-row">
+            <input type="text" id="f-markat" name="markAt" autocomplete="off" aria-describedby="e-markat h-markat found-mark" placeholder="e.g. our first-date café, or paste a map link">
+            <button type="button" class="find-btn" data-find="mark">Find on map</button>
+          </div>
+          <p class="found" id="found-mark" aria-live="polite"></p>
+          <p class="note" id="h-markat" style="margin:.3rem 0 0"></p>
           <p class="err" id="e-markat" aria-live="polite"></p>
         </div>
         <div class="field hidden" id="set-wrap">
