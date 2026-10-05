@@ -116,12 +116,40 @@ def write_config(cities):
         sys.exit("Could not find the cities block in config.js")
     path.write_text(new, encoding="utf-8")
     print(f"config.js: {len(entries)} cities (Delhi + {len(entries) - 1})")
+    try:  # keep the website's map-position file (data/geo.json) in step with the maps
+        import city_geo
+        city_geo.main()
+    except Exception as exc:
+        print("WARNING: data/geo.json not refreshed:", exc)
+
+
+def georef_all(cities):
+    """Record where each existing map sits on the earth (cache/georef/*.json) by replaying its build recipe in --georef mode.
+    Uses the cached road data, so it needs no downloads. New cities get this automatically when their mask is built."""
+    results = json.loads(RESULTS.read_text()) if RESULTS.exists() else {}
+    jobs = [("delhi", 2025, ["--place", "Delhi, India"]),
+            ("delhi", 1995, ["--place", "Delhi, India", "--year", "1995", "--extent-auto", "--extent-threshold", "3500", "--extent-min-blob", "200"])]
+    for c in cities:
+        if not (ASSETS / f"{c['id']}-lines.webp").exists():
+            continue
+        mode = results.get(c["id"], {}).get("mode", "boundary")
+        where = (["--place", c["place"]] if mode == "boundary"
+                 else ["--point", str(c["lat"]), str(c["lon"]), "--dist", str(c.get("dist", DEFAULT_DIST))])
+        jobs.append((c["id"], 2025, where))
+    for cid, year, where in jobs:
+        print(f"[{cid} {year}]", flush=True)
+        cmd = [sys.executable, str(HERE / "make_poster.py"), *where, "--name", cid, "--year", str(year), "--georef", "--no-water"]
+        if "--year" in where:  # the 1995 recipe already carries its own --year
+            cmd = [sys.executable, str(HERE / "make_poster.py"), *where, "--name", cid, "--georef", "--no-water"]
+        r = subprocess.run(cmd, cwd=HERE, capture_output=True, text=True)
+        print("  ->", "ok" if r.returncode == 0 else "FAILED " + (r.stderr or r.stdout)[-300:], flush=True)
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", nargs="*", help="City ids to build")
     ap.add_argument("--write-config", action="store_true")
+    ap.add_argument("--georef", action="store_true", help="Record the geographic extent of every existing map (no downloads)")
     ap.add_argument("--timeout-min", type=int, default=45)
     ap.add_argument("--wait-min", type=int, default=60, help="Minutes to wait for the Overpass server to recover before skipping a city")
     args = ap.parse_args()
@@ -130,6 +158,8 @@ def main():
     cities = load_cities()
     if args.write_config:
         return write_config(cities)
+    if args.georef:
+        return georef_all(cities)
     results = json.loads(RESULTS.read_text()) if RESULTS.exists() else {}
     for c in cities:
         if args.only and c["id"] not in args.only:

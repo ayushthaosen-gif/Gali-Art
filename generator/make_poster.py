@@ -397,7 +397,25 @@ def render(edges, L, theme, size_key, w_in, h_in, min_pt, formats, dpi, outdir, 
     plt.close(fig)
 
 
-def render_mask(edges, L, outdir, name, year, width_px=1600):
+def mask_bounds(edges):
+    """(minx, miny, maxx, maxy) of the streets that are drawn: exactly the data limits of the poster's map box."""
+    xs = [p[0] for coords, hw in edges if tier_of(hw) is not None for p in coords]
+    ys = [p[1] for coords, hw in edges if tier_of(hw) is not None for p in coords]
+    return min(xs), min(ys), max(xs), max(ys)
+
+
+def write_georef(edges, crs, L, name, year):
+    """Record where the map sits on the earth so the website can place a marker or a crop box from a latitude and longitude.
+    Saved to cache/georef/<name>-<year>.json; city_geo.py turns these into a small formula per city for config.js."""
+    import json
+    minx, miny, maxx, maxy = mask_bounds(edges)
+    path = HERE / "cache" / "georef" / f"{name}-{year}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"crs": str(crs), "bounds": [minx, miny, maxx, maxy], "aspect": L["map"]["aspect"]}, indent=1), encoding="utf-8")
+    print("Saved", path)
+
+
+def render_mask(edges, L, outdir, name, year, width_px=1600, crs=None):
     """White streets on a transparent background, sized to the map box (layout map.aspect).
     The website recolours this per theme with an alpha mask. Drop it in assets/ and register it in
     config.js under the city's `maps`."""
@@ -432,6 +450,8 @@ def render_mask(edges, L, outdir, name, year, width_px=1600):
     fig.savefig(path, dpi=width_px / mw_in, transparent=True)
     print("Saved", path)
     plt.close(fig)
+    if crs is not None:
+        write_georef(edges, crs, L, name, year)
 
 
 def parse_size(text):
@@ -479,6 +499,7 @@ def main():
     ap.add_argument("--no-cleanup", action="store_true", help="Skip fragment removal, boundary clip, Lutyens tier promotion and water")
     ap.add_argument("--min-fragment", type=float, default=200, help="Drop disconnected road clusters shorter than this many metres")
     ap.add_argument("--no-water", action="store_true", help="Skip the river/lake tint (needs a boundary download the first time)")
+    ap.add_argument("--georef", action="store_true", help="Only record where the map sits on the earth (cache/georef/), without rendering")
     ap.add_argument("--out", default=str(HERE.parent / "assets"))
     args = ap.parse_args()
     extent_requested = args.extent_raster or args.extent_auto
@@ -573,8 +594,11 @@ def main():
         ap.error("formats must be a comma list of pdf,png,svg,mask")
     print(f"Rendering {w_in} x {h_in} in ({int(w_in * args.dpi)}x{int(h_in * args.dpi)} px PNG at {args.dpi} dpi), "
           f"theme '{args.theme}', year {args.year} ...")
+    if args.georef:
+        write_georef(edges, edge_crs, L, name, args.year)
+        return
     if "mask" in formats:
-        render_mask(edges, L, Path(args.out), name, args.year)
+        render_mask(edges, L, Path(args.out), name, args.year, crs=edge_crs)
         formats = [f for f in formats if f != "mask"]
     if formats:
         mark = None

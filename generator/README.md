@@ -95,3 +95,7 @@ Colab: `!pip install -r requirements.txt`, upload the generator files and shared
 Themes live in `THEMES` and sizes in `SIZES` at the top of the script; keep them in sync with `config.js`.
 
 **Clean-up (on by default for `--place` runs, see `cleanup.py`):** roads are clipped to the OSM city boundary, disconnected fragments under 200 m are dropped (`--min-fragment`), named Lutyens' Delhi radials (list in `cleanup.py`) are held at tier 2, and rivers/lakes get a faint tint of the line colour (print poster only, not the web mask). Boundary and water are downloaded once and cached as GeoJSON in `generator/cache/`. Use `--no-cleanup` to skip all of it or `--no-water` for just the tint. Test: `python test_cleanup.py`.
+
+## Live marker and area box on the website
+
+The order form can place a marker and draw the 5 km / 2 km crop box from a typed address or a pasted map link. For that the site needs to know where each city map sits on the earth. Building a mask (`make_poster.py --formats mask`, or `batch_masks.py`) records it automatically in `cache/georef/<name>-<year>.json`. `python city_geo.py` (also run by `batch_masks.py --write-config`) turns those into `../data/geo.json`, a small fitted formula per city that the page loads. For maps built before this existed, `python batch_masks.py --georef` records them from the cached road data without downloading anything. A city with no entry in `geo.json` still works: the form says live placement isn't ready and the order is placed by hand from the customer's text.
