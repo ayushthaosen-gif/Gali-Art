@@ -180,3 +180,17 @@ details.q p { margin: .7rem 0 0; color: var(--muted); }
 
 /* personalisation */
 .personalise { margin: 1.6rem 0 .8rem; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--blue-deep); text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; }
+
+/* Price stickers */
+.stickers { list-style: none; padding: 0; margin: 0 0 1.4rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 1.4rem .5rem; }
+.sticker { position: relative; width: 6.6rem; height: 6.6rem; border-radius: 50%; background: var(--blue); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 6px 16px rgba(20,33,58,.18); transform: rotate(-6deg); }
+.sticker:nth-child(2) { transform: rotate(4deg); }
+.sticker:nth-child(3) { transform: rotate(-2deg); }
+.sticker::before { content: ""; position: absolute; inset: .3rem; border: 1.5px dashed rgba(255,255,255,.55); border-radius: 50%; }
+.sticker.pop { background: var(--blue-deep); width: 7.2rem; height: 7.2rem; }
+.s-size { font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; }
+.s-price { font-size: 1.12rem; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.s-dims { font-size: .56rem; opacity: .85; }
+.s-tag { position: absolute; bottom: -.4rem; left: 50%; transform: translateX(-50%); background: #fff; color: var(--blue-deep); border: 1.5px solid var(--blue-deep); border-radius: 999px; padding: .05rem .5rem; font-size: .58rem; font-weight: 600; letter-spacing: .06em; white-space: nowrap; }
+#price-note { text-align: center; }
+@media (min-width: 560px) { .stickers { gap: 1.4rem 2rem; } .sticker { width: 10rem; height: 10rem; } .sticker.pop { width: 11rem; height: 11rem; } .sticker::before { inset: .45rem; } .s-size { font-size: .8rem; letter-spacing: .18em; } .s-price { font-size: 1.7rem; } .s-dims { font-size: .72rem; } .s-tag { font-size: .68rem; padding: .1rem .6rem; } }

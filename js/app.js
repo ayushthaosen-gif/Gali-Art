@@ -80,6 +80,22 @@
     o.label = "Sample poster: street network in white lines on blue, captioned Delhi";
     $("#hero-poster").innerHTML = GaliPoster.svg(o);
   }
+  // Price stickers: one round sticker per poster size, built from config so prices are edited in one place.
+  function renderPrices() {
+    var ul = $("#price-stickers"); if (!ul) return;
+    ul.innerHTML = C.sizes.map(function (z) {
+      var name = z.label.split(" (")[0], dims = (z.label.match(/\(([^)]*)\)/) || [])[1] || "";
+      return '<li class="sticker' + (z.id === C.defaults.size ? " pop" : "") + '"><span class="s-size">' + esc(name) + '</span><span class="s-price">' + money(z.price) + '</span>' +
+        (dims ? '<span class="s-dims">' + esc(dims) + '</span>' : "") + (z.id === C.defaults.size ? '<span class="s-tag">Most popular</span>' : "") + '</li>';
+    }).join("");
+    var bits = ["Print only, any city, any colour theme."];
+    var fr = (C.frames || []).filter(function (f) { return f.id !== "none"; }), lows = [];
+    fr.forEach(function (f) { C.sizes.forEach(function (z) { if (f.price && f.price[z.id]) lows.push(f.price[z.id]); }); });
+    if (lows.length) bits.push("Frames from " + money(Math.min.apply(null, lows)) + ".");
+    if (C.pairDiscount) bits.push("Then & now pair: " + Math.round(C.pairDiscount * 100) + "% off the two posters.");
+    $("#price-note").textContent = bits.join(" ");
+  }
+  renderPrices();
   renderHero();
 
   // ---- selects & theme radios ----
