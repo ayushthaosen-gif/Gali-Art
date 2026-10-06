@@ -89,8 +89,10 @@ section { padding: 4rem 0; }
 .slide .asset-link { margin-top: .5rem; }
 .swipe-nav { display: flex; justify-content: center; align-items: center; gap: .9rem; margin-top: .9rem; }
 .swipe-dots { display: flex; justify-content: center; gap: .5rem; }
-.swipe-dots button { width: .55rem; height: .55rem; padding: 0; border: 0; border-radius: 50%; background: var(--line); cursor: pointer; }
-.swipe-dots button[aria-current="true"] { background: var(--blue); }
+.swipe-dots { gap: 0; }
+.swipe-dots button { position: relative; width: 1.6rem; height: 1.6rem; padding: 0; border: 0; background: none; cursor: pointer; }  /* finger-sized tap area, the dot is drawn inside */
+.swipe-dots button::before { content: ""; position: absolute; left: 50%; top: 50%; width: .55rem; height: .55rem; margin: -.275rem 0 0 -.275rem; border-radius: 50%; background: var(--line); }
+.swipe-dots button[aria-current="true"]::before { background: var(--blue); }
 .swipe-arrow { display: none; width: 2.2rem; height: 2.2rem; border: 1px solid var(--line); border-radius: 50%; background: var(--white); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; }
 @media (min-width: 720px) { .swipe-arrow { display: inline-flex; align-items: center; justify-content: center; } }
 .swipe-arrow:focus-visible, .swipe-dots button:focus-visible { outline: 3px solid #ffb400; outline-offset: 3px; }
@@ -152,7 +154,7 @@ details.q p { margin: .7rem 0 0; color: var(--muted); }
 
 /* footer */
 .site-footer { background: var(--blue); color: #fff; padding: 2.5rem 0; font-size: .95rem; }
-.site-footer a { color: #fff; }
+.site-footer a { color: #fff; display: inline-block; padding: .45rem 0; }
 /* bilingual stack: GALI over a fine rule over the Devanagari name (logo 4c) */
 .logo-stack { display: inline-flex; flex-direction: column; align-items: center; margin-bottom: .6rem; }
 .logo-en { font-size: 1.5rem; letter-spacing: .42em; margin-right: -.42em; text-transform: uppercase; }

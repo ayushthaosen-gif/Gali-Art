@@ -238,7 +238,19 @@
     var framed = poster.closest(".framed");
     return { poster: poster, city: framed.dataset.city || "", size: byId(C.sizes, FRAME_TO_SIZE[framed.dataset.size]) };
   });
+  // The gallery draws about a dozen maps, so it waits until the visitor is close to it. This keeps the first load light on phones.
+  var galleryNear = false, galleryPending = null;
+  function checkGalleryNear() {
+    if (galleryNear || $("#gallery").getBoundingClientRect().top > window.innerHeight + 300) return;
+    galleryNear = true;
+    window.removeEventListener("scroll", checkGalleryNear); window.removeEventListener("resize", checkGalleryNear);
+    if (galleryPending) renderGallery.apply(null, galleryPending);
+  }
+  window.addEventListener("scroll", checkGalleryNear, { passive: true });
+  window.addEventListener("resize", checkGalleryNear);
   function renderGallery(city, theme, era) {
+    if (!galleryNear) { galleryPending = [city, theme, era]; return; }
+    galleryPending = null;
     var current = byId(C.eras, C.defaults.era);
     galleryPosters.forEach(function (g) {
       // slides that name a city always show it (current map); the others follow the city and map-year pickers
@@ -295,7 +307,7 @@
     // the order preview hangs the same poster on the wall, in the chosen frame; the colour picker above shows it bare.
     // The small copy beside the frame field matters on phones, where the main preview has scrolled out of view.
     var hasFrame = frame.id !== "none", look = { frame: frame.id, mat: mat, size: FRAME_SIZE[size.id] || "A3" };
-    $("#order-poster").innerHTML = svg; $("#mini-poster").innerHTML = svg;
+    $("#order-poster").innerHTML = GaliPoster.svg(o); $("#mini-poster").innerHTML = GaliPoster.svg(o);  // one render each: SVG mask ids must stay unique on the page
     if (orderFrame) orderFrame.set(look);
     if (miniFrame) miniFrame.set(look);
     var cap = (city ? city.name : "Your city") + " · " + era.year;
@@ -328,6 +340,7 @@
     $("#price-detail").textContent = pair ? "2 posters (" + era.year + " and " + C.defaults.era + "), " + Math.round(C.pairDiscount * 100) + "% off. " + detailTxt : detailTxt;
   }
   render();
+  checkGalleryNear();
 
   // ---- shared layout (data/layout.json); falls back to built-in defaults if it can't be fetched ----
   var layoutReady = fetch("data/layout.json" + VQ).then(function (r) { if (!r.ok) throw 0; return r.json(); })
