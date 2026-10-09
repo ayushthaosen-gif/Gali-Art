@@ -1,0 +1,54 @@
+{
+ "delhi": {
+  "streetsKm": 18400,
+  "areaKm2": 1480
+ },
+ "mumbai": {
+  "streetsKm": 4000
+ },
+ "kolkata": {
+  "streetsKm": 3500,
+  "areaKm2": 200
+ },
+ "chennai": {
+  "streetsKm": 6600,
+  "areaKm2": 430
+ },
+ "bengaluru": {
+  "streetsKm": 13100,
+  "areaKm2": 720
+ },
+ "hyderabad": {
+  "streetsKm": 11100,
+  "areaKm2": 610
+ },
+ "ahmedabad": {
+  "streetsKm": 5800
+ },
+ "pune": {
+  "streetsKm": 4800
+ },
+ "lucknow": {
+  "streetsKm": 5700
+ },
+ "guwahati": {
+  "streetsKm": 700
+ },
+ "panaji": {
+  "streetsKm": 520
+ },
+ "london": {
+  "streetsKm": 15700,
+  "areaKm2": 1600
+ },
+ "dubai": {
+  "streetsKm": 6700
+ },
+ "washington-dc": {
+  "streetsKm": 2000,
+  "areaKm2": 180
+ },
+ "moscow": {
+  "streetsKm": 5600
+ }
+}
