@@ -1,0 +1,4 @@
+# Print files made by generator/tool.py and test builds
+/print-files/
+/print-tests/
+/out-kalpataru/

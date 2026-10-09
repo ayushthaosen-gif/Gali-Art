@@ -2,3 +2,4 @@ cache/
 .venv/
 .extent-venv/
 __pycache__/
+tool_jobs.json

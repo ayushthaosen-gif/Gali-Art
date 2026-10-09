@@ -99,3 +99,21 @@ Themes live in `THEMES` and sizes in `SIZES` at the top of the script; keep them
 ## Live marker and area box on the website
 
 The order form can place a marker and draw the 5 km / 2 km crop box from a typed address or a pasted map link. For that the site needs to know where each city map sits on the earth. Building a mask (`make_poster.py --formats mask`, or `batch_masks.py`) records it automatically in `cache/georef/<name>-<year>.json`. `python city_geo.py` (also run by `batch_masks.py --write-config`) turns those into `../data/geo.json`, a small fitted formula per city that the page loads. For maps built before this existed, `python batch_masks.py --georef` records them from the cached road data without downloading anything. A city with no entry in `geo.json` still works: the form says live placement isn't ready and the order is placed by hand from the customer's text.
+
+## Local poster tool
+
+A web page on your own computer that runs `make_poster.py` for you, so you can make a poster whenever you like without typing commands.
+
+```powershell
+cd generator
+.\start-tool.bat          # opens http://127.0.0.1:8800 ; or: .venv\Scripts\python.exe tool.py
+```
+
+- **Where:** pick one of the maps you already have (every city in `cities.json` plus earlier custom ones, read from `cache/`, no download), or search a place, paste a Google, Apple or OpenStreetMap link (short `maps.app.goo.gl` links work), or type `latitude, longitude`.
+- **How much map:** a square around the centre (half-width in km) or the whole outline of a city or district.
+- **Look:** the eight themes, A4/A3/18×24, bleed, resolution, title, line under it, year, date, detail line, edition, and an optional marker (heart, dot or ring) placed from a name, link or coordinates.
+- **Preview** makes a small 60 dpi PNG in seconds. **Build print file** makes the PNG and PDF (plus the transparent map if ticked).
+- Files go to `print-files/<title>/` (previews in `print-files/previews/`). Recent builds, with a "use these settings again" button, are listed on the page and kept in `generator/tool_jobs.json`.
+- One build runs at a time, so the OpenStreetMap server is not hammered. A new place is downloaded once, then cached in `generator/cache/`.
+- The server only listens on 127.0.0.1 and refuses other host names. Place search uses OpenStreetMap's Nominatim, one request a second.
+- Maps made here never touch the website: `print-files/` is git-ignored and the tool deletes the map-position files it creates.

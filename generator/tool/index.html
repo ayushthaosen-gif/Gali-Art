@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gali poster tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap">
+<style>
+  :root { --blue:#3f6ba8; --blue-deep:#2c4f82; --ink:#14213a; --muted:#4a5670; --paper:#f7f9fc; --line:#d9e1ee; --err:#b3261e; --ok:#1d6b43; font-family: Jost, system-ui, "Segoe UI", sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-size: 16px; line-height: 1.5; }
+  header { background: #fff; border-bottom: 1px solid var(--line); padding: 14px 20px; display: flex; align-items: baseline; gap: 14px; }
+  header b { letter-spacing: .42em; color: var(--blue); font-weight: 400; text-transform: uppercase; }
+  header span { color: var(--muted); font-size: .9rem; }
+  main { display: grid; gap: 24px; padding: 20px; max-width: 1200px; margin: auto; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 960px) { main { grid-template-columns: minmax(0, 520px) minmax(0, 1fr); align-items: start; } .side { position: sticky; top: 16px; } }
+  fieldset { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 14px 16px 16px; margin: 0 0 16px; }
+  legend { font-weight: 600; padding: 0 6px; }
+  label { display: block; font-weight: 500; font-size: .92rem; margin: 10px 0 4px; }
+  input[type=text], input[type=number], select { width: 100%; font: inherit; padding: 9px 11px; border: 1px solid #aab6cb; border-radius: 8px; background: #fff; color: var(--ink); }
+  input:focus-visible, select:focus-visible, button:focus-visible, .sw:focus-within { outline: 3px solid #ffb400; outline-offset: 2px; }
+  .row { display: flex; gap: 8px; align-items: stretch; } .row > :first-child { flex: 1; min-width: 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } .three { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .hint { color: var(--muted); font-size: .85rem; margin: 5px 0 0; }
+  button { font: inherit; font-weight: 600; border-radius: 999px; padding: 9px 18px; cursor: pointer; border: 2px solid var(--blue); background: #fff; color: var(--blue-deep); }
+  button.primary { background: var(--blue); color: #fff; }
+  button:disabled { opacity: .55; cursor: default; }
+  .results { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 6px; }
+  .results label { margin: 0; display: flex; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-weight: 400; cursor: pointer; }
+  .results input:checked + span { font-weight: 600; }
+  .themes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sw { position: relative; border: 2px solid var(--line); border-radius: 8px; padding: 0; margin: 0; overflow: hidden; cursor: pointer; font-size: .75rem; text-align: center; }
+  .sw input { position: absolute; opacity: 0; }
+  .sw i { display: block; height: 38px; font-style: normal; font-weight: 600; line-height: 38px; letter-spacing: .3em; }
+  .sw span { display: block; padding: 3px 2px; background: #fff; }
+  .sw:has(input:checked) { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue); }
+  .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin-top: 12px; } .check input { width: 18px; height: 18px; }
+  .status { margin-top: 10px; min-height: 1.4em; font-size: .92rem; } .err { color: var(--err); } .ok { color: var(--ok); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .card h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  #prev { display: block; max-width: 100%; max-height: 70vh; margin: auto; box-shadow: 0 14px 34px -16px rgba(20,33,58,.55); background: #fff; }
+  .empty { color: var(--muted); text-align: center; padding: 40px 10px; border: 1px dashed var(--line); border-radius: 8px; }
+  .job { border-top: 1px solid var(--line); padding: 10px 0; } .job:first-child { border-top: 0; }
+  .job h3 { margin: 0; font-size: .98rem; display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+  .tag { font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 1px 8px; border-radius: 999px; background: var(--line); }
+  .tag.running { background: #fff1c2; } .tag.done { background: #d6efe0; } .tag.failed { background: #f6d7d4; }
+  .job p { margin: 2px 0 0; font-size: .85rem; color: var(--muted); }
+  .job a, .job button.link { margin-right: 12px; font-size: .9rem; color: var(--blue-deep); }
+  button.link { border: 0; background: none; padding: 0; font-weight: 500; text-decoration: underline; border-radius: 0; }
+  pre { white-space: pre-wrap; font-size: .75rem; background: var(--paper); padding: 8px; border-radius: 6px; max-height: 140px; overflow: auto; }
+</style>
+</head>
+<body>
+<header><b>Gali</b><span>Poster tool. Runs on this computer only.</span></header>
+<main>
+<form id="f" novalidate>
+  <fieldset>
+    <legend>1. Where</legend>
+    <label for="lib">Maps you already have (ready now, no download)</label>
+    <select id="lib"><option value="">Choose one…</option></select>
+    <p class="hint">Or find something new:</p>
+    <label for="q">Search a place, paste a Google, Apple or OpenStreetMap link, or type latitude, longitude</label>
+    <div class="row"><input type="text" id="q" placeholder="Kalpataru Vista, Noida" autocomplete="off"><button type="button" id="find">Find</button></div>
+    <ul class="results" id="results"></ul>
+    <p class="status" id="q-status" role="status"></p>
+    <div class="two">
+      <div><label for="lat">Centre latitude</label><input type="number" step="any" id="lat"></div>
+      <div><label for="lon">Centre longitude</label><input type="number" step="any" id="lon"></div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>2. How much map</legend>
+    <label class="check"><input type="radio" name="mode" value="square" checked> A square around the centre</label>
+    <label class="check"><input type="radio" name="mode" value="boundary"> The whole outline of the place (cities and districts)</label>
+    <div id="half-wrap"><label for="halfKm">Half-width in km (5 shows a 10 km square)</label><input type="number" id="halfKm" value="5" min="0.3" max="40" step="0.1">
+    <p class="hint">Neighbourhood: 2 to 3. Whole city centre: 8 to 12. Street level: 0.7 to 1.</p></div>
+    <input type="hidden" id="place">
+    <p class="hint" id="place-note"></p>
+  </fieldset>
+
+  <fieldset>
+    <legend>3. Look and size</legend>
+    <div class="themes" id="themes" role="radiogroup" aria-label="Colour theme"></div>
+    <div class="three">
+      <div><label for="size">Size</label><select id="size"><option value="a4">A4</option><option value="a3" selected>A3</option><option value="18x24">18 × 24 in</option></select></div>
+      <div><label for="bleed">Bleed</label><select id="bleed"><option value="3" selected>3 mm (print shop)</option><option value="0">None</option></select></div>
+      <div><label for="dpi">Resolution</label><select id="dpi"><option value="300" selected>300 dpi</option><option value="200">200 dpi</option><option value="150">150 dpi</option></select></div>
+    </div>
+    <label class="check"><input type="checkbox" id="mask"> Also save the map alone (white streets, transparent)</label>
+  </fieldset>
+
+  <fieldset>
+    <legend>4. Words on the poster</legend>
+    <div class="two">
+      <div><label for="city">Title</label><input type="text" id="city" maxlength="40" placeholder="Kalpataru"></div>
+      <div><label for="region">Line under it</label><input type="text" id="region" maxlength="40" placeholder="Noida"></div>
+    </div>
+    <div class="two">
+      <div><label for="year">Year</label><input type="number" id="year" value="2025"></div>
+      <div><label for="date">Date (optional)</label><input type="text" id="date" placeholder="14 FEB 2026"></div>
+    </div>
+    <label for="detail">Detail line (optional, <span id="count">0</span>/40)</label><input type="text" id="detail" maxlength="40" placeholder="5,700 km of streets mapped">
+    <label for="edition">Edition (optional)</label><input type="text" id="edition" placeholder="14/100">
+  </fieldset>
+
+  <fieldset>
+    <legend>5. Mark a place (optional)</legend>
+    <div class="row"><input type="text" id="mark" placeholder="Place, link or latitude, longitude" aria-label="Place to mark"><button type="button" id="find-mark">Find</button></div>
+    <div class="two"><div><label for="markStyle">Shape</label><select id="markStyle"><option value="heart">Heart</option><option value="dot">Dot</option><option value="ring">Ring</option></select></div>
+    <div><label>Marker position</label><p class="hint" id="mark-pos" style="margin-top:9px">None</p></div></div>
+    <p class="status" id="mark-status" role="status"></p>
+  </fieldset>
+
+  <div class="actions"><button type="button" id="preview-btn">Preview (quick)</button><button type="submit" class="primary" id="build-btn">Build print file</button></div>
+  <p class="status" id="status" role="status"></p>
+</form>
+
+<div class="side">
+  <div class="card"><h2>Preview</h2><img id="prev" alt="" hidden><div class="empty" id="prev-empty">Press Preview to see the poster. It takes a few seconds once the place has been used before.</div></div>
+  <div class="card"><h2>Recent builds</h2><div id="jobs"><p class="hint">Nothing yet.</p></div></div>
+</div>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var state = { themes: {}, theme: "blue", mark: null, marking: false, lastPreview: "" };
+  var NAMES = { blue: "Gali Blue", "dark-gold": "Dark & Gold", cream: "Cream & Ink", forest: "Forest", blush: "Blush", midnight: "Midnight", terracotta: "Terracotta", mono: "Mono Grey" };
+  function api(path, body) {
+    return fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {}).then(function (r) { return r.json().then(function (j) { j.__ok = r.ok; return j; }); });
+  }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function say(sel, text, cls) { var e = $(sel); e.textContent = text || ""; e.className = "status" + (cls ? " " + cls : ""); }
+
+  // themes
+  function drawThemes() {
+    $("#themes").innerHTML = Object.keys(state.themes).map(function (id) {
+      var t = state.themes[id];
+      return '<label class="sw"><input type="radio" name="theme" value="' + id + '"' + (id === state.theme ? " checked" : "") + '><i style="background:' + t.bg + ";color:" + t.line + '">GALI</i><span>' + esc(NAMES[id] || id) + "</span></label>";
+    }).join("");
+    [].forEach.call(document.querySelectorAll("[name=theme]"), function (r) { r.addEventListener("change", function () { state.theme = r.value; }); });
+  }
+
+  // maps already downloaded (read from the generator's cache folder)
+  var library = [];
+  function setMode(mode, canBoundary) {
+    document.querySelector("[name=mode][value=boundary]").disabled = !canBoundary;
+    document.querySelector("[name=mode][value=" + mode + "]").checked = true;
+    syncMode();
+  }
+  $("#lib").addEventListener("change", function () {
+    var m = library[+$("#lib").value]; if ($("#lib").value === "" || !m) return;
+    state.cacheName = m.cacheName; $("#lat").value = m.lat; $("#lon").value = m.lon; $("#city").value = m.city; $("#region").value = m.region;
+    $("#place").value = m.place; $("#halfKm").value = m.halfKm; $("#q").value = ""; $("#results").innerHTML = ""; say("#q-status", "");
+    setMode(m.mode, !!m.place || m.mode === "boundary");
+    $("#place-note").textContent = m.mode === "boundary" ? "Whole outline of " + m.place + "." : "Square around the centre, " + (m.halfKm * 2) + " km across. Change the half-width to cut a tighter or wider crop (a new size is downloaded once).";
+  });
+  api("/api/library").then(function (j) {
+    library = j.maps || [];
+    $("#lib").innerHTML = '<option value="">Choose one…</option>' + library.map(function (m, i) { return '<option value="' + i + '">' + esc(m.label) + "</option>"; }).join("");
+  });
+
+  // place search
+  var found = [];
+  function pick(i) {
+    var r = found[i]; state.cacheName = ""; $("#lib").value = "";
+    $("#lat").value = r.lat.toFixed(6); $("#lon").value = r.lon.toFixed(6);
+    if (r.city) { $("#city").value = r.city; $("#region").value = r.region; }
+    $("#place").value = r.city ? r.name : "";
+    var canBoundary = !!r.city;
+    document.querySelector("[name=mode][value=boundary]").disabled = !canBoundary;
+    document.querySelector("[name=mode][value=square]").checked = true;
+    $("#place-note").textContent = canBoundary ? "Whole outline uses: " + r.name : "Links and coordinates give a point, so only the square works.";
+    syncMode();
+    if (!$("#city").value.trim()) $("#city").focus();
+  }
+  $("#find").addEventListener("click", function () {
+    var q = $("#q").value.trim(); if (!q) { say("#q-status", "Type a place or paste a link first.", "err"); return; }
+    $("#find").disabled = true; say("#q-status", "Looking…");
+    api("/api/resolve", { q: q }).then(function (j) {
+      found = j.results || [];
+      $("#results").innerHTML = found.map(function (r, i) { return '<li><label><input type="radio" name="res" value="' + i + '"><span>' + esc(r.name) + "</span></label></li>"; }).join("");
+      [].forEach.call(document.querySelectorAll("[name=res]"), function (x) { x.addEventListener("change", function () { pick(+x.value); }); });
+      if (!found.length) say("#q-status", j.error || "Nothing found. Try the place name with the city, or paste a Google Maps link.", "err");
+      else { say("#q-status", found.length === 1 ? "Found it." : "Pick the right one:", "ok"); if (found.length === 1) { document.querySelector("[name=res]").checked = true; pick(0); } }
+    }).catch(function () { say("#q-status", "The tool is not running. Start it again with python tool.py.", "err"); }).then(function () { $("#find").disabled = false; });
+  });
+  $("#q").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); $("#find").click(); } });
+
+  // marker
+  function findMark() {
+    var q = $("#mark").value.trim();
+    if (!q) { state.mark = null; $("#mark-pos").textContent = "None"; say("#mark-status", ""); return; }
+    $("#find-mark").disabled = true; say("#mark-status", "Looking…");
+    api("/api/resolve", { q: q }).then(function (j) {
+      var r = (j.results || [])[0];
+      if (!r) { state.mark = null; $("#mark-pos").textContent = "None"; say("#mark-status", j.error || "Nothing found for the marker.", "err"); return; }
+      state.mark = r; $("#mark-pos").textContent = r.lat.toFixed(5) + ", " + r.lon.toFixed(5);
+      say("#mark-status", r.name.length > 70 ? r.name.slice(0, 70) + "…" : r.name, "ok");
+    }).catch(function () { say("#mark-status", "The tool is not running.", "err"); }).then(function () { $("#find-mark").disabled = false; });
+  }
+  $("#find-mark").addEventListener("click", findMark);
+  $("#mark").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); findMark(); } });
+  $("#mark").addEventListener("input", function () { state.mark = null; $("#mark-pos").textContent = "None"; });
+
+  function syncMode() {
+    var square = document.querySelector("[name=mode]:checked").value === "square";
+    $("#half-wrap").hidden = !square;
+  }
+  [].forEach.call(document.querySelectorAll("[name=mode]"), function (r) { r.addEventListener("change", syncMode); });
+  $("#detail").addEventListener("input", function () { $("#count").textContent = $("#detail").value.length; });
+
+  function params(preview) {
+    var p = { city: $("#city").value, region: $("#region").value, lat: $("#lat").value, lon: $("#lon").value, mode: document.querySelector("[name=mode]:checked").value,
+      place: $("#place").value, halfKm: $("#halfKm").value, theme: state.theme, size: $("#size").value, bleed: $("#bleed").value, dpi: $("#dpi").value,
+      cacheName: state.cacheName || "", mask: $("#mask").checked, year: $("#year").value, date: $("#date").value, detail: $("#detail").value, edition: $("#edition").value, markStyle: $("#markStyle").value };
+    if (state.mark) { p.mark = "yes"; p.markLat = state.mark.lat; p.markLon = state.mark.lon; }
+    else if ($("#mark").value.trim()) p.markPending = true;
+    return p;
+  }
+  function submit(preview) {
+    var p = params(preview);
+    if (p.markPending) { say("#status", "Press Find next to the marker box first, or clear it.", "err"); return; }
+    if (!p.lat || !p.lon) { say("#status", "Pick a place in step 1 first.", "err"); return; }
+    $("#preview-btn").disabled = $("#build-btn").disabled = true; say("#status", "Sending…");
+    api("/api/build", { params: p, preview: preview }).then(function (j) {
+      if (!j.__ok) { say("#status", j.error || "Could not start.", "err"); return; }
+      say("#status", preview ? "Preview is being made…" : "Building. Big cities can take a few minutes.", "ok"); poll();
+    }).catch(function () { say("#status", "The tool is not running.", "err"); }).then(function () { $("#preview-btn").disabled = $("#build-btn").disabled = false; });
+  }
+  $("#preview-btn").addEventListener("click", function () { submit(true); });
+  $("#f").addEventListener("submit", function (e) { e.preventDefault(); submit(false); });
+
+  // jobs list
+  var timer = null;
+  function fmt(t) { return new Date(t * 1000).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); }
+  function render(jobs) {
+    var latestPrev = jobs.filter(function (j) { return j.preview && j.status === "done" && j.files.length; })[0];
+    if (latestPrev && state.lastPreview !== latestPrev.id) {
+      state.lastPreview = latestPrev.id; var img = $("#prev"); img.src = "/files/" + latestPrev.files[0] + "?t=" + Date.now(); img.alt = "Preview of " + latestPrev.params.city; img.hidden = false; $("#prev-empty").hidden = true;
+    }
+    $("#jobs").innerHTML = jobs.length ? jobs.map(function (j) {
+      var p = j.params, title = esc(p.city) + " · " + p.size.toUpperCase() + " · " + esc(p.theme) + (j.preview ? " · preview" : "");
+      var files = j.files.map(function (f) { return '<a href="/files/' + encodeURI(f) + '" download target="_blank">' + esc(f.split("/").pop()) + "</a>"; }).join("");
+      return '<div class="job"><h3>' + title + ' <span class="tag ' + j.status + '">' + j.status + "</span></h3><p>" + fmt(j.created) + "</p>" +
+        (j.status === "failed" ? '<p class="err">' + esc(j.error) + '</p><details><summary>Log</summary><pre>' + esc(j.log) + "</pre></details>" : "") +
+        (j.status === "running" ? "<details open><summary>Progress</summary><pre>" + esc(j.log) + "</pre></details>" : "") +
+        (files ? "<p>" + files + "</p>" : "") +
+        '<p><button type="button" class="link" data-redo="' + j.id + '">Use these settings again</button></p></div>';
+    }).join("") : '<p class="hint">Nothing yet.</p>';
+    [].forEach.call(document.querySelectorAll("[data-redo]"), function (b) { b.addEventListener("click", function () { load(jobs.filter(function (j) { return j.id === b.dataset.redo; })[0].params); }); });
+  }
+  function load(p) {
+    $("#city").value = p.city; $("#region").value = p.region; $("#lat").value = p.lat; $("#lon").value = p.lon; $("#halfKm").value = p.halfKm; $("#place").value = p.place || "";
+    document.querySelector("[name=mode][value=" + p.mode + "]").checked = true; syncMode();
+    state.cacheName = p.cacheName || ""; $("#lib").value = "";
+    state.theme = p.theme; drawThemes(); $("#size").value = p.size; $("#bleed").value = p.bleed; $("#dpi").value = p.dpi; $("#mask").checked = !!p.mask;
+    $("#year").value = p.year; $("#date").value = p.date || ""; $("#detail").value = p.detail || ""; $("#edition").value = p.edition || ""; $("#count").textContent = $("#detail").value.length;
+    $("#markStyle").value = p.markStyle || "heart";
+    if (p.mark) { state.mark = { lat: +p.markLat, lon: +p.markLon, name: "" }; $("#mark-pos").textContent = (+p.markLat).toFixed(5) + ", " + (+p.markLon).toFixed(5); } else { state.mark = null; $("#mark-pos").textContent = "None"; }
+    $("#mark").value = ""; window.scrollTo({ top: 0 });
+  }
+  function poll() {
+    clearTimeout(timer);
+    api("/api/state").then(function (s) {
+      render(s.jobs);
+      var busy = s.jobs.some(function (j) { return j.status === "running" || j.status === "queued"; });
+      if (busy) timer = setTimeout(poll, 1500); else if (/Building|Preview is being/.test($("#status").textContent)) say("#status", s.jobs[0] && s.jobs[0].status === "done" ? "Done. Files are listed under Recent builds." : "That one failed. See the message under Recent builds.", s.jobs[0] && s.jobs[0].status === "done" ? "ok" : "err");
+    }).catch(function () { say("#status", "The tool is not running. Start it again with python tool.py.", "err"); });
+  }
+  api("/api/state").then(function (s) { state.themes = s.themes; drawThemes(); render(s.jobs); if (s.jobs.some(function (j) { return j.status === "running" || j.status === "queued"; })) poll(); });
+  syncMode();
+})();
+</script>
+</body>
+</html>
