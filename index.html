@@ -26,12 +26,9 @@
     <a class="brand" href="#top" data-brand>&nbsp;</a>
     <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
     <nav class="nav" id="nav" aria-label="Main">
-      <a href="#how">How it works</a>
       <a href="#gallery">Gallery</a>
-      <a href="#design">Design</a>
-      <a href="#prices">Prices</a>
-      <a href="#order">Order</a>
-      <a href="#faq">FAQ</a>
+      <a href="#make">Make yours</a>
+      <a href="#faq">Questions</a>
     </nav>
   </div>
 </header>
@@ -44,22 +41,11 @@
         <h1 data-tagline>&nbsp;</h1>
         <p class="lede">We take every street in a city from OpenStreetMap and draw it as thin white lines on blue. No names, no labels. Just the shape of the place.</p>
         <div class="actions">
-          <a class="btn" href="#order">Order your poster</a>
-          <a class="btn ghost" href="#design">Try colours</a>
+          <a class="btn" href="#make">Make yours</a>
+          <span class="from">From <strong data-from-price></strong>, frame optional</span>
         </div>
       </div>
       <div class="hero-poster" id="hero-poster" aria-live="off"></div>
-    </div>
-  </section>
-
-  <section id="how">
-    <div class="wrap">
-      <div class="section-head"><p class="eyebrow">How it works</p><h2>Three steps</h2></div>
-      <ol class="steps">
-        <li><h3>Pick a city</h3><p>Choose one from the list, or tell us which city you want.</p></li>
-        <li><h3>Pick colours</h3><p>Tap a theme and the preview changes straight away. Blue and white is the original.</p></li>
-        <li><h3>We print it</h3><p>We draw the map from OpenStreetMap data, print it and send it to you.</p></li>
-      </ol>
     </div>
   </section>
 
@@ -75,7 +61,7 @@
         <button type="button" data-slide="5">At home</button>
       </div>
       <ul class="swipe slides" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Gallery, swipe sideways">
-        <li class="slide"><figure><div class="scene" data-scene-mm="1500"><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="mumbai" data-at="-427,-60" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="kolkata" data-at="0,-60" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="delhi" data-at="427,-60" aria-hidden="true"><div class="poster"></div></div><span class="image-kind">Preview from our map data</span></div><figcaption><h3>Three cities, one wall</h3><p>Mumbai, Kolkata and Delhi in black wood frames. The colours follow your pick above.</p></figcaption></figure></li>
+        <li class="slide"><figure><div class="scene" data-scene-mm="1500"><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="mumbai" data-at="-427,-60" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="kolkata" data-at="0,-60" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-city="delhi" data-at="427,-60" aria-hidden="true"><div class="poster"></div></div><span class="image-kind">Preview from our map data</span></div><figcaption><h3>Three cities, one wall</h3><p>Mumbai, Kolkata and Delhi in black wood frames. The colours follow the theme you pick below.</p></figcaption></figure></li>
         <li class="slide"><figure><div class="scene" data-scene-mm="1100"><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="delhi" data-at="-300,-223" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="mumbai" data-at="0,-223" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="kolkata" data-at="300,-223" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="panaji" data-at="-300,164" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="dubai" data-at="0,164" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="black" data-mat="false" data-size="A4" data-city="washington-dc" data-at="300,164" aria-hidden="true"><div class="poster"></div></div><span class="image-kind">Preview from our map data</span></div><figcaption><h3>A wall of cities</h3><p>Six of our maps in A4 frames.</p></figcaption></figure></li>
         <li class="slide"><figure><div class="scene" data-scene-mm="1700"><div class="framed" data-frame="black" data-mat="false" data-size="A3" data-at="-489,-50" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="oak" data-mat="true" data-size="A3" data-at="0,-50" aria-hidden="true"><div class="poster"></div></div><div class="framed" data-frame="white" data-mat="false" data-size="A3" data-at="489,-50" aria-hidden="true"><div class="poster"></div></div><span class="image-kind">Preview from our map data</span></div><figcaption><h3>Three finishes</h3><p>Black wood, natural oak with a mat and white wood, at the same scale, with the city you picked. <span class="note wall-note hidden" id="white-note"></span></p></figcaption></figure></li>
         <li class="slide"><figure>
@@ -102,41 +88,14 @@
     </div>
   </section>
 
-  <section id="design">
-    <div class="wrap two">
-      <div class="sticky"><div class="preview" id="picker-preview"></div><p class="caption" id="picker-caption" aria-live="polite"></p></div>
-      <div>
-        <p class="eyebrow">Style picker</p>
-        <h2>Choose your colours</h2>
-        <p class="lede">Tap a colour and the poster changes.</p>
-        <div class="field">
-          <label for="pick-city">City</label>
-          <select id="pick-city"></select>
-        </div>
-        <fieldset class="eras" id="era-picker"><legend>Map year</legend></fieldset>
-        <p class="note" id="era-note"></p>
-        <fieldset class="themes" id="theme-picker"><legend>Colour theme</legend></fieldset>
-        <a class="btn" href="#order">Order this style</a>
-      </div>
-    </div>
-  </section>
-
-  <section id="prices">
+  <section id="make" class="alt">
     <div class="wrap">
-      <div class="section-head"><p class="eyebrow">Prices</p><h2>One price per size</h2></div>
-      <ul class="stickers" id="price-stickers"></ul>
-      <p class="note" id="price-note"></p>
+      <div class="section-head"><p class="eyebrow">Make yours</p><h2>Choose, see it, order</h2><p class="lede">The poster changes as you choose. We email you to confirm before you pay.</p></div>
     </div>
-  </section>
-
-  <section id="order" class="alt">
     <div class="wrap two">
       <div class="sticky">
-        <p class="eyebrow">Order</p>
-        <h2>Request your poster</h2>
-        <p class="lede">Fill this in and we'll email you to confirm everything before you pay.</p>
         <div class="frame-wall" id="order-preview"><div class="framed" id="order-framed" data-frame="none" data-size="A3" data-mat="false"><div class="poster" id="order-poster"></div></div></div>
-        <p class="caption" id="order-caption"></p>
+        <p class="caption" id="order-caption" aria-live="polite"></p>
       </div>
       <form id="order-form" novalidate>
         <div class="field">
@@ -148,8 +107,9 @@
           <input type="text" id="f-other" name="otherCity" autocomplete="off">
           <p class="err" id="e-other" aria-live="polite"></p>
         </div>
+        <fieldset class="themes" id="theme-picker"><legend>Colour theme</legend></fieldset>
         <div class="field">
-          <label for="f-size">Poster size</label>
+          <label for="f-size">Size</label>
           <select id="f-size" name="size" required></select>
         </div>
         <div class="field">
@@ -158,58 +118,64 @@
           <label class="check hidden" id="f-mat-wrap"><input type="checkbox" id="f-mat"><span id="f-mat-label"></span></label>
           <p class="note" id="frame-spec" style="margin:.4rem 0 0"></p>
           <p class="note warn hidden" id="frame-hint" aria-live="polite" style="margin:.3rem 0 0"></p>
-          <div class="mini-frame" aria-hidden="true"><div class="framed" id="mini-framed" data-frame="none" data-size="A3" data-mat="false"><div class="poster" id="mini-poster"></div></div></div>
         </div>
-        <div class="field">
+        <div class="field hidden" id="era-wrap">
           <label for="f-era">Map year</label>
           <select id="f-era" name="era" required></select>
+          <p class="note" id="era-note" style="margin:.4rem 0 0"></p>
         </div>
-        <div class="field">
-          <label for="f-theme">Colour theme</label>
-          <select id="f-theme" name="theme" required></select>
-        </div>
-        <p class="label personalise">Personalise (all optional)</p>
-        <div class="field">
-          <label for="f-area">Area of the map</label>
-          <select id="f-area" name="area"></select>
-        </div>
-        <div class="field hidden" id="centre-wrap">
-          <label for="f-centre">Centre the map on</label>
-          <div class="input-row">
-            <input type="text" id="f-centre" name="centreOn" autocomplete="off" aria-describedby="e-centre found-centre" placeholder="e.g. Hauz Khas Village, or paste a map link">
-            <button type="button" class="find-btn" data-find="centre">Find on map</button>
+
+        <details class="more" id="more">
+          <summary>Make it personal <span>(optional)</span></summary>
+          <div class="more-body">
+            <div class="field">
+              <label for="f-area">Area of the map</label>
+              <select id="f-area" name="area"></select>
+            </div>
+            <div class="field hidden" id="centre-wrap">
+              <label for="f-centre">Centre the map on</label>
+              <div class="input-row">
+                <input type="text" id="f-centre" name="centreOn" autocomplete="off" aria-describedby="e-centre found-centre" placeholder="e.g. Hauz Khas Village, or paste a map link">
+                <button type="button" class="find-btn" data-find="centre">Find on map</button>
+              </div>
+              <p class="found" id="found-centre" aria-live="polite"></p>
+              <p class="err" id="e-centre" aria-live="polite"></p>
+            </div>
+            <div class="field">
+              <label for="f-mark">Mark a special place</label>
+              <select id="f-mark" name="mark"></select>
+            </div>
+            <div class="field hidden" id="markat-wrap">
+              <label for="f-markat">Where should it go?</label>
+              <div class="input-row">
+                <input type="text" id="f-markat" name="markAt" autocomplete="off" aria-describedby="e-markat h-markat found-mark" placeholder="e.g. our first-date café, or paste a map link">
+                <button type="button" class="find-btn" data-find="mark">Find on map</button>
+              </div>
+              <p class="found" id="found-mark" aria-live="polite"></p>
+              <p class="note" id="h-markat" style="margin:.3rem 0 0"></p>
+              <p class="err" id="e-markat" aria-live="polite"></p>
+            </div>
+            <div class="field hidden" id="set-wrap">
+              <label class="check"><input type="checkbox" id="f-set" name="pair"><span id="f-set-label"></span></label>
+            </div>
+            <div class="field">
+              <label for="f-date">Date to print</label>
+              <input type="date" id="f-date" name="date" aria-describedby="h-date">
+              <p class="note" id="h-date" style="margin:.3rem 0 0">For a wedding, a move or a birth. It prints under the year, like 14 FEB 2026.</p>
+            </div>
+            <div class="field">
+              <label for="f-detail">Extra line at the bottom</label>
+              <select id="f-detail" name="detail" aria-describedby="h-detail"></select>
+              <input type="text" id="f-detail-text" class="hidden" maxlength="40" autocomplete="off" placeholder="e.g. Where we met" aria-label="Your own detail line">
+              <p class="note" id="h-detail" style="margin:.3rem 0 0">A fact about the map, or your own words, up to 40 characters.</p>
+            </div>
+            <div class="field">
+              <label for="f-notes">Anything else we should know</label>
+              <textarea id="f-notes" name="notes" maxlength="1000"></textarea>
+            </div>
           </div>
-          <p class="found" id="found-centre" aria-live="polite"></p>
-          <p class="err" id="e-centre" aria-live="polite"></p>
-        </div>
-        <div class="field">
-          <label for="f-mark">Mark a special place</label>
-          <select id="f-mark" name="mark"></select>
-        </div>
-        <div class="field hidden" id="markat-wrap">
-          <label for="f-markat">Where should it go?</label>
-          <div class="input-row">
-            <input type="text" id="f-markat" name="markAt" autocomplete="off" aria-describedby="e-markat h-markat found-mark" placeholder="e.g. our first-date café, or paste a map link">
-            <button type="button" class="find-btn" data-find="mark">Find on map</button>
-          </div>
-          <p class="found" id="found-mark" aria-live="polite"></p>
-          <p class="note" id="h-markat" style="margin:.3rem 0 0"></p>
-          <p class="err" id="e-markat" aria-live="polite"></p>
-        </div>
-        <div class="field hidden" id="set-wrap">
-          <label class="check"><input type="checkbox" id="f-set" name="pair"><span id="f-set-label"></span></label>
-        </div>
-        <div class="field">
-          <label for="f-date">Date to print (optional)</label>
-          <input type="date" id="f-date" name="date" aria-describedby="h-date">
-          <p class="note" id="h-date" style="margin:.3rem 0 0">Handy for a wedding, a move or a birth. It prints under the year, like 14 FEB 2026. Leave it empty if you don't want one.</p>
-        </div>
-        <div class="field">
-          <label for="f-detail">Extra detail line (optional)</label>
-          <select id="f-detail" name="detail" aria-describedby="h-detail"></select>
-          <input type="text" id="f-detail-text" class="hidden" maxlength="40" autocomplete="off" placeholder="e.g. Where we met" aria-label="Your own detail line">
-          <p class="note" id="h-detail" style="margin:.3rem 0 0">One small line at the bottom. Use a fact about the map or write your own, up to 40 characters.</p>
-        </div>
+        </details>
+
         <div class="field">
           <label for="f-name">Your name</label>
           <input type="text" id="f-name" name="name" autocomplete="name" required aria-describedby="e-name">
@@ -219,10 +185,6 @@
           <label for="f-email">Email</label>
           <input type="email" id="f-email" name="email" autocomplete="email" inputmode="email" required aria-describedby="e-email">
           <p class="err" id="e-email" aria-live="polite"></p>
-        </div>
-        <div class="field">
-          <label for="f-notes">Notes (optional)</label>
-          <textarea id="f-notes" name="notes" maxlength="1000"></textarea>
         </div>
         <div class="hp" aria-hidden="true"><label>Company <input type="text" name="company" tabindex="-1" autocomplete="off"></label></div>
         <div class="price"><span>Total</span><strong id="price" aria-live="polite">-</strong></div>
@@ -256,7 +218,7 @@
   </div>
 </footer>
 
-<noscript><p class="wrap note">This site needs JavaScript for the style picker and order form.</p></noscript>
+<noscript><p class="wrap note">This site needs JavaScript to preview and order a poster.</p></noscript>
 <script src="config.js"></script>
 <script src="js/poster.js"></script>
 <script src="frame-preview/frame.js"></script>

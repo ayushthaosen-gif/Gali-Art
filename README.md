@@ -7,12 +7,12 @@ Plain HTML, CSS and vanilla JS. No framework, no build step, relative paths only
 ## Structure
 
 ```
-index.html            landing page (hero, how it works, gallery, style picker, order form, FAQ)
+index.html            landing page (hero, gallery, one "Make yours" configurator + order form, FAQ)
 404.html, privacy.html
 config.js             ALL configuration: brand, email, form endpoint, payment link, prices, themes
 css/style.css
 js/poster.js          placeholder SVG street-pattern renderer
-js/app.js             picker, gallery, order form
+js/app.js             configurator, gallery, order form
 data/posters.json     gallery items (swap in real images here)
 data/layout.json      poster layout (fractions of width), shared by the website and the generator
 assets/               images, favicon

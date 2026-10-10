@@ -16,7 +16,7 @@ index.html, 404.html, privacy.html   pages (single-page site; 404 is self-contai
 config.js        ALL config: brand, email, form endpoint, payment link, prices, sizes, cities (+maps), themes, eras
 css/style.css    styles (Jost site font)
 js/poster.js     poster preview renderer (SVG). Real map via alpha mask image, else seeded placeholder pattern
-js/app.js        picker, gallery, order form, map-year selector
+js/app.js        configurator, gallery, order form, map-year selector
 data/posters.json  gallery items (swap in real images here)
 data/layout.json   poster layout in fractions of poster width. SHARED by js/poster.js and generator/make_poster.py
 assets/          images; delhi-lines.webp = real Delhi 2025 line mask (white lines on transparent)
@@ -29,7 +29,7 @@ Layout 1a: map 80% of width, centred, top edge at 12% W. Footer anchored 10% W a
 
 ## Website state (deployed on GitHub Pages)
 - Live at `https://ayushthaosen-gif.github.io/Gali-Art/` (repo `ayushthaosen-gif/Gali-Art`). Pages source = GitHub Actions; the `github-pages` environment allows `main`.
-- Style picker (8 themes, live recolour), map-year chips (1920, 1945, 1970, 1995, 2025), gallery, order form (city, size, year, theme, optional print date, name, email, notes; live price; demo mode when no endpoint).
+- One "Make yours" configurator (city, 8 theme swatches, size, frame, map year only where a city has more than one, a closed "Make it personal" panel, name, email; live price and preview; demo mode when no endpoint), a four-slide gallery, FAQ.
 - Cities: Delhi (real 2025 map). Mumbai, Kolkata and Guwahati are `soon: true` (preview only, placeholder pattern) until a mask is generated and registered under `maps`.
 - Delhi 2025 uses the real map mask. Any other city/year shows a generated PLACEHOLDER pattern. Real masks register per city and year in `config.js` under `cities[].maps`, e.g. `maps: { "2025": "assets/delhi-lines.webp" }`.
 - Jost/DM Mono come from Google Fonts (mentioned in privacy.html). Self-hosting is an option later.

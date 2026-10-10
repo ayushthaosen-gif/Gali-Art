@@ -40,7 +40,7 @@
   // It only knows sizes by its own keys; prices, finishes and the mat toggle all stay in our config and form.
   var FRAME_SIZE = { a4: "A4", a3: "A3", "18x24": "18x24" };
   function mountFrame(id) { try { return window.FramePreview ? FramePreview.mount($(id)) : null; } catch (e) { return null; } }
-  var orderFrame = mountFrame("#order-framed"), miniFrame = mountFrame("#mini-framed");
+  var orderFrame = mountFrame("#order-framed");
   function cityOf(id) { return C.cities.filter(function (c) { return c.id === id; })[0]; }
   // a city we have no map for ("Other") can only show the current year
   function hasMap(city, eraId) { return city ? !!(city.maps && city.maps[eraId]) : eraId === C.defaults.era; }
@@ -80,22 +80,8 @@
     o.label = "Sample poster: street network in white lines on blue, captioned Delhi";
     $("#hero-poster").innerHTML = GaliPoster.svg(o);
   }
-  // Price stickers: one round sticker per poster size, built from config so prices are edited in one place.
-  function renderPrices() {
-    var ul = $("#price-stickers"); if (!ul) return;
-    ul.innerHTML = C.sizes.map(function (z) {
-      var name = z.label.split(" (")[0], dims = (z.label.match(/\(([^)]*)\)/) || [])[1] || "";
-      return '<li class="sticker' + (z.id === C.defaults.size ? " pop" : "") + '"><span class="s-size">' + esc(name) + '</span><span class="s-price">' + money(z.price) + '</span>' +
-        (dims ? '<span class="s-dims">' + esc(dims) + '</span>' : "") + (z.id === C.defaults.size ? '<span class="s-tag">Most popular</span>' : "") + '</li>';
-    }).join("");
-    var bits = ["Print only, any city, any colour theme."];
-    var fr = (C.frames || []).filter(function (f) { return f.id !== "none"; }), lows = [];
-    fr.forEach(function (f) { C.sizes.forEach(function (z) { if (f.price && f.price[z.id]) lows.push(f.price[z.id]); }); });
-    if (lows.length) bits.push("Frames from " + money(Math.min.apply(null, lows)) + ".");
-    if (C.pairDiscount) bits.push("Then & now pair: " + Math.round(C.pairDiscount * 100) + "% off the two posters.");
-    $("#price-note").textContent = bits.join(" ");
-  }
-  renderPrices();
+  // "From" price in the hero comes from config, so prices are edited in one place.
+  document.querySelectorAll("[data-from-price]").forEach(function (e) { e.textContent = money(Math.min.apply(null, C.sizes.map(function (z) { return z.price; }))); });
   renderHero();
 
   // ---- selects & theme radios ----
@@ -103,23 +89,16 @@
     sel.innerHTML = items.map(function (i) { return '<option value="' + esc(i.id) + '">' + esc(fmt(i)) + "</option>"; }).join("");
   }
   var fDetail = $("#f-detail"), fDetailText = $("#f-detail-text");
-  var pickCity = $("#pick-city"), fCity = $("#f-city"), fSize = $("#f-size"), fTheme = $("#f-theme"), fEra = $("#f-era"), fFrame = $("#f-frame"), fMat = $("#f-mat");
+  var fCity = $("#f-city"), fSize = $("#f-size"), fEra = $("#f-era"), fFrame = $("#f-frame"), fMat = $("#f-mat");
   var cityLabel = function (c) { return c.name + (c.soon ? " (preview only)" : ""); };
-  fill(pickCity, C.cities, cityLabel);
   fill(fCity, C.cities, cityLabel);
   fCity.insertAdjacentHTML("beforeend", '<option value="other">Other city (tell us below)</option>');
   fill(fSize, C.sizes, function (s) { return s.label + ", " + money(s.price); });
-  fill(fTheme, C.themes, function (t) { return t.name; });
   fFrame.addEventListener("change", function () { set({ frame: fFrame.value, mat: !!byId(C.frames, fFrame.value).matDefault }); });
   fMat.addEventListener("change", function () { set({ mat: fMat.checked }); });
   fDetail.addEventListener("change", function () { set({ detail: fDetail.value }); });
   fDetailText.addEventListener("input", function () { render(); });
   fill(fEra, ERAS, function (e) { return e.year + (e.year === 2025 ? " (current)" : ""); });
-  var eraPicker = $("#era-picker");
-  eraPicker.insertAdjacentHTML("beforeend", ERAS.map(function (e) {
-    return '<label class="era"><input type="radio" name="era" value="' + esc(e.id) + '"><span>' + e.year + "</span></label>";
-  }).join(""));
-  eraPicker.addEventListener("change", function (e) { if (e.target.name === "era") set({ era: e.target.value }); });
   fEra.addEventListener("change", function () { set({ era: fEra.value }); });
   $("#f-date").addEventListener("input", function () { render(); });
   fill($("#f-area"), C.areas, function (x) { return x.label; });
@@ -131,13 +110,11 @@
     return '<label class="theme"><input type="radio" name="theme" value="' + esc(t.id) + '"><span><i style="background:' + t.bg + ';--l:' + t.line + '"></i>' + esc(t.name) + "</span></label>";
   }).join(""));
   picker.addEventListener("change", function (e) { if (e.target.name === "theme") set({ theme: e.target.value }); });
-  pickCity.addEventListener("change", function () { set({ city: pickCity.value }); });
   fCity.addEventListener("change", function () {
     $("#other-city-wrap").classList.toggle("hidden", fCity.value !== "other");
     set({ city: fCity.value });
   });
   fSize.addEventListener("change", function () { set({ size: fSize.value }); });
-  fTheme.addEventListener("change", function () { set({ theme: fTheme.value }); });
 
   function set(patch) { for (var k in patch) state[k] = patch[k]; render(); }
 
@@ -301,25 +278,22 @@
     if (!canPair) $("#f-set").checked = false;
     var pair = $("#f-set").checked;
     $("#f-set-label").textContent = "Make it a then & now pair: add the matching " + C.defaults.era + " poster (save " + Math.round(C.pairDiscount * 100) + "%)";
-    var svg = GaliPoster.svg(o);
-    $("#picker-preview").innerHTML = svg;
     renderGallery(city, theme, era);
-    // the order preview hangs the same poster on the wall, in the chosen frame; the colour picker above shows it bare.
+    // the preview hangs the poster on the wall, in the chosen frame.
     // The small copy beside the frame field matters on phones, where the main preview has scrolled out of view.
     var hasFrame = frame.id !== "none", look = { frame: frame.id, mat: mat, size: FRAME_SIZE[size.id] || "A3" };
-    $("#order-poster").innerHTML = GaliPoster.svg(o); $("#mini-poster").innerHTML = GaliPoster.svg(o);  // one render each: SVG mask ids must stay unique on the page
+    $("#order-poster").innerHTML = GaliPoster.svg(o);
     if (orderFrame) orderFrame.set(look);
-    if (miniFrame) miniFrame.set(look);
     var cap = (city ? city.name : "Your city") + " · " + era.year;
-    $("#picker-caption").textContent = cap;
     $("#order-caption").textContent = cap + (hasFrame ? " · " + frame.name + (mat ? " with mat" : "") : "");
-    eraPicker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.era; i.disabled = !hasMap(city, i.value); });
+    // the map-year field only appears for a city that has more than one real map year
+    var multiYear = !!city && ERAS.some(function (e) { return e.id !== C.defaults.era && hasMap(city, e.id); });
+    $("#era-wrap").classList.toggle("hidden", !multiYear);
     [].forEach.call(fEra.options, function (opt) { opt.disabled = !hasMap(city, opt.value); });
     fEra.value = state.era;
-    $("#era-note").textContent = !city ? "" : ERAS.some(function (e) { return e.id !== C.defaults.era && hasMap(city, e.id); })
-      ? (C.eraNote || "") : city.name + " only has a 2025 map for now.";
+    $("#era-note").textContent = multiYear ? (C.eraNote || "") : "";
     picker.querySelectorAll("input").forEach(function (i) { i.checked = i.value === state.theme; });
-    fTheme.value = state.theme; fSize.value = state.size; fCity.value = state.city;
+    fSize.value = state.size; fCity.value = state.city;
     fill(fFrame, C.frames, function (f) { var p = framePrice(f, size); return f.name + (p ? " (+" + money(p) + ")" : ""); });
     fFrame.value = state.frame;
     $("#f-mat-wrap").classList.toggle("hidden", !frame.matAllowed);
@@ -332,7 +306,6 @@
     fill(fDetail, dopts, function (x) { return x.label; });
     fDetail.value = state.detail;
     fDetailText.classList.toggle("hidden", state.detail !== "custom");
-    if (city) pickCity.value = state.city;
     var fp = framePrice(frame, size) + (mat ? matPrice(size) : 0);
     var one = size.price + fp, total = pair ? Math.round(one * 2 * (1 - C.pairDiscount)) : one;
     $("#price").textContent = money(total);
@@ -409,7 +382,7 @@
     setErr("#e-centre", $("#f-area").value !== "city" && !centre.value.trim() ? "Tell us which place to centre on." : "", centre);
     setErr("#e-markat", $("#f-mark").value !== "none" && !markAt.value.trim() ? "Tell us where to place it." : "", markAt);
     form.querySelectorAll("[aria-invalid=true]").forEach(function () { ok = false; });
-    if (!ok) form.querySelector("[aria-invalid=true]").focus();
+    if (!ok) { var bad = form.querySelector("[aria-invalid=true]"), more = bad.closest("details"); if (more) more.open = true; bad.focus(); }
     return ok;
   }
   function show(msg, bad) {
@@ -425,7 +398,7 @@
     var size = byId(C.sizes, fSize.value), btn = $("#submit-btn");
     var payload = {
       brand: C.brand.name, city: fCity.value === "other" ? $("#f-other").value.trim() : byId(C.cities, fCity.value).name,
-      detail: detailText(cityOf(state.city), state.era), size: size.label, frame: byId(C.frames, fFrame.value).name + (state.mat && byId(C.frames, fFrame.value).matAllowed ? " with " + C.mat.name.toLowerCase() : ""), framePrice: framePrice(byId(C.frames, fFrame.value), size) + (state.mat && byId(C.frames, fFrame.value).matAllowed ? matPrice(size) : 0), theme: byId(C.themes, fTheme.value).name, mapYear: byId(C.eras, fEra.value).year, printDate: fmtDate($("#f-date").value),
+      detail: detailText(cityOf(state.city), state.era), size: size.label, frame: byId(C.frames, fFrame.value).name + (state.mat && byId(C.frames, fFrame.value).matAllowed ? " with " + C.mat.name.toLowerCase() : ""), framePrice: framePrice(byId(C.frames, fFrame.value), size) + (state.mat && byId(C.frames, fFrame.value).matAllowed ? matPrice(size) : 0), theme: byId(C.themes, state.theme).name, mapYear: byId(C.eras, fEra.value).year, printDate: fmtDate($("#f-date").value),
       name: $("#f-name").value.trim(), email: $("#f-email").value.trim(), notes: $("#f-notes").value.trim(),
       price: 0, currency: C.currency.code, submittedAt: new Date().toISOString(),
       pair: $("#f-set").checked, area: byId(C.areas, $("#f-area").value).label, centreOn: $("#f-area").value === "city" ? "" : $("#f-centre").value.trim(),
