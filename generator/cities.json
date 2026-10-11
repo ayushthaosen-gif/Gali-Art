@@ -460,9 +460,10 @@
    "name": "Singapore",
    "place": "Singapore",
    "region": "Singapore",
-   "noArea": true,
-   "lat": 1.3521,
-   "lon": 103.8198
+   "lat": 1.35,
+   "lon": 103.82,
+   "mode": "square",
+   "dist": 11500
   },
   {
    "id": "dubai",

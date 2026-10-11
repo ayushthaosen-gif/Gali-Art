@@ -32,10 +32,10 @@
   "streetsKm": 5700
  },
  "indore": {
-  "streetsKm": 1400
+  "streetsKm": 4800
  },
  "guwahati": {
-  "streetsKm": 700
+  "streetsKm": 2100
  },
  "panaji": {
   "streetsKm": 520
@@ -48,7 +48,7 @@
   "areaKm2": 1600
  },
  "singapore": {
-  "streetsKm": 4600
+  "streetsKm": 3500
  },
  "dubai": {
   "streetsKm": 6700

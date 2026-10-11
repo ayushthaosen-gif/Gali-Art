@@ -46,7 +46,10 @@ def main():
         out[c["id"]] = c
     result = {}
     for cid, c in out.items():
-        graph = next(iter(sorted(CACHE.glob(f"{slugify(c['place'])}.graphml"))), None) if c.get("place") else None
+        if c.get("mode") == "square":    # a square map's street total must come from its own square, not a whole-city graph
+            graph = next(iter(sorted(CACHE.glob(f"{cid}-*-{c.get('dist', 9000)}.graphml"))), None)
+        else:
+            graph = next(iter(sorted(CACHE.glob(f"{slugify(c['place'])}.graphml"))), None) if c.get("place") else None
         if graph is None:
             graph = next(iter(sorted(CACHE.glob(f"{cid}-*.graphml"))), None)
         if graph is None:
@@ -54,7 +57,7 @@ def main():
         km = streets_km(graph)
         facts = {"streetsKm": round_to(km, 100 if km >= 1000 else 10)}
         boundary = next(iter(CACHE.glob(f"{_slug(c['place'])}-boundary.geojson")), None) if c.get("place") else None
-        if boundary and graph.stem == slugify(c["place"]) and c.get("mode") != "square" and not c.get("noArea"):  # noArea: the boundary includes sea (Singapore), so its area is not land area
+        if boundary and graph.stem == slugify(c["place"]) and c.get("mode") != "square":
             g = gpd.read_file(boundary)
             facts["areaKm2"] = round_to(g.to_crs(g.estimate_utm_crs()).area.iloc[0] / 1e6, 10)
         result[cid] = facts
