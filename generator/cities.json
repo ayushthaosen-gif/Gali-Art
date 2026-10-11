@@ -111,7 +111,8 @@
    "region": "India",
    "lat": 22.7196,
    "lon": 75.8577,
-   "dist": 9000
+   "mode": "square",
+   "dist": 10000
   },
   {
    "id": "bhopal",

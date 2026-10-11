@@ -31,11 +31,17 @@
  "lucknow": {
   "streetsKm": 5700
  },
+ "indore": {
+  "streetsKm": 1400
+ },
  "guwahati": {
   "streetsKm": 700
  },
  "panaji": {
   "streetsKm": 520
+ },
+ "imphal": {
+  "streetsKm": 900
  },
  "london": {
   "streetsKm": 15700,

@@ -64,6 +64,13 @@ def wait_for_overpass():
     return True
 
 
+def road_data_cached(c, use_place):
+    """True when make_poster.py already has this map's road graph in cache/ (same key it builds: see make_poster.py)."""
+    slug = lambda t: re.sub(r"[^a-z0-9]+", "-", t.split(",")[0].lower()).strip("-") or "city"
+    key = slug(c["place"]) if use_place else f"{slug(c['id'])}-{c['lat']:.3f}-{c['lon']:.3f}-{c.get('dist', DEFAULT_DIST)}"
+    return (HERE / "cache" / f"{key}.graphml").exists()
+
+
 def build(c, timeout_s):
     out = ASSETS / f"{c['id']}-lines.webp"
     if out.exists():
@@ -76,7 +83,7 @@ def build(c, timeout_s):
     use_place = km2 is not None and MIN_KM2 <= km2 <= limit and c.get("mode") != "square"  # "mode": "square" forces a square around the centre
     mode = "boundary" if use_place else f"square {c.get('dist', DEFAULT_DIST) / 1000:g} km half-width"
     print(f"  resolved: {shown} ({"-" if km2 is None else format(round(km2), ",")} km2) -> {mode}", flush=True)
-    if not wait_for_overpass():
+    if not road_data_cached(c, use_place) and not wait_for_overpass():  # cached road data needs no download, so no waiting either
         return {"status": "failed", "mode": mode, "error": f"Overpass stayed unavailable for {WAIT_MIN} minutes"}
     TMP.mkdir(parents=True, exist_ok=True)
     where = ["--place", c["place"]] if use_place else ["--point", str(c["lat"]), str(c["lon"]), "--dist", str(c.get("dist", DEFAULT_DIST))]
