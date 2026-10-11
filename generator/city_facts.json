@@ -47,6 +47,9 @@
   "streetsKm": 15700,
   "areaKm2": 1600
  },
+ "singapore": {
+  "streetsKm": 4600
+ },
  "dubai": {
   "streetsKm": 6700
  },

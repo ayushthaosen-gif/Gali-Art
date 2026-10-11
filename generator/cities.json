@@ -460,6 +460,7 @@
    "name": "Singapore",
    "place": "Singapore",
    "region": "Singapore",
+   "noArea": true,
    "lat": 1.3521,
    "lon": 103.8198
   },
